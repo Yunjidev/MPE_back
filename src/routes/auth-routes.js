@@ -18,10 +18,10 @@ router.post(
 );
 
 // Route pour se connecter
-router.post("/login", authController.login);
+router.post("/signin", authController.login);
 
 // Route pour la deconnexion
-router.post("/logout", authMiddleware, authController.logout);
+router.post("/signout", authMiddleware, authController.logout);
 
 // Route pour l'update
 router.put(
