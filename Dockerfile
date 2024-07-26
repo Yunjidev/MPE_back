@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Exposer le port sur lequel l'application écoute
-EXPOSE 3000
+EXPOSE 8080
 
 # Démarrer l'application
-CMD ["npm", "start"]
+CMD ["sh", "-c", "npx sequelize-cli db:migrate && npm start"]
