@@ -67,7 +67,15 @@ exports.logout = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { username, email, password, isAdmin, removeAvatar } = req.body;
+    const {
+      username,
+      firstname,
+      lastname,
+      email,
+      password,
+      isAdmin,
+      removeAvatar,
+    } = req.body;
     const avatar = req.file ? req.file.path : null;
     const requestingUser = req.user;
 
@@ -84,6 +92,8 @@ exports.updateUser = async (req, res) => {
     }
 
     user.username = username || user.username;
+    user.firstname = firstname || user.firstname;
+    user.lastname = lastname || user.lastname;
     // Si l'utilisateur est admin, in ne peut pas changer son email
     if (!requestingUser.isAdmin) {
       user.email = email || user.email;
