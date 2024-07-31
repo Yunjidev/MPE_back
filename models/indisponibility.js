@@ -55,14 +55,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       Enterprise_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-          isInt: true,
-          min: 1,
-          references: {
-            model: "Enterprise",
-            key: "id",
-          },
+        references: {
+          model: "Enterprise",
+          key: "id",
         },
       },
     },

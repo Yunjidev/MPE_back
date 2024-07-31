@@ -10,15 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       day: {
-        type: Sequelize.ENUM(
-          "Lundi",
-          "Mardi",
-          "Mercredi",
-          "Jeudi",
-          "Vendredi",
-          "Samedi",
-          "Dimanche",
-        ),
+        type: Sequelize.STRING,
       },
       start_hour: {
         type: Sequelize.STRING,

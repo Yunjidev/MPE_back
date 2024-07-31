@@ -9,13 +9,21 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsTo(models.User, {
+      Enterprise.belongsTo(models.User, {
         foreignKey: "User_id",
         as: "entrepreneur",
       });
-      this.belongsTo(models.Job, {
+      Enterprise.belongsTo(models.Job, {
         foreignKey: "Job_id",
         as: "job",
+      });
+      Enterprise.hasMany(models.Disponibility, {
+        foreignKey: "Enterprise_id",
+        as: "disponibilities",
+      });
+      Enterprise.hasMany(models.Indisponibility, {
+        foreignKey: "Enterprise_id",
+        as: "indisponibilities",
       });
     }
   }
