@@ -9,6 +9,15 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      User.hasMany(models.Enterprise, {
+        foreignKey: "User_id",
+      });
+      User.hasMany(models.Reservation, {
+        foreignKey: "User_id",
+      });
+      User.hasMany(models.Rating, {
+        foreignKey: "User_id",
+      });
     }
   }
   User.init(
@@ -21,6 +30,14 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: true,
           len: [3, 20],
         },
+      },
+      firstname: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      lastname: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       email: {
         type: DataTypes.STRING,
@@ -47,6 +64,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       isAdmin: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      isEntrepeneur: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
