@@ -10,21 +10,14 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Disponibility.belongsTo(models.Enterprise, {
         foreignKey: "Enterprise_id",
+        as: "enterprise",
       });
     }
   }
   Disponibility.init(
     {
       day: {
-        type: DataTypes.ENUM(
-          "Lundi",
-          "Mardi",
-          "Mercredi",
-          "Jeudi",
-          "Vendredi",
-          "Samedi",
-          "Dimanche",
-        ),
+        type: DataTypes.STRING,
         allowNull: false,
         validate: {
           notEmpty: true,
@@ -48,14 +41,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       Enterprise_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-          isInt: true,
-          min: 1,
-          references: {
-            model: "Enterprise",
-            key: "id",
-          },
+        references: {
+          model: "Enterprise",
+          key: "id",
         },
       },
     },

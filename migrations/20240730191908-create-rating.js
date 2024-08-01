@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Rating", {
+    await queryInterface.createTable("Ratings", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -17,9 +17,19 @@ module.exports = {
       },
       Enterprise_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: "Enterprises",
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
       User_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
@@ -30,8 +40,14 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
+    await queryInterface.addConstraint("Ratings", {
+      fields: ["Enterprise_id", "User_id"],
+      type: "unique",
+      name: "unique_rating",
+    });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Rating");
+    await queryInterface.removeConstraint("Ratings", "unique_rating");
+    await queryInterface.dropTable("Ratings");
   },
 };

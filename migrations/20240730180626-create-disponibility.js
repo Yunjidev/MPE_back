@@ -10,15 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       day: {
-        type: Sequelize.ENUM(
-          "Lundi",
-          "Mardi",
-          "Mercredi",
-          "Jeudi",
-          "Vendredi",
-          "Samedi",
-          "Dimanche",
-        ),
+        type: Sequelize.STRING,
       },
       start_hour: {
         type: Sequelize.STRING,
@@ -28,6 +20,11 @@ module.exports = {
       },
       Enterprise_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: "Enterprises",
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,

@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Subscription.belongsTo(models.Enterprise, {
         foreignKey: "Enterprise_id",
+        as: "enterprise",
       });
     }
   }
@@ -49,14 +50,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       Enterprise_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-          isInt: true,
-          min: 1,
-          references: {
-            model: "Enterprise",
-            key: "id",
-          },
+        references: {
+          model: "Enterprise",
+          key: "id",
         },
       },
     },

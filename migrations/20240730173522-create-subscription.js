@@ -23,6 +23,11 @@ module.exports = {
       },
       Enterprise_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: "Enterprises",
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
