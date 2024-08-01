@@ -131,6 +131,7 @@ exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
     const requestingUser = req.user;
+    console.log("user", requestingUser);
 
     if (requestingUser.id !== parseInt(id, 10)) {
       return res.status(403).json({ message: "Action non autorisé" });

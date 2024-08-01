@@ -6,6 +6,7 @@ const path = require("path");
 const cors = require("cors");
 
 const corsOptions = {
+  origin: "http://localhost:5173",
   exposedHeaders: ["Authorization"],
 };
 
@@ -43,6 +44,15 @@ app.use("/api", indisponibilityRoutes);
 
 const offerRoutes = require("./routes/offer-routes");
 app.use("/api", offerRoutes);
+
+const ratingRoutes = require("./routes/rating-routes");
+app.use("/api", ratingRoutes);
+
+const reservationRoutes = require("./routes/reservation-routes");
+app.use("/api", reservationRoutes);
+
+const subscriptionRoutes = require("./routes/subscription-routes");
+app.use("/api", subscriptionRoutes);
 
 const pricingRoutes = require("./routes/pricing-routes");
 app.use("/api", pricingRoutes);
