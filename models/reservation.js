@@ -10,9 +10,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Reservation.belongsTo(models.Offer, {
         foreignKey: "Offer_id",
+        as: "offer",
       });
       Reservation.belongsTo(models.User, {
         foreignKey: "User_id",
+        as: "user",
       });
     }
   }
@@ -41,28 +43,16 @@ module.exports = (sequelize, DataTypes) => {
       },
       User_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-          notEmpty: true,
-          isInt: true,
-          min: 1,
-          references: {
-            model: "User",
-            key: "id",
-          },
+        references: {
+          model: "User",
+          key: "id",
         },
       },
       Offer_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-          notEmpty: true,
-          isInt: true,
-          min: 1,
-          references: {
-            model: "Offer",
-            key: "id",
-          },
+        references: {
+          model: "Offer",
+          key: "id",
         },
       },
     },

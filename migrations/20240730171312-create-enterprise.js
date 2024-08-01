@@ -50,9 +50,18 @@ module.exports = {
       },
       Job_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: "Jobs",
+          key: "id",
+        },
       },
       User_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,

@@ -10,9 +10,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Rating.belongsTo(models.User, {
         foreignKey: "User_id",
+        as: "user",
       });
       Rating.belongsTo(models.Enterprise, {
         foreignKey: "Enterprise_id",
+        as: "enterprise",
       });
     }
   }
@@ -38,28 +40,16 @@ module.exports = (sequelize, DataTypes) => {
       },
       Enterprise_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-          notEmpty: true,
-          isInt: true,
-          min: 1,
-          references: {
-            model: "Enterprise",
-            key: "id",
-          },
+        references: {
+          model: "Enterprise",
+          key: "id",
         },
       },
       User_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-          notEmpty: true,
-          isInt: true,
-          min: 1,
-          references: {
-            model: "User",
-            key: "id",
-          },
+        references: {
+          model: "User",
+          key: "id",
         },
       },
     },
