@@ -21,7 +21,17 @@ exports.getEnterpriseById = async (req, res) => {
         "entrepreneur",
         "disponibilities",
         "indisponibilities",
-        "offers",
+        "ratings",
+        {
+          model: sequelize.models.Offer,
+          as: "offers",
+          include: [
+            {
+              model: sequelize.models.Reservation,
+              as: "reservations",
+            },
+          ],
+        },
       ],
     });
     if (!enterprise) {

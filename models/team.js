@@ -23,43 +23,41 @@ module.exports = (sequelize, DataTypes) => {
       },
       lastname: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
-          notEmpty: true,
           len: [3, 50],
         },
       },
       email: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
-          notEmpty: true,
           isEmail: true,
         },
       },
       github: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
-          notEmpty: true,
           isUrl: true,
         },
       },
       linkedin: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
-          notEmpty: true,
           isUrl: true,
         },
       },
       description: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
         validate: {
-          notEmpty: true,
           len: [3, 500],
         },
+      },
+      photo: {
+        type: DataTypes.STRING,
       },
     },
     {
