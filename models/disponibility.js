@@ -21,6 +21,17 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           notEmpty: true,
+          isIn: [
+            [
+              "Lundi",
+              "Mardi",
+              "Mercredi",
+              "Jeudi",
+              "Vendredi",
+              "Samedi",
+              "Dimanche",
+            ],
+          ],
         },
       },
       start_hour: {
