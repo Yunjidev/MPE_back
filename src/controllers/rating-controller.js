@@ -25,21 +25,20 @@ exports.getRatingById = async (req, res) => {
 
 exports.createRating = async (req, res) => {
   try {
-    const { note, comment, Enterprise_id, User_id } = req.body;
-    const enterprise =
-      await sequelize.models.Enterprise.findByPk(Enterprise_id);
+    const { id } = req.params;
+    const { note, comment } = req.body;
+    const enterprise = await sequelize.models.Enterprise.findByPk(id);
     if (!enterprise) {
       return res.status(404).json({ message: "Pas d'entreprise trouvée" });
     }
-    const user = await sequelize.models.User.findByPk(User_id);
-    if (!user) {
+    if (!req.user) {
       return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
     }
     const newRating = await Rating.create({
       note,
       comment,
-      Enterprise_id,
-      User_id,
+      Enterprise_id: enterprise.id,
+      User_id: req.user.User_id,
     });
     res.status(201).json(newRating);
   } catch (error) {

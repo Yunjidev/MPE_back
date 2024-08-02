@@ -158,8 +158,7 @@ exports.updateEnterprise = async (req, res) => {
 
 exports.deleteEnterprise = async (req, res) => {
   try {
-    const { id } = req.params;
-    const enterprise = await Enterprise.findByPk(id);
+    const enterprise = req.enterprise;
     if (!enterprise) {
       return res.status(404).json({ message: "Pas de enterprises trouvée" });
     }

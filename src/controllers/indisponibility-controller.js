@@ -1,8 +1,7 @@
 const { sequelize } = require("../../models/index");
 const Indisponibility = sequelize.models.Indisponibility;
-const Enterprise = sequelize.models.Enterprise;
 
-exports.getAllIndisponibilities = async (req, res) => {
+exports.getAllInDisponibilities = async (req, res) => {
   try {
     const indisponibilities = await Indisponibility.findAll();
     res.status(200).json(indisponibilities);
@@ -28,18 +27,13 @@ exports.getInDisponibilityById = async (req, res) => {
 
 exports.createInDisponibility = async (req, res) => {
   try {
-    const { start_date, start_hour, end_date, end_hour, Enterprise_id } =
-      req.body;
-    const enterprise = await Enterprise.findByPk(Enterprise_id);
-    if (!enterprise) {
-      return res.status(404).json({ message: "Pas d'entreprise trouvée" });
-    }
+    const { start_date, start_hour, end_date, end_hour } = req.body;
     const newIndisponibility = await Indisponibility.create({
       start_date,
       start_hour,
       end_date,
       end_hour,
-      Enterprise_id,
+      Enterprise_id: req.enterprise.id,
     });
     res.status(201).json(newIndisponibility);
   } catch (error) {

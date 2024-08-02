@@ -25,20 +25,22 @@ exports.getReservationById = async (req, res) => {
 
 exports.createReservation = async (req, res) => {
   try {
-    const { date, status, Offer_id, User_id } = req.body;
-    const Offer = sequelize.models.Offer;
-    if (!Offer.findByPk(Offer_id)) {
+    const { id } = req.params;
+    const userId = req.user.User_id;
+    const { date, status } = req.body;
+    const offer = await sequelize.models.Offer.findByPk(id);
+    if (!offer) {
       return res.status(404).json({ message: "Pas d'offre trouvée" });
     }
-    const User = sequelize.models.User;
-    if (!User.findByPk(User_id)) {
+    const user = sequelize.models.User.findByPk(userId);
+    if (!user) {
       return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
     }
     const newReservation = await Reservation.create({
       date,
       status,
-      Offer_id,
-      User_id,
+      Offer_id: id,
+      User_id: userId,
     });
     res.status(201).json(newReservation);
   } catch (error) {
