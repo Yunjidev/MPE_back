@@ -31,7 +31,11 @@ router.delete(
 );
 
 // Routes Offre
-router.post("/offer", offersController.createOffer);
+router.post(
+  "/offer",
+  upload("offer-image").single("image"),
+  offersController.createOffer,
+);
 router.delete("/offer/:id", offersController.deleteOffer);
 
 // Routes Subscription

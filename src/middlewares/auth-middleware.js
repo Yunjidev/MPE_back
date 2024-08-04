@@ -104,10 +104,55 @@ const isEnterpriseOwnerUpdate = (model) => async (req, res, next) => {
   }
 };
 
+const isAuthorizedReservation = async (req, res, next) => {
+  try {
+    const userId = req.user.User_id;
+    const reservationId = req.params.id;
+
+    if (reservationId) {
+      const reservation = await sequelize.models.Reservation.findByPk(
+        reservationId,
+        {
+          include: [
+            {
+              model: sequelize.models.Offer,
+              as: "offer",
+              include: [
+                {
+                  model: sequelize.models.Enterprise,
+                  as: "enterprise",
+                },
+              ],
+            },
+          ],
+        },
+      );
+      if (!reservation) {
+        return res.status(404).json({ message: "Reservation non trouvée" });
+      }
+      if (
+        reservation.User_id === userId ||
+        reservation.offer.enterprise.User_id === userId
+      ) {
+        return next();
+      } else {
+        return res.status(403).json({
+          message: "Vous n'êtes pas autorisé à effectuer cette action",
+        });
+      }
+    }
+
+    next();
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   isAuthenticated,
   isOwner,
   isEnterpriseOwner,
   isEnterpriseOwnerUpdate,
   isAdmin,
+  isAuthorizedReservation,
 };

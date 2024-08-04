@@ -8,6 +8,7 @@ const jobsController = require("../../controllers/job-controller");
 const pricingsController = require("../../controllers/pricings-controller");
 const conditionsController = require("../../controllers/conditions-controller");
 const teamsController = require("../../controllers/team-controller");
+const reservationsController = require("../../controllers/reservation-controller");
 
 // Routes Job
 router.post(
@@ -49,5 +50,8 @@ router.delete("/team/:id", teamsController.deleteTeam);
 router.post("/condition", conditionsController.createCondition);
 router.put("/condition/:id", conditionsController.updateCondition);
 router.delete("/condition/:id", conditionsController.deleteCondition);
+
+// Routes Reservation
+router.get("/reservation", reservationsController.getAllReservations);
 
 module.exports = router;

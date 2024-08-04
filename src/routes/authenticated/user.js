@@ -8,6 +8,7 @@ const authMiddleware = require("../../middlewares/auth-middleware");
 const authController = require("../../controllers/auth-controller");
 const enterprisesController = require("../../controllers/enterprises-controller");
 const ratingController = require("../../controllers/rating-controller");
+const reservationsController = require("../../controllers/reservation-controller");
 
 // Route User
 router.put(
@@ -33,6 +34,19 @@ router.delete(
   "/rating/:id",
   authMiddleware.isOwner("Rating"),
   ratingController.deleteRating,
+);
+
+// Routes Reservation
+router.get(
+  "/reservation/:id",
+  authMiddleware.isAuthorizedReservation,
+  reservationsController.getReservationById,
+);
+router.post("/offer/:id/reservation", reservationsController.createReservation);
+router.put(
+  "/reservation/:id",
+  authMiddleware.isAuthorizedReservation,
+  reservationsController.updateReservation,
 );
 
 module.exports = router;
