@@ -26,20 +26,17 @@ exports.getOfferById = async (req, res) => {
 
 exports.createOffer = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, description, price, estimate } = req.body;
+    const enterpriseId = req.enterprise.id;
+    const { name, description, price, estimate, duration } = req.body;
     const image = req.file ? req.file.path : null;
-    const enterprise = await sequelize.models.Enterprise.findByPk(id);
-    if (!enterprise) {
-      return res.status(404).json({ message: "Pas d'entreprise trouvée" });
-    }
     const newOffer = await Offer.create({
       name,
       description,
       price,
       estimate,
       image,
-      Enterprise_id: id,
+      duration,
+      Enterprise_id: enterpriseId,
     });
     res.status(201).json(newOffer);
   } catch (error) {
@@ -50,7 +47,8 @@ exports.createOffer = async (req, res) => {
 exports.updateOffer = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, estimate, removeImage } = req.body;
+    const { name, description, price, estimate, duration, removeImage } =
+      req.body;
     const image = req.file ? req.file.path : null;
     const offer = await Offer.findByPk(id);
     if (!offer) {
@@ -60,6 +58,7 @@ exports.updateOffer = async (req, res) => {
     offer.description = description || offer.description;
     offer.price = price || offer.price;
     offer.estimate = estimate || offer.estimate;
+    offer.duration = duration || offer.duration;
     if (image) {
       if (offer.image) {
         deleteFile(offer.image);

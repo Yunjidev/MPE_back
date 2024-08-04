@@ -5,6 +5,7 @@ exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
       attributes: {
+        include: ["enterprises"],
         exclude: [
           "password",
           "resetPasswordToken",
@@ -25,6 +26,7 @@ exports.getUserById = async (req, res) => {
     const { id } = req.params;
     const user = await User.findByPk(id, {
       attributes: {
+        include: ["enterprises", "reservations", "ratings"],
         exclude: [
           "password",
           "resetPasswordToken",

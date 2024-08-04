@@ -2,6 +2,7 @@ const { sequelize } = require("../../models/index");
 const Enterprise = sequelize.models.Enterprise;
 const { Job, User } = require("../../models/index");
 const { deleteFile } = require("../middlewares/files-middleware");
+const { calculateRemainingAvailability } = require("../utils/availability");
 
 exports.getAllEnterprises = async (req, res) => {
   try {
@@ -15,6 +16,7 @@ exports.getAllEnterprises = async (req, res) => {
 exports.getEnterpriseById = async (req, res) => {
   try {
     const { id } = req.params;
+    const remainingAvailability = await calculateRemainingAvailability(id);
     const enterprise = await Enterprise.findByPk(id, {
       include: [
         "job",
@@ -37,7 +39,9 @@ exports.getEnterpriseById = async (req, res) => {
     if (!enterprise) {
       return res.status(404).json({ message: "Pas de Enterprise trouvée" });
     }
-    res.status(200).json(enterprise);
+    const enterpriseData = enterprise.toJSON();
+    enterpriseData.remainingAvailability = remainingAvailability;
+    res.status(200).json(enterpriseData);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

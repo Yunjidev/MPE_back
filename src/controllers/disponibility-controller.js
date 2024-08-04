@@ -29,6 +29,19 @@ exports.createDisponibility = async (req, res) => {
     if (!Array.isArray(day)) {
       return res.status(400).json({ message: "Le jour doit être un tableau" });
     }
+    const overlapping = await Promise.all(
+      day.map(async (day) => {
+        return await Disponibility.isOverlapping(
+          day,
+          start_hour,
+          end_hour,
+          req.enterprise.id,
+        );
+      }),
+    );
+    if (overlapping.some((overlap) => overlap)) {
+      return res.status(400).json({ message: "Disponibilité déjà existante" });
+    }
     const newDisponibilities = await Promise.all(
       day.map(async (day) => {
         return await Disponibility.create({
@@ -53,6 +66,17 @@ exports.updateDisponibility = async (req, res) => {
     if (!disponibility) {
       return res.status(404).json({ message: "Pas de disponibility trouvée" });
     }
+    const overlapping = await Disponibility.isOverlapping(
+      day || disponibility.day,
+      start_hour || disponibility.start_hour,
+      end_hour || disponibility.end_hour,
+      req.enterprise.id,
+      id,
+    );
+    if (overlapping) {
+      return res.status(400).json({ message: "Disponibilité déjà existante" });
+    }
+
     disponibility.day = day || disponibility.day;
     disponibility.start_hour = start_hour || disponibility.start_hour;
     disponibility.end_hour = end_hour || disponibility.end_hour;
