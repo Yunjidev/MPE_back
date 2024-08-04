@@ -32,6 +32,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      duration: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       image: {
         type: DataTypes.STRING,
         allowNull: true,
