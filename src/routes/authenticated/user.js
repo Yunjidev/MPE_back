@@ -29,7 +29,7 @@ router.post(
 );
 
 // Routes Rating
-router.post("/enterprise/:id/rating", ratingController.createRating);
+router.post("/offer/:id/rating", ratingController.createRating);
 router.delete(
   "/rating/:id",
   authMiddleware.isOwner("Rating"),

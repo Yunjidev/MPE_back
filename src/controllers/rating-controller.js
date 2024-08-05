@@ -27,9 +27,9 @@ exports.createRating = async (req, res) => {
   try {
     const { id } = req.params;
     const { note, comment } = req.body;
-    const enterprise = await sequelize.models.Enterprise.findByPk(id);
-    if (!enterprise) {
-      return res.status(404).json({ message: "Pas d'entreprise trouvée" });
+    const offer = await sequelize.models.Offer.findByPk(id);
+    if (!offer) {
+      return res.status(404).json({ message: "Pas d'offre trouvée" });
     }
     if (!req.user) {
       return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
@@ -37,7 +37,7 @@ exports.createRating = async (req, res) => {
     const newRating = await Rating.create({
       note,
       comment,
-      Enterprise_id: enterprise.id,
+      Offer_id: offer.id,
       User_id: req.user.User_id,
     });
     res.status(201).json(newRating);

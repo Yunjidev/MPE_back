@@ -41,7 +41,7 @@ module.exports = {
       },
     });
     await queryInterface.addConstraint("Ratings", {
-      fields: ["Enterprise_id", "User_id"],
+      fields: ["Offer_id", "User_id"],
       type: "unique",
       name: "unique_rating",
     });
