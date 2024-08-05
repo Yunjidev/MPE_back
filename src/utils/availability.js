@@ -7,23 +7,54 @@ const {
 
 function getDayName(dayIndex) {
   const days = [
+    "Dimanche",
     "Lundi",
     "Mardi",
     "Mercredi",
     "Jeudi",
     "Vendredi",
     "Samedi",
-    "Dimanche",
   ];
   return days[dayIndex];
 }
 
+function convertToMinutes(time) {
+  const [hour, mins] = time.split(":").map(Number);
+  return hour * 60 + mins;
+}
+
+const convertToTime = (minutes) => {
+  const hours = Math.floor(minutes / 60)
+    .toString()
+    .padStart(2, "0");
+  const mins = (minutes % 60).toString().padStart(2, "0");
+  return `${hours}:${mins}`;
+};
+
 function subtractTimeSlot(slots, startTime, endTime) {
-  if (!slots) {
-    return [];
-  }
-  return slots.filter((slot) => {
-    return !(startTime <= slot.end && endTime >= slot.start);
+  const start = convertToMinutes(startTime);
+  const end = convertToMinutes(endTime);
+
+  return slots.flatMap((slot) => {
+    const slotStart = convertToMinutes(slot.start);
+    const slotEnd = convertToMinutes(slot.end);
+
+    if (start >= slotEnd || end <= slotStart) {
+      // No overlap
+      return [slot];
+    }
+
+    const newSlots = [];
+
+    if (start > slotStart) {
+      newSlots.push({ start: slot.start, end: convertToTime(start) });
+    }
+
+    if (end < slotEnd) {
+      newSlots.push({ start: convertToTime(end), end: slot.end });
+    }
+
+    return newSlots;
   });
 }
 

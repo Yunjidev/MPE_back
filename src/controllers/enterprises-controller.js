@@ -16,7 +16,6 @@ exports.getAllEnterprises = async (req, res) => {
 exports.getEnterpriseById = async (req, res) => {
   try {
     const { id } = req.params;
-    const remainingAvailability = await calculateRemainingAvailability(id);
     const enterprise = await Enterprise.findByPk(id, {
       include: [
         "job",
@@ -39,6 +38,7 @@ exports.getEnterpriseById = async (req, res) => {
     if (!enterprise) {
       return res.status(404).json({ message: "Pas de Enterprise trouvée" });
     }
+    const remainingAvailability = await calculateRemainingAvailability(id);
     const enterpriseData = enterprise.toJSON();
     enterpriseData.remainingAvailability = remainingAvailability;
     res.status(200).json(enterpriseData);
