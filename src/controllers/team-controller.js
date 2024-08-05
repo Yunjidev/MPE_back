@@ -27,6 +27,7 @@ exports.createTeam = async (req, res) => {
   try {
     const { firstname, lastname, email, github, linkedin, photo,  description } =
       req.body;
+    const photo = req.file ? req.file.path : null;
     const newTeam = await Team.create({
       firstname,
       lastname,
@@ -35,6 +36,7 @@ exports.createTeam = async (req, res) => {
       linkedin,
       photo,
       description,
+      photo,
     });
     res.status(201).json(newTeam);
   } catch (error) {
@@ -47,6 +49,7 @@ exports.updateTeam = async (req, res) => {
     const { id } = req.params;
     const { firstname, lastname, email, github, linkedin, photo, description } =
       req.body;
+    const photo = req.file ? req.file.path : null;
     const team = await Team.findByPk(id);
     if (!team) {
       return res.status(404).json({ message: "Pas de team trouvée" });
@@ -58,6 +61,7 @@ exports.updateTeam = async (req, res) => {
     team.linkedin = linkedin || team.linkedin;
     team.photo = photo || team.photo;
     team.description = description || team.description;
+    team.photo = photo || team.photo;
     await team.save();
     res.status(200).json(team);
   } catch (error) {

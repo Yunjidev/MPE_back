@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "Offer_id",
         as: "reservations",
       });
+      Offer.hasMany(models.Rating, {
+        foreignKey: "Offer_id",
+        as: "ratings",
+      });
     }
   }
   Offer.init(
@@ -31,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       description: {
         type: DataTypes.TEXT,
         allowNull: true,
+      },
+      duration: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
       },
       image: {
         type: DataTypes.STRING,

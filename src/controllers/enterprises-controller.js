@@ -2,6 +2,7 @@ const { sequelize } = require("../../models/index");
 const Enterprise = sequelize.models.Enterprise;
 const { Job, User } = require("../../models/index");
 const { deleteFile } = require("../middlewares/files-middleware");
+const { calculateRemainingAvailability } = require("../utils/availability");
 
 exports.getAllEnterprises = async (req, res) => {
   try {
@@ -37,7 +38,10 @@ exports.getEnterpriseById = async (req, res) => {
     if (!enterprise) {
       return res.status(404).json({ message: "Pas de Enterprise trouvée" });
     }
-    res.status(200).json(enterprise);
+    const remainingAvailability = await calculateRemainingAvailability(id);
+    const enterpriseData = enterprise.toJSON();
+    enterpriseData.remainingAvailability = remainingAvailability;
+    res.status(200).json(enterpriseData);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -57,17 +61,12 @@ exports.createEnterprise = async (req, res) => {
       facebook,
       instagram,
       twitter,
-      User_id,
       Job_id,
     } = req.body;
     const photos = req.files ? req.files.map((file) => file.path) : [];
     const job = await Job.findByPk(Job_id);
     if (!job) {
       return res.status(404).json({ message: "Pas de job trouvé" });
-    }
-    const user = await User.findByPk(User_id);
-    if (!user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
     }
 
     const newEnterprise = await Enterprise.create({
@@ -83,7 +82,7 @@ exports.createEnterprise = async (req, res) => {
       instagram,
       twitter,
       photos,
-      User_id,
+      User_id: req.user.User_id,
       Job_id,
     });
     res.status(201).json(newEnterprise);
@@ -158,8 +157,7 @@ exports.updateEnterprise = async (req, res) => {
 
 exports.deleteEnterprise = async (req, res) => {
   try {
-    const { id } = req.params;
-    const enterprise = await Enterprise.findByPk(id);
+    const enterprise = req.enterprise;
     if (!enterprise) {
       return res.status(404).json({ message: "Pas de enterprises trouvée" });
     }
