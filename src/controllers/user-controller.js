@@ -5,7 +5,6 @@ exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
       attributes: {
-        include: ["enterprises"],
         exclude: [
           "password",
           "resetPasswordToken",
@@ -14,6 +13,15 @@ exports.getAllUsers = async (req, res) => {
           "updatedAt",
         ],
       },
+      include: [
+        {
+          model: sequelize.models.Enterprise,
+          as: "enterprises",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
     });
     res.status(200).json(users);
   } catch (error) {
@@ -26,7 +34,6 @@ exports.getUserById = async (req, res) => {
     const { id } = req.params;
     const user = await User.findByPk(id, {
       attributes: {
-        include: ["enterprises", "reservations", "ratings"],
         exclude: [
           "password",
           "resetPasswordToken",
@@ -35,6 +42,29 @@ exports.getUserById = async (req, res) => {
           "updatedAt",
         ],
       },
+      include: [
+        {
+          model: sequelize.models.Enterprise,
+          as: "enterprises",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+        {
+          model: sequelize.models.Reservation,
+          as: "reservations",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+        {
+          model: sequelize.models.Rating,
+          as: "ratings",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
     });
     if (!user) {
       return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
