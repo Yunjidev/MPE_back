@@ -61,17 +61,12 @@ exports.createEnterprise = async (req, res) => {
       facebook,
       instagram,
       twitter,
-      User_id,
       Job_id,
     } = req.body;
     const photos = req.files ? req.files.map((file) => file.path) : [];
     const job = await Job.findByPk(Job_id);
     if (!job) {
       return res.status(404).json({ message: "Pas de job trouvé" });
-    }
-    const user = await User.findByPk(User_id);
-    if (!user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
     }
 
     const newEnterprise = await Enterprise.create({
@@ -87,7 +82,7 @@ exports.createEnterprise = async (req, res) => {
       instagram,
       twitter,
       photos,
-      User_id,
+      User_id: req.user.User_id,
       Job_id,
     });
     res.status(201).json(newEnterprise);
