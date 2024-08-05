@@ -25,7 +25,7 @@ exports.getTeamById = async (req, res) => {
 
 exports.createTeam = async (req, res) => {
   try {
-    const { firstname, lastname, email, github, linkedin, description } =
+    const { firstname, lastname, email, github, linkedin, photo,  description } =
       req.body;
     const newTeam = await Team.create({
       firstname,
@@ -33,6 +33,7 @@ exports.createTeam = async (req, res) => {
       email,
       github,
       linkedin,
+      photo,
       description,
     });
     res.status(201).json(newTeam);
@@ -44,7 +45,7 @@ exports.createTeam = async (req, res) => {
 exports.updateTeam = async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstname, lastname, email, github, linkedin, description } =
+    const { firstname, lastname, email, github, linkedin, photo, description } =
       req.body;
     const team = await Team.findByPk(id);
     if (!team) {
@@ -55,6 +56,7 @@ exports.updateTeam = async (req, res) => {
     team.email = email || team.email;
     team.github = github || team.github;
     team.linkedin = linkedin || team.linkedin;
+    team.photo = photo || team.photo;
     team.description = description || team.description;
     await team.save();
     res.status(200).json(team);
