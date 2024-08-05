@@ -22,7 +22,6 @@ exports.getEnterpriseById = async (req, res) => {
         "entrepreneur",
         "disponibilities",
         "indisponibilities",
-        "ratings",
         {
           model: sequelize.models.Offer,
           as: "offers",
@@ -82,7 +81,7 @@ exports.createEnterprise = async (req, res) => {
       instagram,
       twitter,
       photos,
-      User_id: req.user.User_id,
+      User_id: req.user.id,
       Job_id,
     });
     res.status(201).json(newEnterprise);

@@ -14,7 +14,9 @@ exports.getAllOffers = async (req, res) => {
 exports.getOfferById = async (req, res) => {
   try {
     const { id } = req.params;
-    const offer = await Offer.findByPk(id);
+    const offer = await Offer.findByPk(id, {
+      includes: ["enterprise", "ratings"],
+    });
     if (!offer) {
       return res.status(404).json({ message: "Pas de offre trouvée" });
     }
