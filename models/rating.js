@@ -12,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "User_id",
         as: "user",
       });
-      Rating.belongsTo(models.Enterprise, {
-        foreignKey: "Enterprise_id",
-        as: "enterprise",
+      Rating.belongsTo(models.Offer, {
+        foreignKey: "Offer_id",
+        as: "offer",
       });
     }
   }
@@ -38,10 +38,10 @@ module.exports = (sequelize, DataTypes) => {
           len: [0, 255],
         },
       },
-      Enterprise_id: {
+      Offer_id: {
         type: DataTypes.INTEGER,
         references: {
-          model: "Enterprise",
+          model: "Offer",
           key: "id",
         },
       },
@@ -58,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "Rating",
       uniqueKeys: {
         unique_rating: {
-          fields: ["Enterprise_id", "User_id"],
+          fields: ["Offer_id", "User_id"],
         },
       },
     },

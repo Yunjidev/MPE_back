@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+const { Model, Op } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Disponibility extends Model {
     /**
@@ -12,6 +12,27 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "Enterprise_id",
         as: "enterprise",
       });
+    }
+
+    static async isOverlapping(day, start_hour, end_hour, Enterprise_id, id) {
+      const overlappingDisponibility = await Disponibility.findOne({
+        where: {
+          day,
+          Enterprise_id,
+          [Op.or]: [
+            {
+              start_hour: {
+                [Op.lt]: end_hour,
+              },
+              end_hour: {
+                [Op.gt]: start_hour,
+              },
+            },
+          ],
+          ...(id && { id: { [Op.ne]: id } }),
+        },
+      });
+      return !!overlappingDisponibility;
     }
   }
   Disponibility.init(

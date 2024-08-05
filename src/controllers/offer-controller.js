@@ -16,7 +16,7 @@ exports.getOfferById = async (req, res) => {
     const { id } = req.params;
     const offer = await Offer.findByPk(id);
     if (!offer) {
-      return res.status(404).json({ message: "Pas de offer trouvée" });
+      return res.status(404).json({ message: "Pas de offre trouvée" });
     }
     res.status(200).json(offer);
   } catch (error) {
@@ -26,15 +26,17 @@ exports.getOfferById = async (req, res) => {
 
 exports.createOffer = async (req, res) => {
   try {
-    const { name, description, price, estimate, Enterprise_id } = req.body;
+    const enterpriseId = req.enterprise.id;
+    const { name, description, price, estimate, duration } = req.body;
     const image = req.file ? req.file.path : null;
     const newOffer = await Offer.create({
       name,
       description,
       price,
       estimate,
-      Enterprise_id,
       image,
+      duration,
+      Enterprise_id: enterpriseId,
     });
     res.status(201).json(newOffer);
   } catch (error) {
@@ -45,16 +47,18 @@ exports.createOffer = async (req, res) => {
 exports.updateOffer = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, estimate, removeImage } = req.body;
+    const { name, description, price, estimate, duration, removeImage } =
+      req.body;
     const image = req.file ? req.file.path : null;
     const offer = await Offer.findByPk(id);
     if (!offer) {
-      return res.status(404).json({ message: "Pas de offer trouvée" });
+      return res.status(404).json({ message: "Pas de offre trouvée" });
     }
     offer.name = name || offer.name;
     offer.description = description || offer.description;
     offer.price = price || offer.price;
     offer.estimate = estimate || offer.estimate;
+    offer.duration = duration || offer.duration;
     if (image) {
       if (offer.image) {
         deleteFile(offer.image);
@@ -76,10 +80,10 @@ exports.deleteOffer = async (req, res) => {
     const { id } = req.params;
     const offer = await Offer.findByPk(id);
     if (!offer) {
-      return res.status(404).json({ message: "Pas de offer trouvée" });
+      return res.status(404).json({ message: "Pas de offre trouvée" });
     }
     await offer.destroy();
-    res.status(200).json({ message: "offer supprimée" });
+    res.status(200).json({ message: "offre supprimée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

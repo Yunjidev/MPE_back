@@ -15,10 +15,10 @@ module.exports = {
       comment: {
         type: Sequelize.STRING,
       },
-      Enterprise_id: {
+      Offer_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Enterprises",
+          model: "Offers",
           key: "id",
         },
         onDelete: "CASCADE",
@@ -41,7 +41,7 @@ module.exports = {
       },
     });
     await queryInterface.addConstraint("Ratings", {
-      fields: ["Enterprise_id", "User_id"],
+      fields: ["Offer_id", "User_id"],
       type: "unique",
       name: "unique_rating",
     });
