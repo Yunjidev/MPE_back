@@ -14,6 +14,7 @@ const reservationsController = require("../../controllers/reservation-controller
 router.put(
   "/users/:id",
   upload("avatars").single("avatar"),
+  authMiddleware.isOwner("User"),
   validatesUsersMiddleware.userValidationRules(true),
   validatesUsersMiddleware.validate,
   authController.updateUser,
