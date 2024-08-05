@@ -93,7 +93,6 @@ exports.createEnterprise = async (req, res) => {
 
 exports.updateEnterprise = async (req, res) => {
   try {
-    const { id } = req.params;
     const {
       name,
       phone,
@@ -110,7 +109,7 @@ exports.updateEnterprise = async (req, res) => {
     } = req.body;
 
     // Trouver l'entreprise
-    const enterprise = await Enterprise.findByPk(id);
+    const enterprise = req.enterprise;
     if (!enterprise) {
       return res.status(404).json({ message: "Entreprise non trouv�e" });
     }
