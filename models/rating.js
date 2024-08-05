@@ -12,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "User_id",
         as: "user",
       });
-      Rating.belongsTo(models.Enterprise, {
-        foreignKey: "Enterprise_id",
-        as: "enterprise",
+      Rating.belongsTo(models.Offer, {
+        foreignKey: "offer_id",
+        as: "offer",
       });
     }
   }

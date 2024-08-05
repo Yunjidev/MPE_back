@@ -15,10 +15,10 @@ module.exports = {
       comment: {
         type: Sequelize.STRING,
       },
-      Enterprise_id: {
+      Offer_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Enterprises",
+          model: "Offers",
           key: "id",
         },
         onDelete: "CASCADE",
