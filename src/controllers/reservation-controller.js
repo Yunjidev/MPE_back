@@ -32,6 +32,7 @@ exports.createReservation = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.User_id;
+    const now = new Date();
     const { date, start_time } = req.body;
     const offer = await sequelize.models.Offer.findByPk(id);
     if (!offer) {
@@ -40,6 +41,16 @@ exports.createReservation = async (req, res) => {
     const user = sequelize.models.User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
+    }
+    if (user.id === offer.enterprise.User_id) {
+      return res
+        .status(400)
+        .json({ message: "Vous ne pouvez pas reserver votre propre offre" });
+    }
+    if (date < now) {
+      return res
+        .status(400)
+        .json({ message: "La date doit être dans le futur" });
     }
     const remainingAvailability = await calculateRemainingAvailability(
       offer.Enterprise_id,
@@ -73,6 +84,7 @@ exports.updateReservation = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.User_id;
+    const user = await sequelize.models.User.findByPk(userId);
     const { date, start_time, status } = req.body;
     const reservation = await Reservation.findByPk(id, {
       include: [
@@ -95,6 +107,13 @@ exports.updateReservation = async (req, res) => {
     const isReservationOfferOwner =
       reservation.offer.enterprise.User_id === userId;
 
+    if (user.isAdmin) {
+      reservation.status = status || status;
+      reservation.date = date || reservation.date;
+      reservation.start_time = start_time || reservation.start_time;
+      await reservation.save();
+      res.status(200).json(reservation);
+    }
     if (!isReservationOwner && !isReservationOfferOwner) {
       return res
         .status(403)
@@ -132,8 +151,16 @@ exports.updateReservation = async (req, res) => {
       }
     }
     if (isReservationOfferOwner) {
+      const now = new Date();
       if (status === "accepted" || status === "rejected") {
         reservation.status = status;
+      } else if (
+        status === "done" &&
+        reservation.status === "accepted" &&
+        reservation.date > now &&
+        reservation.end_time > now
+      ) {
+        reservation.status = "done";
       } else {
         return res.status(400).json({
           message: "Vous ne pouvez pas changer le statut de la reservation",
