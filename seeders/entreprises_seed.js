@@ -1,67 +1,34 @@
 'use strict';
+const { faker } = require("@faker-js/faker/locale/fr");
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('Enterprises', [
-      {
-        name: 'Entreprise A',
-        phone: '0102030405',
-        mail: 'contact@entreprisea.com',
-        adress: '123 rue de lEntreprise',
-        city: 'Lyon',
-        zip_code: '69000',
-        siret_number: '123 456 789 00011',
-        description: 'Description de l\'Entreprise A.',
-        facebook: 'https://facebook.com/entreprisea',
-        instagram: 'https://instagram.com/entreprisea',
-        twitter: 'https://twitter.com/entreprisea',
-        photos: JSON.stringify([]),
-        isValidate: true,
-        Job_id: 1, 
-        User_id: 1, 
+    const entreprises = [];
+    for (let i = 0; i < 15; i++) {
+      entreprises.push({
+        name: faker.company.companyName(),
+        phone: faker.phone.phoneNumber(),
+        mail: faker.internet.email(),
+        adress: faker.address.streetAddress(),
+        city: faker.address.city(),
+        zip_code: faker.address.zipCode(),
+        siret_number: faker.random.alphaNumeric(14),
+        description: faker.company.catchPhrase(),
+        website: faker.internet.url(),
+        facebook: `https://facebook.com/${faker.internet.userName()}`,
+        instagram: `https://instagram.com/${faker.internet.userName()}`,
+        twitter: `https://twitter.com/${faker.internet.userName()}`,
+        photos: JSON.stringify([faker.image.business()]),
+        isValidate: faker.datatype.boolean(),
+        Job_id: faker.datatype.number({ min: 1, max: 10 }),
+        Country_id: faker.datatype.number({ min: 1, max: 10 }),
+        User_id: faker.datatype.number({ min: 1, max: 10 }),
         createdAt: new Date(),
         updatedAt: new Date()
-      },
-      {
-        name: 'Entreprise B',
-        phone: '0203040506',
-        mail: 'contact@entrepriseb.com',
-        adress: '234 avenue du Progrès',
-        city: 'Paris',
-        zip_code: '75000',
-        siret_number: '987 654 321 00022',
-        description: 'Description de l\'Entreprise B.',
-        facebook: 'https://facebook.com/entrepriseb',
-        instagram: 'https://instagram.com/entrepriseb',
-        twitter: 'https://twitter.com/entrepriseb',
-        photos: JSON.stringify([]),
-        isValidate: false,
-        Job_id: 2,
-        User_id: 2,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        name: 'Entreprise C',
-        phone: '0203040506',
-        mail: 'contact@entrepriseb.com',
-        adress: '234 avenue du Progrès',
-        city: 'Toulouse',
-        zip_code: '31000',
-        siret_number: '987 654 321 00022',
-        description: 'Description de l\'Entreprise C.',
-        facebook: 'https://facebook.com/entreprisec',
-        instagram: 'https://instagram.com/entreprisec',
-        twitter: 'https://twitter.com/entreprisec',
-        photos: JSON.stringify([]),
-        isValidate: false,
-        Job_id: 3,
-        User_id: 3,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      // ... autres entreprises
-    ], {});
+      });
+    }
+
+    await queryInterface.bulkInsert('Enterprises', entreprises, {});
   },
 
   async down (queryInterface, Sequelize) {
