@@ -63,8 +63,6 @@ const isEnterpriseOwner = () => async (req, res, next) => {
       return res.status(404).json({ message: "Entreprise non trouvée" });
     }
 
-    console.log(enterprise.User_id);
-    console.log(req.user.id);
     if (enterprise.User_id !== req.user.id && req.user.isAdmin !== true) {
       return res
         .status(403)

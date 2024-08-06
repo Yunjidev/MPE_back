@@ -128,7 +128,6 @@ async function calculateRemainingAvailability(Enterprise_id) {
   });
 
   reservations.forEach((reservation) => {
-    console.log(reservation.start_date);
     const startDay = reservation.date.getDay();
     const endDay = reservation.date.getDay();
     const startTime = reservation.start_time;

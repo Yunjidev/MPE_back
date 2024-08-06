@@ -66,7 +66,6 @@ exports.logout = async (req, res) => {
 // Fonction pour mettre à jour un utilisateur
 exports.updateUser = async (req, res) => {
   try {
-    console.log(req.user);
     const { id } = req.params;
     const {
       username,
