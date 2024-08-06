@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../../middlewares/auth-middleware");
-const { upload } = require("../../middlewares/files-middleware");
+const files = require("../../utils/files");
 // Controllers
 const faqsController = require("../../controllers/faq-controller");
 const jobsController = require("../../controllers/job-controller");
@@ -10,16 +10,17 @@ const conditionsController = require("../../controllers/conditions-controller");
 const teamsController = require("../../controllers/team-controller");
 const reservationsController = require("../../controllers/reservation-controller");
 const countryController = require("../../controllers/country-controller");
+const userController = require("../../controllers/user-controller");
 
 // Routes Job
 router.post(
   "/job",
-  upload("job-picture").single("picture"),
+  files.upload("job-picture").single("picture"),
   jobsController.createJob,
 );
 router.put(
   "/job/:id",
-  upload("job-picture").single("picture"),
+  files.upload("job-picture").single("picture"),
   jobsController.updateJob,
 );
 router.delete("/job/:id", jobsController.deleteJob);
@@ -37,12 +38,12 @@ router.delete("/pricing/:id", pricingsController.deletePricing);
 // Routes Team
 router.post(
   "/team",
-  upload("team-photo").single("photo"),
+  files.upload("team-photo").single("photo"),
   teamsController.createTeam,
 );
 router.put(
   "/team/:id",
-  upload("team-photo").single("photo"),
+  files.upload("team-photo").single("photo"),
   teamsController.updateTeam,
 );
 router.delete("/team/:id", teamsController.deleteTeam);
@@ -59,5 +60,9 @@ router.get("/reservation", reservationsController.getAllReservations);
 router.post("/country", countryController.createCountry);
 router.put("/country/:id", countryController.updateCountry);
 router.delete("/country/:id", countryController.deleteCountry);
+
+// Routes Users
+router.get("/users", userController.getAllUsers);
+
 
 module.exports = router;

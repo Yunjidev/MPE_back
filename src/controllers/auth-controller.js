@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const { generateToken } = require("../../config/jwt");
 const { Op } = require("sequelize");
 const sendEmail = require("../mailers/email-service");
-const { deleteFile } = require("../middlewares/files-middleware");
+const files = require("../utils/files");
 
 // Fonction pour enrigistrer un nouvel utilisateur
 exports.signup = async (req, res) => {
@@ -111,11 +111,11 @@ exports.updateUser = async (req, res) => {
 
     if (avatar) {
       if (user.avatar) {
-        deleteFile(user.avatar);
+        files.deleteFile(user.avatar);
       }
       user.avatar = avatar;
     } else if (removeAvatar === "true" && user.avatar) {
-      deleteFile(user.avatar);
+      files.deleteFile(user.avatar);
       user.avatar = null;
     }
 
@@ -131,7 +131,6 @@ exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
     const requestingUser = req.user;
-    console.log("user", requestingUser);
 
     if (requestingUser.id !== parseInt(id, 10)) {
       return res.status(403).json({ message: "Action non autorisé" });
@@ -143,7 +142,7 @@ exports.deleteUser = async (req, res) => {
     }
 
     if (user.avatar) {
-      deleteFile(user.avatar);
+      files.deleteFile(user.avatar);
     }
 
     await user.destroy();

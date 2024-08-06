@@ -1,6 +1,6 @@
 const { sequelize } = require("../../models/index");
 const Offer = sequelize.models.Offer;
-const { deleteFile } = require("../middlewares/files-middleware");
+const files = require("../utils/files");
 
 exports.getAllOffers = async (req, res) => {
   try {
@@ -14,7 +14,9 @@ exports.getAllOffers = async (req, res) => {
 exports.getOfferById = async (req, res) => {
   try {
     const { id } = req.params;
-    const offer = await Offer.findByPk(id);
+    const offer = await Offer.findByPk(id, {
+      includes: ["enterprise", "ratings"],
+    });
     if (!offer) {
       return res.status(404).json({ message: "Pas de offre trouvée" });
     }
@@ -61,11 +63,11 @@ exports.updateOffer = async (req, res) => {
     offer.duration = duration || offer.duration;
     if (image) {
       if (offer.image) {
-        deleteFile(offer.image);
+        files.deleteFile(offer.image);
       }
       offer.image = image;
     } else if (removeImage === "true" && offer.image) {
-      deleteFile(offer.image);
+      files.deleteFile(offer.image);
       offer.picture = null;
     }
     await offer.save();

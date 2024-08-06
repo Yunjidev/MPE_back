@@ -1,7 +1,7 @@
 const { sequelize } = require("../../models/index");
 const Enterprise = sequelize.models.Enterprise;
 const { Job, User, Country } = require("../../models/index");
-const { deleteFile } = require("../middlewares/files-middleware");
+const files = require("../utils/files");
 const { calculateRemainingAvailability } = require("../utils/availability");
 
 exports.getAllEnterprises = async (req, res) => {
@@ -74,7 +74,6 @@ exports.createEnterprise = async (req, res) => {
     if (!country) {
       return res.status(404).json({ message: "Pas de Region trouvé" });
     }
-
     const newEnterprise = await Enterprise.create({
       name,
       phone,
@@ -100,7 +99,6 @@ exports.createEnterprise = async (req, res) => {
 
 exports.updateEnterprise = async (req, res) => {
   try {
-    const { id } = req.params;
     const {
       name,
       phone,
@@ -118,7 +116,7 @@ exports.updateEnterprise = async (req, res) => {
     } = req.body;
 
     // Trouver l'entreprise
-    const enterprise = await Enterprise.findByPk(id);
+    const enterprise = req.enterprise;
     if (!enterprise) {
       return res.status(404).json({ message: "Entreprise non trouv�e" });
     }
@@ -149,7 +147,7 @@ exports.updateEnterprise = async (req, res) => {
         const index = enterprise.photos.indexOf(photo);
         if (index > -1) {
           enterprise.photos.splice(index, 1);
-          deleteFile(photo);
+          files.deleteFile(photo);
         }
       });
     }

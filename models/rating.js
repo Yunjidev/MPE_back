@@ -1,5 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
+const { Reservation } = require("./reservation");
 module.exports = (sequelize, DataTypes) => {
   class Rating extends Model {
     /**
@@ -16,6 +17,18 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "Offer_id",
         as: "offer",
       });
+    }
+    static async beforeCreate(instance, options) {
+      const reservation = await Reservation.findOne({
+        where: {
+          Offer_id: instance.Offer_id,
+          User_id: instance.User_id,
+          status: "done",
+        },
+      });
+      if (!reservation) {
+        throw new Error("Vous devez avoir une réservation valide");
+      }
     }
   }
   Rating.init(
@@ -59,6 +72,31 @@ module.exports = (sequelize, DataTypes) => {
       uniqueKeys: {
         unique_rating: {
           fields: ["Offer_id", "User_id"],
+        },
+      },
+      validate: {
+        async hasDoneReservation() {
+          const reservation = await sequelize.models.Reservation.findOne({
+            where: {
+              Offer_id: this.Offer_id,
+              User_id: this.User_id,
+              status: "done",
+            },
+          });
+          if (!reservation) {
+            throw new Error("Vous devez avoir une réservation valide");
+          }
+        },
+        async hasNotRated() {
+          const rating = await sequelize.models.Rating.findOne({
+            where: {
+              Offer_id: this.Offer_id,
+              User_id: this.User_id,
+            },
+          });
+          if (rating) {
+            throw new Error("Vous avez déjà noté cette offre");
+          }
         },
       },
     },
