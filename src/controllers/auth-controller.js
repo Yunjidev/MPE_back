@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const { generateToken } = require("../../config/jwt");
 const { Op } = require("sequelize");
 const sendEmail = require("../mailers/email-service");
-const { deleteFile } = require("../middlewares/files-middleware");
+const files = require("../utils/files");
 
 // Fonction pour enrigistrer un nouvel utilisateur
 exports.signup = async (req, res) => {
@@ -66,6 +66,7 @@ exports.logout = async (req, res) => {
 // Fonction pour mettre à jour un utilisateur
 exports.updateUser = async (req, res) => {
   try {
+    console.log(req.user);
     const { id } = req.params;
     const {
       username,
@@ -111,11 +112,11 @@ exports.updateUser = async (req, res) => {
 
     if (avatar) {
       if (user.avatar) {
-        deleteFile(user.avatar);
+        files.deleteFile(user.avatar);
       }
       user.avatar = avatar;
     } else if (removeAvatar === "true" && user.avatar) {
-      deleteFile(user.avatar);
+      files.deleteFile(user.avatar);
       user.avatar = null;
     }
 
@@ -142,7 +143,7 @@ exports.deleteUser = async (req, res) => {
     }
 
     if (user.avatar) {
-      deleteFile(user.avatar);
+      files.deleteFile(user.avatar);
     }
 
     await user.destroy();

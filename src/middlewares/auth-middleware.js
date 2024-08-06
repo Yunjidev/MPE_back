@@ -29,11 +29,17 @@ const isAdmin = async (req, res, next) => {
 const isOwner = (model) => async (req, res, next) => {
   const { id } = req.params;
   try {
+    let resourceId;
     const resource = await sequelize.models[model].findByPk(id);
     if (!resource) {
       return res.status(404).json({ message: "Ressource non trouvée" });
     }
-    if (resource.User_id !== req.user.id && req.user.isAdmin !== true) {
+    if (model === "User") {
+      resourceId = resource.id;
+    } else {
+      resourceId = resource.User_id;
+    }
+    if (resourceId !== req.user.id && req.user.isAdmin !== true) {
       return res
         .status(403)
         .json({ message: "Vous n'êtes pas autorisé à effectuer cette action" });

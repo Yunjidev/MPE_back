@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../../middlewares/auth-middleware");
 const authController = require("../../controllers/auth-controller");
-const { upload } = require("../../middlewares/files-middleware");
+const files = require("../../utils/files");
 const {
   userValidationRules,
   validate,
@@ -10,7 +10,7 @@ const {
 
 router.post(
   "/signup",
-  upload("avatars").single("avatar"),
+  files.upload("avatars").single("avatar"),
   userValidationRules(false),
   validate,
   authController.signup,
