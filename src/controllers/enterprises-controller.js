@@ -1,6 +1,6 @@
 const { sequelize } = require("../../models/index");
 const Enterprise = sequelize.models.Enterprise;
-const { Job, User } = require("../../models/index");
+const { Job, User, Country } = require("../../models/index");
 const files = require("../utils/files");
 const { calculateRemainingAvailability } = require("../utils/availability");
 
@@ -22,6 +22,8 @@ exports.getEnterpriseById = async (req, res) => {
         "entrepreneur",
         "disponibilities",
         "indisponibilities",
+        "ratings",
+        "countries",
         {
           model: sequelize.models.Offer,
           as: "offers",
@@ -61,13 +63,17 @@ exports.createEnterprise = async (req, res) => {
       instagram,
       twitter,
       Job_id,
+      Country_id,
     } = req.body;
     const photos = req.files ? req.files.map((file) => file.path) : [];
     const job = await Job.findByPk(Job_id);
     if (!job) {
       return res.status(404).json({ message: "Pas de job trouvé" });
     }
-
+    const country = await Country.findByPk(Country_id);
+    if (!country) {
+      return res.status(404).json({ message: "Pas de Region trouvé" });
+    }
     const newEnterprise = await Enterprise.create({
       name,
       phone,
@@ -83,6 +89,7 @@ exports.createEnterprise = async (req, res) => {
       photos,
       User_id: req.user.id,
       Job_id,
+      Country_id,
     });
     res.status(201).json(newEnterprise);
   } catch (error) {
@@ -104,6 +111,7 @@ exports.updateEnterprise = async (req, res) => {
       instagram,
       twitter,
       Job_id,
+      Country_id,
       removePhotos = [],
     } = req.body;
 
@@ -124,10 +132,8 @@ exports.updateEnterprise = async (req, res) => {
     enterprise.facebook = facebook || enterprise.facebook;
     enterprise.instagram = instagram || enterprise.instagram;
     enterprise.twitter = twitter || enterprise.twitter;
-    if (Job_id) {
-      // Si Job_id est fourni, vous pouvez ajouter une validation ici
-      enterprise.Job_id = Job_id;
-    }
+    enterprise.Country_id = Country_id || enterprise.Country_id;
+    enterprise.Job_id = Job_id || enterprise.Job_id;
 
     // Gestion des nouvelles photos
     if (req.files && req.files.length > 0) {
