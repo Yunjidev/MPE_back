@@ -65,7 +65,7 @@ router.get("/teams", teamController.getAllTeams);
 router.get("/team/:id", teamController.getTeamById);
 
 // country routes
-router.get("/countries", countryController.getAllCountrys);
+router.get("/countries", countryController.getAllCountries);
 router.get("/country/:id", countryController.getCountryById);
 
 module.exports = router;

@@ -65,7 +65,10 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     } = req.body;
-    const photos = req.files ? req.files.map((file) => file.path) : [];
+    const photos = req.files.photos
+      ? req.files.photos.map((file) => file.path)
+      : [];
+    const logo = req.files && req.files.logo[0] ? req.files.logo[0].path : null;
     const job = await Job.findByPk(Job_id);
     if (!job) {
       return res.status(404).json({ message: "Pas de job trouvé" });
@@ -87,6 +90,7 @@ exports.createEnterprise = async (req, res) => {
       instagram,
       twitter,
       photos,
+      logo,
       User_id: req.user.id,
       Job_id,
       Country_id,
@@ -136,9 +140,12 @@ exports.updateEnterprise = async (req, res) => {
     enterprise.Job_id = Job_id || enterprise.Job_id;
 
     // Gestion des nouvelles photos
-    if (req.files && req.files.length > 0) {
-      const newPhotos = req.files.map((file) => file.path);
+    if (req.files.photos && req.files.photos.length > 0) {
+      const newPhotos = req.files.photos.map((file) => file.path);
       enterprise.photos = [...enterprise.photos, ...newPhotos];
+    }
+    if (req.files.logo[0]) {
+      enterprise.logo = req.files.logo[0].path;
     }
 
     // Suppression des photos
