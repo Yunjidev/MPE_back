@@ -12,7 +12,5 @@ router.use(
   authMiddleware.isEnterpriseOwner(),
   require("./owner"),
 );
-// Routes update avec verification propriétaire de l'entreprise
-router.use("/enterprise/:id", require("./owner-update"));
 
 module.exports = router;

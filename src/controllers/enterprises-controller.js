@@ -22,7 +22,6 @@ exports.getEnterpriseById = async (req, res) => {
         "entrepreneur",
         "disponibilities",
         "indisponibilities",
-        "ratings",
         {
           model: sequelize.models.Offer,
           as: "offers",
@@ -82,7 +81,7 @@ exports.createEnterprise = async (req, res) => {
       instagram,
       twitter,
       photos,
-      User_id: req.user.User_id,
+      User_id: req.user.id,
       Job_id,
     });
     res.status(201).json(newEnterprise);
@@ -93,7 +92,6 @@ exports.createEnterprise = async (req, res) => {
 
 exports.updateEnterprise = async (req, res) => {
   try {
-    const { id } = req.params;
     const {
       name,
       phone,
@@ -110,7 +108,7 @@ exports.updateEnterprise = async (req, res) => {
     } = req.body;
 
     // Trouver l'entreprise
-    const enterprise = await Enterprise.findByPk(id);
+    const enterprise = req.enterprise;
     if (!enterprise) {
       return res.status(404).json({ message: "Entreprise non trouv�e" });
     }

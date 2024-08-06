@@ -31,15 +31,25 @@ exports.getReservationById = async (req, res) => {
 exports.createReservation = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.User_id;
+    const now = new Date();
     const { date, start_time } = req.body;
     const offer = await sequelize.models.Offer.findByPk(id);
+    const enterprise = await offer.getEnterprise();
     if (!offer) {
       return res.status(404).json({ message: "Pas d'offre trouvée" });
     }
-    const user = sequelize.models.User.findByPk(userId);
-    if (!user) {
+    if (!req.user) {
       return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
+    }
+    if (req.user.id === enterprise.User_id) {
+      return res
+        .status(400)
+        .json({ message: "Vous ne pouvez pas reserver votre propre offre" });
+    }
+    if (date < now) {
+      return res
+        .status(400)
+        .json({ message: "La date doit être dans le futur" });
     }
     const remainingAvailability = await calculateRemainingAvailability(
       offer.Enterprise_id,
@@ -61,7 +71,7 @@ exports.createReservation = async (req, res) => {
       end_time: endTime,
       status: "pending",
       Offer_id: id,
-      User_id: userId,
+      User_id: req.user.id,
     });
     res.status(201).json(newReservation);
   } catch (error) {
@@ -72,7 +82,6 @@ exports.createReservation = async (req, res) => {
 exports.updateReservation = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.User_id;
     const { date, start_time, status } = req.body;
     const reservation = await Reservation.findByPk(id, {
       include: [
@@ -91,10 +100,17 @@ exports.updateReservation = async (req, res) => {
     if (!reservation) {
       return res.status(404).json({ message: "Pas de reservation trouvée" });
     }
-    const isReservationOwner = reservation.User_id === userId;
+    const isReservationOwner = reservation.User_id === req.user.id;
     const isReservationOfferOwner =
-      reservation.offer.enterprise.User_id === userId;
+      reservation.offer.enterprise.User_id === req.user.id;
 
+    if (req.user.isAdmin) {
+      reservation.status = status || status;
+      reservation.date = date || reservation.date;
+      reservation.start_time = start_time || reservation.start_time;
+      await reservation.save();
+      res.status(200).json(reservation);
+    }
     if (!isReservationOwner && !isReservationOfferOwner) {
       return res
         .status(403)
@@ -132,8 +148,16 @@ exports.updateReservation = async (req, res) => {
       }
     }
     if (isReservationOfferOwner) {
+      const now = new Date();
       if (status === "accepted" || status === "rejected") {
         reservation.status = status;
+      } else if (
+        status === "done" &&
+        reservation.status === "accepted" &&
+        reservation.date > now &&
+        reservation.end_time > now
+      ) {
+        reservation.status = "done";
       } else {
         return res.status(400).json({
           message: "Vous ne pouvez pas changer le statut de la reservation",
