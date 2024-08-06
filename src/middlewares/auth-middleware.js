@@ -11,7 +11,8 @@ const isAuthenticated = async (req, res, next) => {
   token = token.split(" ")[2];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    const user = await User.findByPk(decoded.User_id);
+    req.user = user;
     next();
   } catch (error) {
     return res.status(401).json({ message: "Token Invalide" });
@@ -19,8 +20,7 @@ const isAuthenticated = async (req, res, next) => {
 };
 
 const isAdmin = async (req, res, next) => {
-  const user = await User.findByPk(req.user.User_id);
-  if (!user.isAdmin) {
+  if (!req.user.isAdmin) {
     return res.status(403).json({ message: "Action non autorisée" });
   }
   next();
@@ -33,7 +33,7 @@ const isOwner = (model) => async (req, res, next) => {
     if (!resource) {
       return res.status(404).json({ message: "Ressource non trouvée" });
     }
-    if (resource.User_id !== req.user.User_id) {
+    if (resource.User_id !== req.user.id && req.user.isAdmin !== true) {
       return res
         .status(403)
         .json({ message: "Vous n'êtes pas autorisé à effectuer cette action" });
@@ -57,7 +57,9 @@ const isEnterpriseOwner = () => async (req, res, next) => {
       return res.status(404).json({ message: "Entreprise non trouvée" });
     }
 
-    if (enterprise.User_id !== req.user.User_id) {
+    console.log(enterprise.User_id);
+    console.log(req.user.id);
+    if (enterprise.User_id !== req.user.id && req.user.isAdmin !== true) {
       return res
         .status(403)
         .json({ message: "Vous n'êtes pas autorisé à effectuer cette action" });
@@ -71,7 +73,6 @@ const isEnterpriseOwner = () => async (req, res, next) => {
 
 const isAuthorizedReservation = async (req, res, next) => {
   try {
-    const userId = req.user.User_id;
     const reservationId = req.params.id;
 
     if (reservationId) {
@@ -96,8 +97,9 @@ const isAuthorizedReservation = async (req, res, next) => {
         return res.status(404).json({ message: "Reservation non trouvée" });
       }
       if (
-        reservation.User_id === userId ||
-        reservation.offer.enterprise.User_id === userId
+        reservation.User_id === req.user.id ||
+        reservation.offer.enterprise.User_id === req.user.id ||
+        req.user.isAdmin === true
       ) {
         return next();
       } else {
