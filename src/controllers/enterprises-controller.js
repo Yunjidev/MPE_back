@@ -6,10 +6,15 @@ const { calculateRemainingAvailability } = require("../utils/availability");
 
 exports.getAllEnterprises = async (req, res) => {
   try {
-    const enterprise = await Enterprise.findAll();
-    res.status(200).json(enterprise);
+    const enterprises = await Enterprise.findAll();
+    res.status(200).json(enterprises);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Erreur lors de la récupération des entreprises:', error);
+    res.status(500).json({
+      message: 'Une erreur interne est survenue lors de la récupération des entreprises.',
+      error: error.message,
+      stack: error.stack // Inclure la stack trace peut être utile en développement, mais devrait être omise en production pour des raisons de sécurité.
+    });
   }
 };
 

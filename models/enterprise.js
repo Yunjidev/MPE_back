@@ -122,11 +122,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
         get() {
-          const rawValue = this.getDataValue("photos");
-          return rawValue ? JSON.parse(rawValue) : [];
+          const rawValue = this.getDataValue('photos');
+          try {
+            return rawValue ? JSON.parse(rawValue) : [];
+          } catch (e) {
+            console.error('Erreur lors du parsing de photos:', e);
+            // Retourner une valeur par défaut ou gérer l'erreur comme vous le souhaitez
+            return [];
+          }
         },
         set(value) {
-          this.setDataValue("photos", JSON.stringify(value));
+          this.setDataValue('photos', JSON.stringify(value));
         },
       },
       isValidate: {
