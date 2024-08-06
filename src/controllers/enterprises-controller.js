@@ -1,7 +1,7 @@
 const { sequelize } = require("../../models/index");
 const Enterprise = sequelize.models.Enterprise;
 const { Job, User } = require("../../models/index");
-const { deleteFile } = require("../middlewares/files-middleware");
+const files = require("../utils/files");
 const { calculateRemainingAvailability } = require("../utils/availability");
 
 exports.getAllEnterprises = async (req, res) => {
@@ -141,7 +141,7 @@ exports.updateEnterprise = async (req, res) => {
         const index = enterprise.photos.indexOf(photo);
         if (index > -1) {
           enterprise.photos.splice(index, 1);
-          deleteFile(photo);
+          files.deleteFile(photo);
         }
       });
     }
