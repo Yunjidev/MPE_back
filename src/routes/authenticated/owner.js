@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
 // Middlewares
-const { upload } = require("../../middlewares/files-middleware");
-const fileMiddleware = require("../../middlewares/files-middleware");
+const files = require("../../utils/files");
 // Controllers
 const authController = require("../../controllers/auth-controller");
 const enterprisesController = require("../../controllers/enterprises-controller");
@@ -14,7 +13,7 @@ const offersController = require("../../controllers/offer-controller");
 // Route Enterprise
 router.put(
   "/",
-  fileMiddleware.upload("enterprise-photos").array("photos", 5),
+  files.upload("enterprise-photos").array("photos", 5),
   enterprisesController.updateEnterprise,
 );
 router.delete("", enterprisesController.deleteEnterprise);
@@ -44,12 +43,12 @@ router.delete(
 // Routes Offre
 router.post(
   "/offer",
-  upload("offer-image").single("image"),
+  files.upload("offer-image").single("image"),
   offersController.createOffer,
 );
 router.use(
   "/offer/:id",
-  fileMiddleware.upload("offer-image").single("image"),
+  files.upload("offer-image").single("image"),
   offersController.updateOffer,
 );
 router.delete("/offer/:id", offersController.deleteOffer);
