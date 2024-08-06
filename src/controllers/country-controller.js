@@ -1,6 +1,5 @@
 const { sequelize } = require("../../models/index");
 const Country = sequelize.models.Country;
-const { deleteFile } = require("../middlewares/files-middleware");
 
 exports.getAllCountrys = async (req, res) => {
   try {
