@@ -23,11 +23,12 @@ router.post("/signout", authController.logout);
 router.delete("/users/:id", authController.deleteUser);
 
 // Routes Enterprise
-router.post(
-  "/enterprise",
-  files.upload("enterprise-photos").array("photos", 5),
-  enterprisesController.createEnterprise,
-);
+const uploadFiles = files.upload("enterprise").fields([
+  { name: "photos", maxCount: 3 },
+  { name: "logo", maxCount: 1 },
+]);
+
+router.post("/enterprise", uploadFiles, enterprisesController.createEnterprise);
 
 // Routes Rating
 router.post("/offer/:id/rating", ratingController.createRating);

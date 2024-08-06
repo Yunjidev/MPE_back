@@ -15,8 +15,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   Country.init(
     {
-      name: DataTypes.STRING,
-      Enterprise_id: DataTypes.STRING,
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+          len: [3, 50],
+        },
+      },
     },
     {
       sequelize,
