@@ -33,6 +33,9 @@ module.exports = {
       description: {
         type: Sequelize.STRING,
       },
+      website: {
+        type: Sequelize.STRING,
+      },
       facebook: {
         type: Sequelize.STRING,
       },
@@ -52,6 +55,13 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: {
           model: "Jobs",
+          key: "id",
+        },
+      },
+      Country_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Countries",
           key: "id",
         },
       },
