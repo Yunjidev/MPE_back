@@ -13,7 +13,8 @@ const offersController = require("../../controllers/offer-controller");
 // Route Enterprise
 router.put(
   "/",
-  files.upload("enterprise-photos").array("photos", 5),
+  files.upload("enterprise-photos").array("photos", 3),
+  files.upload("enterprise-logo").single("logo"),
   enterprisesController.updateEnterprise,
 );
 router.delete("", enterprisesController.deleteEnterprise);

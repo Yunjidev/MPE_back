@@ -48,6 +48,9 @@ module.exports = {
       photos: {
         type: Sequelize.TEXT,
       },
+      logo: {
+        type: Sequelize.STRING,
+      },
       isValidate: {
         type: Sequelize.BOOLEAN,
       },
@@ -57,6 +60,8 @@ module.exports = {
           model: "Jobs",
           key: "id",
         },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
       },
       Country_id: {
         type: Sequelize.INTEGER,
@@ -64,6 +69,8 @@ module.exports = {
           model: "Countries",
           key: "id",
         },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
       },
       User_id: {
         type: Sequelize.INTEGER,
