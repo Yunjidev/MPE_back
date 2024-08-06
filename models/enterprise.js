@@ -97,6 +97,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      website: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+          isUrl: true,
+        },
+      },
       facebook: {
         type: DataTypes.STRING,
         allowNull: true,

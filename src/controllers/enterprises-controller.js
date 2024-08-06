@@ -132,7 +132,6 @@ exports.updateEnterprise = async (req, res) => {
     enterprise.instagram = instagram || enterprise.instagram;
     enterprise.twitter = twitter || enterprise.twitter;
     if (Job_id) {
-      // Si Job_id est fourni, vous pouvez ajouter une validation ici
       enterprise.Job_id = Job_id;
     }
 

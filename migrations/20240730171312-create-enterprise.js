@@ -33,6 +33,9 @@ module.exports = {
       description: {
         type: Sequelize.STRING,
       },
+      website: {
+        type: Sequelize.STRING,
+      },
       facebook: {
         type: Sequelize.STRING,
       },
