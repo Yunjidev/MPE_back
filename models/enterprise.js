@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "Enterprise_id",
         as: "subscriptions",
       });
+      Enterprise.hasMany(models.Country, {
+        foreignKey: "Country_id",
+        as: "countries",
+      });
     }
   }
   Enterprise.init(
@@ -151,6 +155,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         references: {
           model: "Job",
+          key: "id",
+        },
+      },
+      Country_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Country",
           key: "id",
         },
       },
