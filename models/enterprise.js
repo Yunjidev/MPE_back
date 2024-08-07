@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "Job_id",
         as: "job",
       });
+      Enterprise.belongsTo(models.Country, {
+        foreignKey: "Country_id",
+        as: "country",
+      });
       Enterprise.hasMany(models.Disponibility, {
         foreignKey: "Enterprise_id",
         as: "disponibilities",
@@ -47,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       phone: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
           notEmpty: true,
           len: [10, 10],
@@ -63,7 +67,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       adress: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
           notEmpty: true,
           len: [3, 50],
@@ -87,7 +91,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       siret_number: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
           notEmpty: true,
           len: [14, 14],
@@ -96,6 +100,13 @@ module.exports = (sequelize, DataTypes) => {
       description: {
         type: DataTypes.STRING,
         allowNull: true,
+      },
+      website: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+          isUrl: true,
+        },
       },
       facebook: {
         type: DataTypes.STRING,
@@ -129,6 +140,10 @@ module.exports = (sequelize, DataTypes) => {
           this.setDataValue("photos", JSON.stringify(value));
         },
       },
+      logo: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       isValidate: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
@@ -144,6 +159,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         references: {
           model: "Job",
+          key: "id",
+        },
+      },
+      Country_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Countries",
           key: "id",
         },
       },

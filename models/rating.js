@@ -76,10 +76,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       validate: {
         async hasDoneReservation() {
-          console.log(
-            "sequelize.models.Reservation",
-            sequelize.models.Reservation,
-          );
           const reservation = await sequelize.models.Reservation.findOne({
             where: {
               Offer_id: this.Offer_id,
@@ -92,7 +88,6 @@ module.exports = (sequelize, DataTypes) => {
           }
         },
         async hasNotRated() {
-          console.log("sequelize.models.Rating", sequelize.models.Rating);
           const rating = await sequelize.models.Rating.findOne({
             where: {
               Offer_id: this.Offer_id,

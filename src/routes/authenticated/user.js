@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 // Middlewares
-const { upload } = require("../../middlewares/files-middleware");
+const files = require("../../utils/files");
 const validatesUsersMiddleware = require("../../middlewares/validates-users-middleware");
 const authMiddleware = require("../../middlewares/auth-middleware");
 // Controllers
@@ -13,7 +13,7 @@ const reservationsController = require("../../controllers/reservation-controller
 // Route User
 router.put(
   "/users/:id",
-  upload("avatars").single("avatar"),
+  files.upload("avatars").single("avatar"),
   authMiddleware.isOwner("User"),
   validatesUsersMiddleware.userValidationRules(true),
   validatesUsersMiddleware.validate,
@@ -23,11 +23,12 @@ router.post("/signout", authController.logout);
 router.delete("/users/:id", authController.deleteUser);
 
 // Routes Enterprise
-router.post(
-  "/enterprise",
-  upload("enterprise-photos").array("photos", 5),
-  enterprisesController.createEnterprise,
-);
+const uploadFiles = files.upload("enterprise").fields([
+  { name: "photos", maxCount: 3 },
+  { name: "logo", maxCount: 1 },
+]);
+
+router.post("/enterprise", uploadFiles, enterprisesController.createEnterprise);
 
 // Routes Rating
 router.post("/offer/:id/rating", ratingController.createRating);

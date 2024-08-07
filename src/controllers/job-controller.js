@@ -1,6 +1,6 @@
 const { sequelize } = require("../../models/index");
 const Job = sequelize.models.Job;
-const { deleteFile } = require("../middlewares/files-middleware");
+const files = require("../utils/files");
 
 exports.getAllJobs = async (req, res) => {
   try {
@@ -47,11 +47,11 @@ exports.updateJob = async (req, res) => {
     job.name = name || job.name;
     if (picture) {
       if (job.picture) {
-        deleteFile(job.picture);
+        files.deleteFile(job.picture);
       }
       job.picture = picture;
     } else if (removePicture === "true" && job.picture) {
-      deleteFile(job.picture);
+      files.deleteFile(job.picture);
       job.picture = null;
     }
     await job.save();
