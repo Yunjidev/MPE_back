@@ -1,32 +1,24 @@
 'use strict';
+const { faker } = require('@faker-js/faker/locale/fr');
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('Users', [
-      {
-        username: 'user1',
-        email: 'user1@example.com',
-        password: 'password123', // Assurez-vous de hasher les mots de passe en production
+    const usersData = [];
+    for (let i = 0; i < 20; i++) {
+      usersData.push({
+        username: faker.internet.userName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(), // Assurez-vous de hasher les mots de passe en production
         resetPasswordToken: null,
         resetPasswordExpires: null,
-        isAdmin: false,
-        avatar: 'url_avatar_user1',
+        isAdmin: faker.datatype.boolean(),
+        avatar: faker.image.avatar(),
         createdAt: new Date(),
         updatedAt: new Date()
-      },
-      {
-        username: 'user2',
-        email: 'user2@example.com',
-        password: 'password123', // Assurez-vous de hasher les mots de passe en production
-        resetPasswordToken: null,
-        resetPasswordExpires: null,
-        isAdmin: false,
-        avatar: 'url_avatar_user2',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      // ... Ajoutez ici les autres utilisateurs
-    ], {});
+      });
+    }
+
+    await queryInterface.bulkInsert('Users', usersData, {});
   },
 
   async down (queryInterface, Sequelize) {

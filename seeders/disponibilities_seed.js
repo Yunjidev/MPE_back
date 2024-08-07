@@ -1,61 +1,30 @@
 'use strict';
 
+const { faker } = require("@faker-js/faker/locale/fr");
+const addDays = (days) => {
+  const result = new Date();
+  result.setDate(result.getDate() + days);
+  return result;
+};
+
+
 module.exports = {
   async up (queryInterface, Sequelize) {
-    const disponibilitiesData = [
-      // Disponibilités pour l'Entreprise A (ID 7)
-      {
-        day: 'Lundi',
+    // Récupérez les ID des entreprises existantes
+    const entreprises = await queryInterface.sequelize.query(
+      `SELECT id FROM "Enterprises";`
+    );
+    const entrepriseRows = entreprises[0];
+    const disponibilitiesData = entrepriseRows.map(entreprise => {
+      return {
+        day: faker.date.weekday(),
         start_hour: '08:00',
         end_hour: '12:00',
-        Enterprise_id: 7,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        day: 'Mardi',
-        start_hour: '08:00',
-        end_hour: '12:00',
-        Enterprise_id: 7,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      // Disponibilités pour l'Entreprise B (ID 8)
-      {
-        day: 'Lundi',
-        start_hour: '08:00',
-        end_hour: '12:00',
-        Enterprise_id: 8,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        day: 'Mardi',
-        start_hour: '08:00',
-        end_hour: '12:00',
-        Enterprise_id: 8,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      // Disponibilités pour l'Entreprise C (ID 9)
-      {
-        day: 'Lundi',
-        start_hour: '08:00',
-        end_hour: '12:00',
-        Enterprise_id: 9,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        day: 'Mardi',
-        start_hour: '08:00',
-        end_hour: '12:00',
-        Enterprise_id: 9,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      // ... Ajoutez d'autres disponibilités pour d'autres entreprises si nécessaire ...
-    ];
+        Enterprise_id: entreprise.id,
+        createdAt: addDays(faker.number.int({ 'min': 1, 'max': 30 })),
+        updatedAt: addDays(faker.number.int({ 'min': 1, 'max': 30 }))
+      };
+    });
 
     await queryInterface.bulkInsert('Disponibilities', disponibilitiesData);
   },
