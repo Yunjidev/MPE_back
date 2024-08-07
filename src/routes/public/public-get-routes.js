@@ -22,6 +22,7 @@ router.get("/user/:id", userController.getUserById);
 router.get("/enterprises", enterpriseController.getAllEnterprises);
 router.get("/enterprise/:id", enterpriseController.getEnterpriseById);
 
+
 // Job routes
 router.get("/jobs", jobController.getAllJobs);
 router.get("/job/:id", jobController.getJobById);
