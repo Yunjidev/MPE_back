@@ -11,8 +11,8 @@ const {
 } = require("../../utils/enterprisevalidationsrules");
 const { ratingValidationRules } = require("../../utils/ratingvalidationsrules");
 // Controllers
-const authController = require("../../controllers/auth-controller");
-const enterprisesController = require("../../controllers/enterprises-controller");
+const authController = require("../../controllers/users/auth-controller");
+const enterprisesController = require("../../controllers/enterprises/enterprises-controller");
 const ratingController = require("../../controllers/rating-controller");
 const reservationsController = require("../../controllers/reservation-controller");
 const likeController = require("../../controllers/like-controller");
@@ -22,7 +22,7 @@ router.put(
   "/users/:id",
   files.upload("avatars").single("avatar"),
   authMiddleware.isOwner("User"),
-  userValidationRules(),
+  userValidationRules(true),
   validate,
   authController.updateUser,
 );

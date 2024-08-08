@@ -1,11 +1,11 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const User = sequelize.models.User;
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const { generateToken } = require("../../config/jwt");
+const { generateToken } = require("../../../config/jwt");
 const { Op } = require("sequelize");
-const sendEmail = require("../mailers/email-service");
-const files = require("../utils/files");
+const sendEmail = require("../../mailers/email-service");
+const files = require("../../utils/files");
 
 // Fonction pour enrigistrer un nouvel utilisateur
 exports.signup = async (req, res) => {

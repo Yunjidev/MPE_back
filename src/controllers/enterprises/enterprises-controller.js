@@ -1,12 +1,12 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Enterprise = sequelize.models.Enterprise;
-const { Job, User, Country } = require("../../models/index");
-const files = require("../utils/files");
+const { Job, User, Country } = require("../../../models/index");
+const files = require("../../utils/files");
 const {
   calculateRemainingAvailability,
   getNextAvailableDate,
-} = require("../utils/availability");
-const { calculateAverageRatingForEnterprise } = require("../utils/ratings");
+} = require("../../utils/availability");
+const { calculateAverageRatingForEnterprise } = require("../../utils/ratings");
 
 exports.getAllEnterprises = async (req, res) => {
   try {
@@ -54,67 +54,6 @@ exports.getAllEnterprises = async (req, res) => {
   }
 };
 
-exports.getAllEnterprisesValidate = async (req, res) => {
-  try {
-    const enterprise = await Enterprise.findAll({
-      where: { isValidate: true },
-      attributes: {
-        exclude: [
-          "createdAt",
-          "updatedAt",
-          "User_id",
-          "Job_id",
-          "Country_id",
-          "photos",
-          "facebook",
-          "instagram",
-          "twitter",
-          "description",
-          "isValidate",
-          "phone",
-          "mail",
-          "adress",
-          "siret_number",
-          "city",
-          "zip_code",
-        ],
-      },
-    });
-    const enterpriseWithDetails = await Promise.all(
-      enterprise.map(async (enterprise) => {
-        const remainingAvailability = await calculateRemainingAvailability(
-          enterprise.id,
-        );
-        const nextAvailableDate = getNextAvailableDate(remainingAvailability);
-        const averageRating = await calculateAverageRatingForEnterprise(
-          enterprise.id,
-        );
-        const enterpriseData = enterprise.toJSON();
-        enterpriseData.nextAvailableDate = nextAvailableDate;
-        enterpriseData.averageRating = averageRating;
-        return enterpriseData;
-      }),
-    );
-    res.status(200).json(enterpriseWithDetails);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.getAllEnterprisesNotValidate = async (req, res) => {
-  try {
-    const enterprise = await Enterprise.findAll({
-      where: { isValidate: false },
-      attributes: {
-        exclude: ["createdAt", "updatedAt", "User_id", "Job_id", "Country_id"],
-      },
-    });
-    res.status(200).json(enterprise);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 exports.getEnterpriseById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -136,7 +75,6 @@ exports.getEnterpriseById = async (req, res) => {
               "password",
               "resetPasswordToken",
               "resetPasswordExpires",
-              "isAdmin",
               "isEntrepeneur",
             ],
           },
@@ -184,18 +122,11 @@ exports.getEnterpriseById = async (req, res) => {
         },
       ],
       attributes: {
-        exclude: [
-          "createdAt",
-          "updatedAt",
-          "isValidate",
-          "User_id",
-          "Job_id",
-          "Country_id",
-        ],
+        exclude: ["createdAt", "updatedAt", "User_id", "Job_id", "Country_id"],
       },
     });
     if (!enterprise) {
-      return res.status(404).json({ message: "Pas de Enterprise trouvée" });
+      return res.status(404).json({ message: "Pas de Enterprise trouv├®e" });
     }
     const remainingAvailability = await calculateRemainingAvailability(id);
     const nextAvailableDate = getNextAvailableDate(remainingAvailability);
@@ -279,6 +210,7 @@ exports.updateEnterprise = async (req, res) => {
       facebook,
       instagram,
       twitter,
+      isValidate,
       Job_id,
       Country_id,
       removePhotos = [],
@@ -287,9 +219,6 @@ exports.updateEnterprise = async (req, res) => {
 
     // Trouver l'entreprise
     const enterprise = req.enterprise;
-    if (!enterprise) {
-      return res.status(404).json({ message: "Entreprise non trouv�e" });
-    }
 
     // Mise � jour des informations de l'entreprise
     enterprise.name = name || enterprise.name;
@@ -304,7 +233,9 @@ exports.updateEnterprise = async (req, res) => {
     enterprise.twitter = twitter || enterprise.twitter;
     enterprise.Country_id = Country_id || enterprise.Country_id;
     enterprise.Job_id = Job_id || enterprise.Job_id;
-
+    if (req.user.isAdmin) {
+      enterprise.isValidate = isValidate || enterprise.isValidate;
+    }
     // Gestion des nouvelles photos
     if (req.files.photos && req.files.photos.length > 0) {
       const newPhotos = req.files.photos.map((file) => file.path);

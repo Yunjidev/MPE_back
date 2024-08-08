@@ -9,19 +9,25 @@ const {
 } = require("../../utils/enterprisevalidationsrules");
 const { offerValidationRules } = require("../../utils/offervalidationsrules");
 // Controllers
-const authController = require("../../controllers/auth-controller");
-const enterprisesController = require("../../controllers/enterprises-controller");
-const subscriptionsController = require("../../controllers/subscription-controller");
-const disponibilitiesController = require("../../controllers/disponibility-controller");
-const inDisponibilitiesController = require("../../controllers/indisponibility-controller");
-const offersController = require("../../controllers/offer-controller");
+// users
+const authController = require("../../controllers/users/auth-controller");
+// enterprises
+const enterprisesController = require("../../controllers/enterprises/enterprises-controller");
+const disponibilitiesController = require("../../controllers/enterprises/disponibility-controller");
+const inDisponibilitiesController = require("../../controllers/enterprises/indisponibility-controller");
+const offersController = require("../../controllers/enterprises/offer-controller");
+const subscriptionsController = require("../../controllers/enterprises/subscription-controller");
 
 // Route Enterprise
+const uploadFiles = files.upload("enterprise").fields([
+  { name: "photos", maxCount: 3 },
+  { name: "logo", maxCount: 1 },
+]);
+
 router.put(
   "/",
-  files.upload("enterprise-photos").array("photos", 3),
-  files.upload("enterprise-logo").single("logo"),
-  enterpriseValidationRules(),
+  uploadFiles,
+  enterpriseValidationRules(true),
   validate,
   enterprisesController.updateEnterprise,
 );
@@ -60,6 +66,8 @@ router.post(
 router.put(
   "/offer/:id",
   files.upload("offer-image").single("image"),
+  offerValidationRules(true),
+  validate,
   offersController.updateOffer,
 );
 router.delete("/offer/:id", offersController.deleteOffer);

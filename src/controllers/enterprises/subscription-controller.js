@@ -1,4 +1,4 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Subscription = sequelize.models.Subscription;
 
 exports.getAllSubscriptions = async (req, res) => {

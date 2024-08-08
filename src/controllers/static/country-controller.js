@@ -1,4 +1,4 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Country = sequelize.models.Country;
 
 exports.getAllCountries = async (req, res) => {

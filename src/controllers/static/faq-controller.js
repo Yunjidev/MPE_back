@@ -1,4 +1,4 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Faq = sequelize.models.Faq;
 
 exports.getAllFaqs = async (req, res) => {
