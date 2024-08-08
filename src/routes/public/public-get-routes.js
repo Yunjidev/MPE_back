@@ -6,10 +6,7 @@ const enterpriseController = require("../../controllers/enterprises-controller")
 const jobController = require("../../controllers/job-controller");
 const offerController = require("../../controllers/offer-controller");
 const pricingController = require("../../controllers/pricings-controller");
-const ratingController = require("../../controllers/rating-controller");
 const conditionController = require("../../controllers/conditions-controller");
-const disponibilityController = require("../../controllers/disponibility-controller");
-const indisponibilityController = require("../../controllers/indisponibility-controller");
 const faqController = require("../../controllers/faq-controller");
 const teamController = require("../../controllers/team-controller");
 const countryController = require("../../controllers/country-controller");
@@ -19,7 +16,10 @@ router.get("/users", userController.getAllUsers);
 router.get("/user/:id", userController.getUserById);
 
 // Enterprise routes
-router.get("/enterprises", enterpriseController.getAllEnterprises);
+router.get(
+  "/enterprises/validate",
+  enterpriseController.getAllEnterprisesValidate,
+);
 router.get("/enterprise/:id", enterpriseController.getEnterpriseById);
 
 // Job routes
@@ -34,27 +34,9 @@ router.get("/offer/:id", offerController.getOfferById);
 router.get("/pricings", pricingController.getAllPricings);
 router.get("/pricing/:id", pricingController.getPricingById);
 
-// Rating routes
-router.get("/ratings", ratingController.getAllRatings);
-router.get("/rating/:id", ratingController.getRatingById);
-
 // condition routes
 router.get("/conditions", conditionController.getAllConditions);
 router.get("/condition/:id", conditionController.getConditionById);
-
-// disponibility routes
-router.get("/disponibilities", disponibilityController.getAllDisponibilities);
-router.get("/disponibility/:id", disponibilityController.getDisponibilityById);
-
-// indisponibility routes
-router.get(
-  "/indisponibilities",
-  indisponibilityController.getAllInDisponibilities,
-);
-router.get(
-  "/indisponibility/:id",
-  indisponibilityController.getInDisponibilityById,
-);
 
 // faq routes
 router.get("/faqs", faqController.getAllFaqs);

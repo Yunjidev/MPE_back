@@ -3,7 +3,11 @@ const Condition = sequelize.models.Conditions;
 
 exports.getAllConditions = async (req, res) => {
   try {
-    const condition = await Condition.findAll();
+    const condition = await Condition.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     res.status(200).json(condition);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +17,11 @@ exports.getAllConditions = async (req, res) => {
 exports.getConditionById = async (req, res) => {
   try {
     const { id } = req.params;
-    const condition = await Condition.findByPk(id);
+    const condition = await Condition.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     if (!condition) {
       return res.status(404).json({ message: "Pas de Condition trouvée" });
     }
@@ -27,7 +35,7 @@ exports.createCondition = async (req, res) => {
   try {
     const { title, description } = req.body;
     const newCondition = await Condition.create({ title, description });
-    res.status(201).json(newCondition);
+    res.status(201).json({ message: "Condition créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -44,7 +52,7 @@ exports.updateCondition = async (req, res) => {
     condition.title = title || condition.title;
     condition.description = description || condition.description;
     await condition.save();
-    res.status(200).json(condition);
+    res.status(200).json({ message: "Condition modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

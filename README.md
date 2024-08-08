@@ -36,6 +36,8 @@ npm start
 
 ## API
 
+Pour voir les routes disponibles, vous pouvez consulter le fichier `routes-postman-insomnia.json` à la racine du projet.
+
 ## Docker
 
 ```bash

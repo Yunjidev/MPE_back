@@ -1,10 +1,15 @@
 const { sequelize } = require("../../models/index");
 const Offer = sequelize.models.Offer;
 const files = require("../utils/files");
+const { calculateAverageRatingForOffer } = require("../utils/ratings");
 
 exports.getAllOffers = async (req, res) => {
   try {
-    const offer = await Offer.findAll();
+    const offer = await Offer.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id"],
+      },
+    });
     res.status(200).json(offer);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -15,11 +20,49 @@ exports.getOfferById = async (req, res) => {
   try {
     const { id } = req.params;
     const offer = await Offer.findByPk(id, {
-      includes: ["enterprise", "ratings"],
+      include: [
+        {
+          model: sequelize.models.Enterprise,
+          as: "enterprise",
+          attributes: {
+            exclude: [
+              "createdAt",
+              "updatedAt",
+              "id",
+              "isValidate",
+              "User_id",
+              "Job_id",
+              "Country_id",
+              "photos",
+              "facebook",
+              "instagram",
+              "twitter",
+              "siret_number",
+              "description",
+              "phone",
+              "mail",
+              "adress",
+              "city",
+              "zip_code",
+            ],
+          },
+        },
+        {
+          model: sequelize.models.Rating,
+          as: "ratings",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+      },
     });
     if (!offer) {
       return res.status(404).json({ message: "Pas de offre trouvée" });
     }
+
     res.status(200).json(offer);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -29,7 +72,8 @@ exports.getOfferById = async (req, res) => {
 exports.createOffer = async (req, res) => {
   try {
     const enterpriseId = req.enterprise.id;
-    const { name, description, price, estimate, duration } = req.body;
+    const { name, description, estimate, duration } = req.body;
+    const price = estimate ? null : req.body.price;
     const image = req.file ? req.file.path : null;
     const newOffer = await Offer.create({
       name,
@@ -40,7 +84,7 @@ exports.createOffer = async (req, res) => {
       duration,
       Enterprise_id: enterpriseId,
     });
-    res.status(201).json(newOffer);
+    res.status(201).json({ message: "Offre créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -71,7 +115,7 @@ exports.updateOffer = async (req, res) => {
       offer.picture = null;
     }
     await offer.save();
-    res.status(200).json(offer);
+    res.status(200).json({ message: "Offre modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

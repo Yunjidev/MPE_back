@@ -167,6 +167,36 @@ const isDateInAvailability = (
   );
 };
 
+const getNextAvailableDate = (remainingAvailability) => {
+  const today = new Date();
+  const dayOfWeek = [
+    "Dimanche",
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+  ];
+
+  for (let i = 0; i < 7; i++) {
+    const currentDate = new Date();
+    currentDate.setDate(today.getDate() + i);
+    const dayName = dayOfWeek[currentDate.getDay()];
+    if (remainingAvailability[dayName]) {
+      for (let slot of remainingAvailability[dayName]) {
+        const slotDate = new Date(currentDate);
+        const [startHour, startMin] = slot.start.split(":").map(Number);
+        slotDate.setHours(startHour, startMin, 0, 0);
+        if (slotDate.getTime() > currentDate.getTime()) {
+          return slotDate;
+        }
+      }
+    }
+  }
+  return null;
+};
+
 module.exports = {
   getDayName,
   subtractTimeSlot,
@@ -174,4 +204,5 @@ module.exports = {
   calculateRemainingAvailability,
   isDateInAvailability,
   calculateEndTime,
+  getNextAvailableDate,
 };
