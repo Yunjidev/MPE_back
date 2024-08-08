@@ -282,6 +282,7 @@ exports.updateEnterprise = async (req, res) => {
       Job_id,
       Country_id,
       removePhotos = [],
+      removeLogo = [],
     } = req.body;
 
     // Trouver l'entreprise
@@ -309,7 +310,7 @@ exports.updateEnterprise = async (req, res) => {
       const newPhotos = req.files.photos.map((file) => file.path);
       enterprise.photos = [...enterprise.photos, ...newPhotos];
     }
-    if (req.files.logo[0]) {
+    if (req.files.logo && req.files.logo.length > 0) {
       enterprise.logo = req.files.logo[0].path;
     }
 
@@ -323,7 +324,12 @@ exports.updateEnterprise = async (req, res) => {
         }
       });
     }
-
+    if (req.body.removeLogo) {
+      if (enterprise.logo) {
+        files.deleteFile(enterprise.logo);
+        enterprise.logo = null;
+      }
+    }
     await enterprise.save();
     res.status(200).json({ message: "Entreprise modifiée" });
   } catch (error) {

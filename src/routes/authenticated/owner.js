@@ -2,6 +2,12 @@ const express = require("express");
 const router = express.Router();
 // Middlewares
 const files = require("../../utils/files");
+const { validate } = require("../../middlewares/validations-middleware");
+// validations
+const {
+  enterpriseValidationRules,
+} = require("../../utils/enterprisevalidationsrules");
+const { offerValidationRules } = require("../../utils/offervalidationsrules");
 // Controllers
 const authController = require("../../controllers/auth-controller");
 const enterprisesController = require("../../controllers/enterprises-controller");
@@ -15,6 +21,8 @@ router.put(
   "/",
   files.upload("enterprise-photos").array("photos", 3),
   files.upload("enterprise-logo").single("logo"),
+  enterpriseValidationRules(),
+  validate,
   enterprisesController.updateEnterprise,
 );
 router.delete("", enterprisesController.deleteEnterprise);
@@ -45,9 +53,11 @@ router.delete(
 router.post(
   "/offer",
   files.upload("offer-image").single("image"),
+  offerValidationRules(),
+  validate,
   offersController.createOffer,
 );
-router.use(
+router.put(
   "/offer/:id",
   files.upload("offer-image").single("image"),
   offersController.updateOffer,

@@ -4,10 +4,12 @@ const router = express.Router();
 const files = require("../../utils/files");
 const authMiddleware = require("../../middlewares/auth-middleware");
 const { validate } = require("../../middlewares/validations-middleware");
+// Validations
 const { userValidationRules } = require("../../utils/uservalidationsrules");
 const {
   enterpriseValidationRules,
 } = require("../../utils/enterprisevalidationsrules");
+const { ratingValidationRules } = require("../../utils/ratingvalidationsrules");
 // Controllers
 const authController = require("../../controllers/auth-controller");
 const enterprisesController = require("../../controllers/enterprises-controller");
@@ -42,7 +44,12 @@ router.post(
 );
 
 // Routes Rating
-router.post("/offer/:id/rating", ratingController.createRating);
+router.post(
+  "/offer/:id/rating",
+  ratingValidationRules(),
+  validate,
+  ratingController.createRating,
+);
 router.delete(
   "/rating/:id",
   authMiddleware.isOwner("Rating"),
