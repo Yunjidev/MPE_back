@@ -35,7 +35,7 @@ exports.createPricing = async (req, res) => {
   try {
     const { offre, price, description } = req.body;
     const newPricing = await Pricing.create({ offre, price, description });
-    res.status(201).json(newPricing);
+    res.status(201).json({ message: "Tarification créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -53,7 +53,7 @@ exports.updatePricing = async (req, res) => {
     pricing.price = price || pricing.price;
     pricing.description = description || pricing.description;
     await pricing.save();
-    res.status(200).json(pricing);
+    res.status(200).json({ message: "Tarification modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

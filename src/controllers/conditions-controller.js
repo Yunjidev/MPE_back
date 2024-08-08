@@ -35,7 +35,7 @@ exports.createCondition = async (req, res) => {
   try {
     const { title, description } = req.body;
     const newCondition = await Condition.create({ title, description });
-    res.status(201).json(newCondition);
+    res.status(201).json({ message: "Condition créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -52,7 +52,7 @@ exports.updateCondition = async (req, res) => {
     condition.title = title || condition.title;
     condition.description = description || condition.description;
     await condition.save();
-    res.status(200).json(condition);
+    res.status(200).json({ message: "Condition modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

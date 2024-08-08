@@ -84,7 +84,7 @@ exports.createOffer = async (req, res) => {
       duration,
       Enterprise_id: enterpriseId,
     });
-    res.status(201).json(newOffer);
+    res.status(201).json({ message: "Offre créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -115,7 +115,7 @@ exports.updateOffer = async (req, res) => {
       offer.picture = null;
     }
     await offer.save();
-    res.status(200).json(offer);
+    res.status(200).json({ message: "Offre modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -115,7 +115,7 @@ exports.createSubscription = async (req, res) => {
       end_date,
       Enterprise_id: req.enterprise.id,
     });
-    res.status(201).json(newSubscription);
+    res.status(201).json({ message: "Subscription créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -131,7 +131,7 @@ exports.updateSubscription = async (req, res) => {
     }
     subscription.status = status || subscription.status;
     await subscription.save();
-    res.status(200).json(subscription);
+    res.status(200).json({ message: "Subscription modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -63,7 +63,7 @@ exports.createLike = async (req, res) => {
       Enterprise_id,
     });
 
-    return res.status(201).json(newLike);
+    return res.status(201).json({ message: "Vous avez aimé cette entreprise" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -89,7 +89,9 @@ exports.deleteLike = async (req, res) => {
 
     await existingLike.destroy();
 
-    return res.status(200).json({ message: "Entreprise supprimée" });
+    return res
+      .status(200)
+      .json({ message: "Vous n'avez plus aimé cette entreprise" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

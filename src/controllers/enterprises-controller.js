@@ -260,7 +260,7 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     });
-    res.status(201).json(newEnterprise);
+    res.status(201).json({ message: "Entreprise créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -325,7 +325,7 @@ exports.updateEnterprise = async (req, res) => {
     }
 
     await enterprise.save();
-    res.status(200).json(enterprise);
+    res.status(200).json({ message: "Entreprise modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -185,7 +185,7 @@ exports.createReservation = async (req, res) => {
       Offer_id: id,
       User_id: req.user.id,
     });
-    res.status(201).json(newReservation);
+    res.status(201).json({ message: "Réservation créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -277,7 +277,7 @@ exports.updateReservation = async (req, res) => {
       }
     }
     await reservation.save();
-    res.status(200).json(reservation);
+    res.status(200).json({ message: "Réservation modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -37,7 +37,7 @@ exports.createJob = async (req, res) => {
     const { name } = req.body;
     const picture = req.file ? req.file.path : null;
     const newJob = await Job.create({ name, picture });
-    res.status(201).json(newJob);
+    res.status(201).json({ message: "Job créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -63,7 +63,7 @@ exports.updateJob = async (req, res) => {
       job.picture = null;
     }
     await job.save();
-    res.status(200).json(job);
+    res.status(200).json({ message: "Job modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

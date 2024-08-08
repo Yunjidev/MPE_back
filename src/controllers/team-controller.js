@@ -45,7 +45,7 @@ exports.createTeam = async (req, res) => {
       description,
       photo,
     });
-    res.status(201).json(newTeam);
+    res.status(201).json({ message: "Team créée" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -69,7 +69,7 @@ exports.updateTeam = async (req, res) => {
     team.description = description || team.description;
     team.photo = photo || team.photo;
     await team.save();
-    res.status(200).json(team);
+    res.status(200).json({ message: "Team modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

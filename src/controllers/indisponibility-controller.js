@@ -97,7 +97,7 @@ exports.createInDisponibility = async (req, res) => {
       end_hour,
       Enterprise_id: req.enterprise.id,
     });
-    res.status(201).json(newIndisponibility);
+    res.status(201).json({ message: "Indisponibilité créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -118,7 +118,7 @@ exports.updateInDisponibility = async (req, res) => {
     indisponibility.end_date = end_date || indisponibility.end_date;
     indisponibility.end_hour = end_hour || indisponibility.end_hour;
     await indisponibility.save();
-    res.status(200).json(indisponibility);
+    res.status(200).json({ message: "Indisponibilité modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

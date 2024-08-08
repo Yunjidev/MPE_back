@@ -34,7 +34,7 @@ exports.getCountryById = async (req, res) => {
 exports.createCountry = async (req, res) => {
   try {
     const newCountry = await Country.create(req.body);
-    res.status(201).json(newCountry);
+    res.status(201).json({ message: "Region créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -50,7 +50,7 @@ exports.updateCountry = async (req, res) => {
     }
     country.name = name || country.name;
     await country.save();
-    res.status(200).json(country);
+    res.status(200).json({ message: "Region modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

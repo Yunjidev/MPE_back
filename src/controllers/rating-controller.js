@@ -158,7 +158,7 @@ exports.createRating = async (req, res) => {
       Offer_id: offer.id,
       User_id: req.user.id,
     });
-    res.status(201).json(newRating);
+    res.status(201).json({ message: "Note créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
