@@ -6,6 +6,7 @@ const {
   calculateRemainingAvailability,
   getNextAvailableDate,
 } = require("../utils/availability");
+const { calculateAverageRatingForEnterprise } = require("../utils/ratings");
 
 exports.getAllEnterprises = async (req, res) => {
   try {
@@ -14,18 +15,22 @@ exports.getAllEnterprises = async (req, res) => {
         exclude: ["createdAt", "updatedAt", "User_id", "Job_id", "Country_id"],
       },
     });
-    const enterpriseWithFirstRemainingAvailability = await Promise.all(
+    const enterpriseWithDetails = await Promise.all(
       enterprise.map(async (enterprise) => {
         const remainingAvailability = await calculateRemainingAvailability(
           enterprise.id,
         );
         const nextAvailableDate = getNextAvailableDate(remainingAvailability);
+        const averageRating = await calculateAverageRatingForEnterprise(
+          enterprise.id,
+        );
         const enterpriseData = enterprise.toJSON();
         enterpriseData.nextAvailableDate = nextAvailableDate;
+        enterpriseData.averageRating = averageRating;
         return enterpriseData;
       }),
     );
-    res.status(200).json(enterpriseWithFirstRemainingAvailability);
+    res.status(200).json(enterpriseWithDetails);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
