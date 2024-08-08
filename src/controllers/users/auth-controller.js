@@ -31,7 +31,7 @@ exports.signup = async (req, res) => {
       isAdmin: user.isAdmin,
       avatar: user.avatar,
     };
-    res.setHeader("Authorization", `Bearer ${token}`);
+    res.setHeader("Authorization", `${token}`);
     res
       .status(201)
       .json({ user: userData, message: "Utilisateur créé et connecté !" });
@@ -64,7 +64,7 @@ exports.login = async (req, res) => {
       avatar: user.avatar,
     };
     const token = generateToken(user.id);
-    res.setHeader("Authorization", `Bearer ${token}`);
+    res.setHeader("Authorization", `${token}`);
     res.status(200).json({ user: userData, message: "Utilisateur connecté !" });
   } catch (error) {
     res.status(500).json({ error: error.message });
