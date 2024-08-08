@@ -11,7 +11,16 @@ const teamsController = require("../../controllers/team-controller");
 const reservationsController = require("../../controllers/reservation-controller");
 const countryController = require("../../controllers/country-controller");
 const userController = require("../../controllers/user-controller");
+const enterpriseController = require("../../controllers/enterprises-controller");
 
+// Routes Users
+router.get("/users", userController.getAllUsers);
+
+// Routes Enterprise
+router.get(
+  "/enterprises/not-validate",
+  enterpriseController.getAllEnterprisesNotValidate,
+);
 // Routes Job
 router.post(
   "/job",
@@ -60,9 +69,5 @@ router.get("/reservation", reservationsController.getAllReservations);
 router.post("/country", countryController.createCountry);
 router.put("/country/:id", countryController.updateCountry);
 router.delete("/country/:id", countryController.deleteCountry);
-
-// Routes Users
-router.get("/users", userController.getAllUsers);
-
 
 module.exports = router;

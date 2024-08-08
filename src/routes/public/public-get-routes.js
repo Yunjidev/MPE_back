@@ -20,6 +20,10 @@ router.get("/user/:id", userController.getUserById);
 
 // Enterprise routes
 router.get("/enterprises", enterpriseController.getAllEnterprises);
+router.get(
+  "/enterprises/validate",
+  enterpriseController.getAllEnterprisesValidate,
+);
 router.get("/enterprise/:id", enterpriseController.getEnterpriseById);
 
 // Job routes

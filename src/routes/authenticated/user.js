@@ -2,8 +2,12 @@ const express = require("express");
 const router = express.Router();
 // Middlewares
 const files = require("../../utils/files");
-const validatesUsersMiddleware = require("../../middlewares/validates-users-middleware");
 const authMiddleware = require("../../middlewares/auth-middleware");
+const { validate } = require("../../middlewares/validations-middleware");
+const { userValidationRules } = require("../../utils/uservalidationsrules");
+const {
+  enterpriseValidationRules,
+} = require("../../utils/enterprisevalidationsrules");
 // Controllers
 const authController = require("../../controllers/auth-controller");
 const enterprisesController = require("../../controllers/enterprises-controller");
@@ -15,8 +19,8 @@ router.put(
   "/users/:id",
   files.upload("avatars").single("avatar"),
   authMiddleware.isOwner("User"),
-  validatesUsersMiddleware.userValidationRules(true),
-  validatesUsersMiddleware.validate,
+  userValidationRules(),
+  validate,
   authController.updateUser,
 );
 router.post("/signout", authController.logout);
@@ -28,7 +32,13 @@ const uploadFiles = files.upload("enterprise").fields([
   { name: "logo", maxCount: 1 },
 ]);
 
-router.post("/enterprise", uploadFiles, enterprisesController.createEnterprise);
+router.post(
+  "/enterprise",
+  uploadFiles,
+  enterpriseValidationRules(),
+  validate,
+  enterprisesController.createEnterprise,
+);
 
 // Routes Rating
 router.post("/offer/:id/rating", ratingController.createRating);
