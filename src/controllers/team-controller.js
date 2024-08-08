@@ -3,7 +3,11 @@ const Team = sequelize.models.Team;
 
 exports.getAllTeams = async (req, res) => {
   try {
-    const team = await Team.findAll();
+    const team = await Team.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     res.status(200).json(team);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +17,11 @@ exports.getAllTeams = async (req, res) => {
 exports.getTeamById = async (req, res) => {
   try {
     const { id } = req.params;
-    const team = await Team.findByPk(id);
+    const team = await Team.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     if (!team) {
       return res.status(404).json({ message: "Pas de team trouvée" });
     }

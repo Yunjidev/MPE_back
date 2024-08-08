@@ -70,6 +70,35 @@ exports.getUserById = async (req, res) => {
           attributes: {
             exclude: ["createdAt", "updatedAt"],
           },
+          include: {
+            model: sequelize.models.Offer,
+            as: "offer",
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+            include: {
+              model: sequelize.models.Enterprise,
+              as: "enterprise",
+              attributes: {
+                exclude: [
+                  "createdAt",
+                  "updatedAt",
+                  "id",
+                  "User_id",
+                  "Job_id",
+                  "Country_id",
+                  "isValidate",
+                  "facebook",
+                  "instagram",
+                  "twitter",
+                  "siret_number",
+                  "description",
+                  "website",
+                  "photos",
+                ],
+              },
+            },
+          },
         },
         {
           model: sequelize.models.Rating,

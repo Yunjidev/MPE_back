@@ -3,7 +3,38 @@ const Indisponibility = sequelize.models.Indisponibility;
 
 exports.getAllInDisponibilities = async (req, res) => {
   try {
-    const indisponibilities = await Indisponibility.findAll();
+    const indisponibilities = await Indisponibility.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+      },
+      include: {
+        model: sequelize.models.Enterprise,
+        as: "enterprise",
+        attributes: {
+          exclude: [
+            "createdAt",
+            "updatedAt",
+            "id",
+            "User_id",
+            "Job_id",
+            "Country_id",
+            "phone",
+            "mail",
+            "adress",
+            "city",
+            "zip_code",
+            "isValidate",
+            "facebook",
+            "instagram",
+            "twitter",
+            "siret_number",
+            "description",
+            "website",
+            "photos",
+          ],
+        },
+      },
+    });
     res.status(200).json(indisponibilities);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +44,38 @@ exports.getAllInDisponibilities = async (req, res) => {
 exports.getInDisponibilityById = async (req, res) => {
   try {
     const { id } = req.params;
-    const indisponibility = await Indisponibility.findByPk(id);
+    const indisponibility = await Indisponibility.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+      },
+      include: {
+        model: sequelize.models.Enterprise,
+        as: "enterprise",
+        attributes: {
+          exclude: [
+            "createdAt",
+            "updatedAt",
+            "id",
+            "User_id",
+            "Job_id",
+            "Country_id",
+            "phone",
+            "mail",
+            "adress",
+            "city",
+            "zip_code",
+            "isValidate",
+            "facebook",
+            "instagram",
+            "twitter",
+            "siret_number",
+            "description",
+            "website",
+            "photos",
+          ],
+        },
+      },
+    });
     if (!indisponibility) {
       return res
         .status(404)

@@ -3,7 +3,38 @@ const Subscription = sequelize.models.Subscription;
 
 exports.getAllSubscriptions = async (req, res) => {
   try {
-    const subscription = await Subscription.findAll();
+    const subscription = await Subscription.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+      },
+      include: {
+        model: sequelize.models.Enterprise,
+        as: "enterprise",
+        attributes: {
+          exclude: [
+            "createdAt",
+            "updatedAt",
+            "id",
+            "User_id",
+            "Job_id",
+            "Country_id",
+            "phone",
+            "mail",
+            "adress",
+            "city",
+            "zip_code",
+            "isValidate",
+            "facebook",
+            "instagram",
+            "twitter",
+            "siret_number",
+            "description",
+            "website",
+            "photos",
+          ],
+        },
+      },
+    });
     res.status(200).json(subscription);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +44,38 @@ exports.getAllSubscriptions = async (req, res) => {
 exports.getSubscriptionById = async (req, res) => {
   try {
     const { id } = req.params;
-    const subscription = await Subscription.findByPk(id);
+    const subscription = await Subscription.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+      },
+      include: {
+        model: sequelize.models.Enterprise,
+        as: "enterprise",
+        attributes: {
+          exclude: [
+            "createdAt",
+            "updatedAt",
+            "id",
+            "User_id",
+            "Job_id",
+            "Country_id",
+            "phone",
+            "mail",
+            "adress",
+            "city",
+            "zip_code",
+            "isValidate",
+            "facebook",
+            "instagram",
+            "twitter",
+            "siret_number",
+            "description",
+            "website",
+            "photos",
+          ],
+        },
+      },
+    });
     if (!subscription) {
       return res.status(404).json({ message: "Pas de subscription trouvée" });
     }
@@ -25,19 +87,33 @@ exports.getSubscriptionById = async (req, res) => {
 
 exports.createSubscription = async (req, res) => {
   try {
-    const { subscription_type, status, start_date, end_date, Enterprise_id } =
-      req.body;
-    const enterprise =
-      await sequelize.models.Enterprise.findByPk(Enterprise_id);
-    if (!enterprise) {
-      return res.status(404).json({ message: "Pas d'entreprise trouvée" });
+    const { subscription_type, status } = req.body;
+    const start_date = new Date();
+    let end_date;
+    switch (subscription_type) {
+      case "monthly":
+        end_date = new Date(start_date);
+        end_date.setMonth(end_date.getMonth() + 1);
+        break;
+      case "yearly":
+        end_date = new Date(start_date);
+        end_date.setFullYear(end_date.getFullYear() + 1);
+        break;
+      case "forever":
+        end_date = new Date(start_date);
+        end_date.setFullYear(9999);
+        break;
+      default:
+        return res
+          .status(400)
+          .json({ message: "Type de subscription invalide" });
     }
     const newSubscription = await Subscription.create({
       subscription_type,
       status,
       start_date,
       end_date,
-      Enterprise_id,
+      Enterprise_id: req.enterprise.id,
     });
     res.status(201).json(newSubscription);
   } catch (error) {

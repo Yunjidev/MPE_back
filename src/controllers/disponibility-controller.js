@@ -3,7 +3,38 @@ const Disponibility = sequelize.models.Disponibility;
 
 exports.getAllDisponibilities = async (req, res) => {
   try {
-    const disponibility = await Disponibility.findAll();
+    const disponibility = await Disponibility.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+      },
+      include: {
+        model: sequelize.models.Enterprise,
+        as: "enterprise",
+        attributes: {
+          exclude: [
+            "createdAt",
+            "updatedAt",
+            "id",
+            "User_id",
+            "Job_id",
+            "Country_id",
+            "phone",
+            "mail",
+            "adress",
+            "city",
+            "zip_code",
+            "isValidate",
+            "facebook",
+            "instagram",
+            "twitter",
+            "siret_number",
+            "description",
+            "website",
+            "photos",
+          ],
+        },
+      },
+    });
     res.status(200).json(disponibility);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +44,38 @@ exports.getAllDisponibilities = async (req, res) => {
 exports.getDisponibilityById = async (req, res) => {
   try {
     const { id } = req.params;
-    const disponibility = await Disponibility.findByPk(id);
+    const disponibility = await Disponibility.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+      },
+      include: {
+        model: sequelize.models.Enterprise,
+        as: "enterprise",
+        attributes: {
+          exclude: [
+            "createdAt",
+            "updatedAt",
+            "id",
+            "User_id",
+            "Job_id",
+            "Country_id",
+            "phone",
+            "mail",
+            "adress",
+            "city",
+            "zip_code",
+            "isValidate",
+            "facebook",
+            "instagram",
+            "twitter",
+            "siret_number",
+            "description",
+            "website",
+            "photos",
+          ],
+        },
+      },
+    });
     if (!disponibility) {
       return res.status(404).json({ message: "Pas de disponibility trouvée" });
     }

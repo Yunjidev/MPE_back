@@ -50,11 +50,6 @@ router.delete(
 );
 
 // Routes Reservation
-router.get(
-  "/reservation/:id",
-  authMiddleware.isAuthorizedReservation,
-  reservationsController.getReservationById,
-);
 router.post("/offer/:id/reservation", reservationsController.createReservation);
 router.put(
   "/reservation/:id",

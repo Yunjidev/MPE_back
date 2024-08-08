@@ -24,8 +24,17 @@ exports.signup = async (req, res) => {
       user: username,
       url: `${process.env.CLIENT_URL}`,
     });
+    const userData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      avatar: user.avatar,
+    };
     res.setHeader("Authorization", `Bearer ${token}`);
-    res.status(201).json({ user, message: "Utilisateur créé et connecté !" });
+    res
+      .status(201)
+      .json({ user: userData, message: "Utilisateur créé et connecté !" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -47,9 +56,16 @@ exports.login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Mot de passe non valide" });
     }
+    const userData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      avatar: user.avatar,
+    };
     const token = generateToken(user.id);
     res.setHeader("Authorization", `Bearer ${token}`);
-    res.status(200).json({ user, message: "Utilisateur connecté !" });
+    res.status(200).json({ user: userData, message: "Utilisateur connecté !" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

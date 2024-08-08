@@ -8,7 +8,63 @@ const {
 
 exports.getAllReservations = async (req, res) => {
   try {
-    const reservation = await Reservation.findAll();
+    const reservation = await Reservation.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id", "User_id"],
+      },
+      include: [
+        {
+          model: sequelize.models.Offer,
+          as: "offer",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+          },
+          include: {
+            model: sequelize.models.Enterprise,
+            as: "enterprise",
+            attributes: {
+              exclude: [
+                "createdAt",
+                "updatedAt",
+                "id",
+                "User_id",
+                "Job_id",
+                "Country_id",
+                "phone",
+                "mail",
+                "adress",
+                "city",
+                "zip_code",
+                "isValidate",
+                "facebook",
+                "instagram",
+                "twitter",
+                "siret_number",
+                "description",
+                "website",
+                "photos",
+              ],
+            },
+          },
+        },
+        {
+          model: sequelize.models.User,
+          as: "user",
+          attributes: {
+            exclude: [
+              "createdAt",
+              "updatedAt",
+              "id",
+              "isAdmin",
+              "isEntrepreneur",
+              "password",
+              "resetPasswordToken",
+              "resetPasswordExpires",
+            ],
+          },
+        },
+      ],
+    });
     res.status(200).json(reservation);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -18,7 +74,63 @@ exports.getAllReservations = async (req, res) => {
 exports.getReservationById = async (req, res) => {
   try {
     const { id } = req.params;
-    const reservation = await Reservation.findByPk(id);
+    const reservation = await Reservation.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id", "User_id"],
+      },
+      include: [
+        {
+          model: sequelize.models.Offer,
+          as: "offer",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+          },
+          include: {
+            model: sequelize.models.Enterprise,
+            as: "enterprise",
+            attributes: {
+              exclude: [
+                "createdAt",
+                "updatedAt",
+                "id",
+                "User_id",
+                "Job_id",
+                "Country_id",
+                "phone",
+                "mail",
+                "adress",
+                "city",
+                "zip_code",
+                "isValidate",
+                "facebook",
+                "instagram",
+                "twitter",
+                "siret_number",
+                "description",
+                "website",
+                "photos",
+              ],
+            },
+          },
+        },
+        {
+          model: sequelize.models.User,
+          as: "user",
+          attributes: {
+            exclude: [
+              "createdAt",
+              "updatedAt",
+              "id",
+              "isAdmin",
+              "isEntrepeneur",
+              "password",
+              "resetPasswordToken",
+              "resetPasswordExpires",
+            ],
+          },
+        },
+      ],
+    });
     if (!reservation) {
       return res.status(404).json({ message: "Pas de reservation trouvée" });
     }

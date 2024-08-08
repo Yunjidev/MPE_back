@@ -4,7 +4,11 @@ const files = require("../utils/files");
 
 exports.getAllJobs = async (req, res) => {
   try {
-    const job = await Job.findAll();
+    const job = await Job.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     res.status(200).json(job);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -14,7 +18,11 @@ exports.getAllJobs = async (req, res) => {
 exports.getJobById = async (req, res) => {
   try {
     const { id } = req.params;
-    const job = await Job.findByPk(id);
+    const job = await Job.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     if (!job) {
       return res.status(404).json({ message: "Pas de job trouvée" });
     }

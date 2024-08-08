@@ -3,7 +3,11 @@ const Condition = sequelize.models.Conditions;
 
 exports.getAllConditions = async (req, res) => {
   try {
-    const condition = await Condition.findAll();
+    const condition = await Condition.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     res.status(200).json(condition);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +17,11 @@ exports.getAllConditions = async (req, res) => {
 exports.getConditionById = async (req, res) => {
   try {
     const { id } = req.params;
-    const condition = await Condition.findByPk(id);
+    const condition = await Condition.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     if (!condition) {
       return res.status(404).json({ message: "Pas de Condition trouvée" });
     }

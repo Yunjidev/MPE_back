@@ -3,7 +3,11 @@ const Pricing = sequelize.models.Pricings;
 
 exports.getAllPricings = async (req, res) => {
   try {
-    const pricings = await Pricing.findAll();
+    const pricings = await Pricing.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     res.status(200).json(pricings);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +17,11 @@ exports.getAllPricings = async (req, res) => {
 exports.getPricingById = async (req, res) => {
   try {
     const { id } = req.params;
-    const pricing = await Pricing.findByPk(id);
+    const pricing = await Pricing.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     if (!pricing) {
       return res.status(404).json({ message: "Pas de tarification trouvée" });
     }
