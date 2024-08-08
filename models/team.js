@@ -16,24 +16,14 @@ module.exports = (sequelize, DataTypes) => {
       firstname: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-          notEmpty: true,
-          len: [3, 50],
-        },
       },
       lastname: {
         type: DataTypes.STRING,
         allowNull: true,
-        validate: {
-          len: [3, 50],
-        },
       },
       email: {
         type: DataTypes.STRING,
         allowNull: true,
-        validate: {
-          isEmail: true,
-        },
       },
       github: {
         type: DataTypes.STRING,

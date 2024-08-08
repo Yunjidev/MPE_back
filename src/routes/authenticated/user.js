@@ -13,6 +13,7 @@ const authController = require("../../controllers/auth-controller");
 const enterprisesController = require("../../controllers/enterprises-controller");
 const ratingController = require("../../controllers/rating-controller");
 const reservationsController = require("../../controllers/reservation-controller");
+const likeController = require("../../controllers/like-controller");
 
 // Route User
 router.put(
@@ -60,5 +61,10 @@ router.put(
   authMiddleware.isAuthorizedReservation,
   reservationsController.updateReservation,
 );
+
+// Routes Like
+router.get("/likes", likeController.getLikes);
+router.post("/like", likeController.createLike);
+router.delete("/like", likeController.deleteLike);
 
 module.exports = router;

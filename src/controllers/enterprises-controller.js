@@ -12,7 +12,25 @@ exports.getAllEnterprises = async (req, res) => {
   try {
     const enterprise = await Enterprise.findAll({
       attributes: {
-        exclude: ["createdAt", "updatedAt", "User_id", "Job_id", "Country_id"],
+        exclude: [
+          "createdAt",
+          "updatedAt",
+          "User_id",
+          "Job_id",
+          "Country_id",
+          "photos",
+          "facebook",
+          "instagram",
+          "twitter",
+          "description",
+          "isValidate",
+          "phone",
+          "mail",
+          "adress",
+          "siret_number",
+          "city",
+          "zip_code",
+        ],
       },
     });
     const enterpriseWithDetails = await Promise.all(
@@ -41,21 +59,43 @@ exports.getAllEnterprisesValidate = async (req, res) => {
     const enterprise = await Enterprise.findAll({
       where: { isValidate: true },
       attributes: {
-        exclude: ["createdAt", "updatedAt", "User_id", "Job_id", "Country_id"],
+        exclude: [
+          "createdAt",
+          "updatedAt",
+          "User_id",
+          "Job_id",
+          "Country_id",
+          "photos",
+          "facebook",
+          "instagram",
+          "twitter",
+          "description",
+          "isValidate",
+          "phone",
+          "mail",
+          "adress",
+          "siret_number",
+          "city",
+          "zip_code",
+        ],
       },
     });
-    const enterpriseWithFirstRemainingAvailability = await Promise.all(
+    const enterpriseWithDetails = await Promise.all(
       enterprise.map(async (enterprise) => {
         const remainingAvailability = await calculateRemainingAvailability(
           enterprise.id,
         );
         const nextAvailableDate = getNextAvailableDate(remainingAvailability);
+        const averageRating = await calculateAverageRatingForEnterprise(
+          enterprise.id,
+        );
         const enterpriseData = enterprise.toJSON();
         enterpriseData.nextAvailableDate = nextAvailableDate;
+        enterpriseData.averageRating = averageRating;
         return enterpriseData;
       }),
     );
-    res.status(200).json(enterpriseWithFirstRemainingAvailability);
+    res.status(200).json(enterpriseWithDetails);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -158,8 +198,12 @@ exports.getEnterpriseById = async (req, res) => {
       return res.status(404).json({ message: "Pas de Enterprise trouvée" });
     }
     const remainingAvailability = await calculateRemainingAvailability(id);
+    const nextAvailableDate = getNextAvailableDate(remainingAvailability);
+    const averageRating = await calculateAverageRatingForEnterprise(id);
     const enterpriseData = enterprise.toJSON();
     enterpriseData.remainingAvailability = remainingAvailability;
+    enterpriseData.nextAvailableDate = nextAvailableDate;
+    enterpriseData.averageRating = averageRating;
     res.status(200).json(enterpriseData);
   } catch (error) {
     res.status(500).json({ message: error.message });

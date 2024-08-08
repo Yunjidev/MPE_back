@@ -19,7 +19,6 @@ router.get("/users", userController.getAllUsers);
 router.get("/user/:id", userController.getUserById);
 
 // Enterprise routes
-router.get("/enterprises", enterpriseController.getAllEnterprises);
 router.get(
   "/enterprises/validate",
   enterpriseController.getAllEnterprisesValidate,

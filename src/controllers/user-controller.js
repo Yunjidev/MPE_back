@@ -6,6 +6,7 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.findAll({
       attributes: {
         exclude: [
+          "id",
           "password",
           "resetPasswordToken",
           "resetPasswordExpires",
@@ -18,7 +19,14 @@ exports.getAllUsers = async (req, res) => {
           model: sequelize.models.Enterprise,
           as: "enterprises",
           attributes: {
-            exclude: ["createdAt", "updatedAt"],
+            exclude: [
+              "createdAt",
+              "updatedAt",
+              "id",
+              "User_id",
+              "Job_id",
+              "Country_id",
+            ],
           },
         },
       ],
@@ -47,7 +55,13 @@ exports.getUserById = async (req, res) => {
           model: sequelize.models.Enterprise,
           as: "enterprises",
           attributes: {
-            exclude: ["createdAt", "updatedAt"],
+            exclude: [
+              "createdAt",
+              "updatedAt",
+              "User_id",
+              "Job_id",
+              "Country_id",
+            ],
           },
         },
         {
@@ -60,6 +74,13 @@ exports.getUserById = async (req, res) => {
         {
           model: sequelize.models.Rating,
           as: "ratings",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+        {
+          model: sequelize.models.Like,
+          as: "likes",
           attributes: {
             exclude: ["createdAt", "updatedAt"],
           },

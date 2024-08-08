@@ -12,11 +12,13 @@ const reservationsController = require("../../controllers/reservation-controller
 const countryController = require("../../controllers/country-controller");
 const userController = require("../../controllers/user-controller");
 const enterpriseController = require("../../controllers/enterprises-controller");
+const likeController = require("../../controllers/like-controller");
 
 // Routes Users
 router.get("/users", userController.getAllUsers);
 
 // Routes Enterprise
+router.get("/enterprises", enterpriseController.getAllEnterprises);
 router.get(
   "/enterprises/not-validate",
   enterpriseController.getAllEnterprisesNotValidate,
@@ -69,5 +71,9 @@ router.get("/reservation", reservationsController.getAllReservations);
 router.post("/country", countryController.createCountry);
 router.put("/country/:id", countryController.updateCountry);
 router.delete("/country/:id", countryController.deleteCountry);
+
+// Routes Like
+router.get("/likes", likeController.getAllLikes);
+router.get("/enterprises/:id/likes", likeController.getLikeByEnterpriseId);
 
 module.exports = router;
