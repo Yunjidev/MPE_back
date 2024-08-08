@@ -11,6 +11,7 @@ const {
 } = require("../../utils/enterprisevalidationsrules");
 const { ratingValidationRules } = require("../../utils/ratingvalidationsrules");
 // Controllers
+const userController = require("../../controllers/users/user-controller");
 const authController = require("../../controllers/users/auth-controller");
 const enterprisesController = require("../../controllers/enterprises/enterprises-controller");
 const ratingController = require("../../controllers/rating-controller");
@@ -18,6 +19,7 @@ const reservationsController = require("../../controllers/reservation-controller
 const likeController = require("../../controllers/like-controller");
 
 // Route User
+router.get("/user/:id", userController.getUserById);
 router.put(
   "/users/:id",
   files.upload("avatars").single("avatar"),
