@@ -1,7 +1,7 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Offer = sequelize.models.Offer;
-const files = require("../utils/files");
-const { calculateAverageRatingForOffer } = require("../utils/ratings");
+const files = require("../../utils/files");
+const { calculateAverageRatingForOffer } = require("../../utils/ratings");
 
 exports.getAllOffers = async (req, res) => {
   try {

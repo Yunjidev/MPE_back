@@ -1,6 +1,6 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Job = sequelize.models.Job;
-const files = require("../utils/files");
+const files = require("../../utils/files");
 
 exports.getAllJobs = async (req, res) => {
   try {

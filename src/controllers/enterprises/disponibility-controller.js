@@ -1,4 +1,4 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Disponibility = sequelize.models.Disponibility;
 
 exports.getAllDisponibilities = async (req, res) => {

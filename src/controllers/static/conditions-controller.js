@@ -1,4 +1,4 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Condition = sequelize.models.Conditions;
 
 exports.getAllConditions = async (req, res) => {

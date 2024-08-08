@@ -1,4 +1,4 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Indisponibility = sequelize.models.Indisponibility;
 
 exports.getAllInDisponibilities = async (req, res) => {
