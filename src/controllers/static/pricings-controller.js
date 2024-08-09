@@ -5,7 +5,7 @@ exports.getAllPricings = async (req, res) => {
   try {
     const pricings = await Pricing.findAll({
       attributes: {
-        exclude: ["createdAt", "updatedAt", "id"],
+        exclude: ["createdAt", "updatedAt"],
       },
     });
     res.status(200).json(pricings);
@@ -19,7 +19,7 @@ exports.getPricingById = async (req, res) => {
     const { id } = req.params;
     const pricing = await Pricing.findByPk(id, {
       attributes: {
-        exclude: ["createdAt", "updatedAt", "id"],
+        exclude: ["createdAt", "updatedAt"],
       },
     });
     if (!pricing) {
