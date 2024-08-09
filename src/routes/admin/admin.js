@@ -37,7 +37,6 @@ router.get(
 );
 
 // Routes Job
-router.get("/jobs", jobsController.getAllJobs);
 router.get("/job/:id", jobsController.getJobById);
 router.post(
   "/job",
@@ -52,7 +51,6 @@ router.put(
 router.delete("/job/:id", jobsController.deleteJob);
 
 // Routes Country
-router.get("/countries", countryController.getAllCountries);
 router.get("/country/:id", countryController.getCountryById);
 router.post("/country", countryController.createCountry);
 router.put("/country/:id", countryController.updateCountry);

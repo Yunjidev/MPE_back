@@ -9,6 +9,8 @@ const conditionController = require("../../controllers/static/conditions-control
 const faqController = require("../../controllers/static/faq-controller");
 const pricingController = require("../../controllers/static/pricings-controller");
 const teamController = require("../../controllers/static/team-controller");
+const countryController = require("../../controllers/static/country-controller");
+const jobsController = require("../../controllers/static/job-controller");
 
 // Enterprise routes
 router.get(
@@ -35,5 +37,11 @@ router.get("/faq/:id", faqController.getFaqById);
 // team routes
 router.get("/teams", teamController.getAllTeams);
 router.get("/team/:id", teamController.getTeamById);
+
+// Routes Country
+router.get("/countries", countryController.getAllCountries);
+
+// Routes Job
+router.get("/jobs", jobsController.getAllJobs);
 
 module.exports = router;
