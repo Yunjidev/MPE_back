@@ -19,9 +19,9 @@ const reservationsController = require("../../controllers/reservation-controller
 const likeController = require("../../controllers/like-controller");
 
 // Route User
-router.get("/user/:id", userController.getUserById);
+router.get("/user/profile", userController.getUserProfile);
 router.put(
-  "/users/:id",
+  "/user/update",
   files.upload("avatars").single("avatar"),
   authMiddleware.isOwner("User"),
   userValidationRules(true),
