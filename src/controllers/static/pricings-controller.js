@@ -1,9 +1,13 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Pricing = sequelize.models.Pricings;
 
 exports.getAllPricings = async (req, res) => {
   try {
-    const pricings = await Pricing.findAll();
+    const pricings = await Pricing.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     res.status(200).json(pricings);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +17,11 @@ exports.getAllPricings = async (req, res) => {
 exports.getPricingById = async (req, res) => {
   try {
     const { id } = req.params;
-    const pricing = await Pricing.findByPk(id);
+    const pricing = await Pricing.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     if (!pricing) {
       return res.status(404).json({ message: "Pas de tarification trouvée" });
     }
@@ -27,7 +35,7 @@ exports.createPricing = async (req, res) => {
   try {
     const { offre, price, description } = req.body;
     const newPricing = await Pricing.create({ offre, price, description });
-    res.status(201).json(newPricing);
+    res.status(201).json({ message: "Tarification créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -45,7 +53,7 @@ exports.updatePricing = async (req, res) => {
     pricing.price = price || pricing.price;
     pricing.description = description || pricing.description;
     await pricing.save();
-    res.status(200).json(pricing);
+    res.status(200).json({ message: "Tarification modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

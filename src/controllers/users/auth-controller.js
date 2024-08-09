@@ -1,11 +1,11 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const User = sequelize.models.User;
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const { generateToken } = require("../../config/jwt");
+const { generateToken } = require("../../../config/jwt");
 const { Op } = require("sequelize");
-const sendEmail = require("../mailers/email-service");
-const files = require("../utils/files");
+const sendEmail = require("../../mailers/email-service");
+const files = require("../../utils/files");
 
 // Fonction pour enrigistrer un nouvel utilisateur
 exports.signup = async (req, res) => {
@@ -22,9 +22,19 @@ exports.signup = async (req, res) => {
     const token = generateToken(user.id);
     sendEmail(email, "Bienvenue à ma Petite Entreprise", "welcome", {
       user: username,
+      url: `${process.env.CLIENT_URL}`,
     });
-    res.setHeader("Authorization", `Bearer ${token}`);
-    res.status(201).json({ user, message: "Utilisateur créé et connecté !" });
+    const userData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      avatar: user.avatar,
+    };
+    res.setHeader("Authorization", `${token}`);
+    res
+      .status(201)
+      .json({ user: userData, message: "Utilisateur créé et connecté !" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -46,9 +56,16 @@ exports.login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Mot de passe non valide" });
     }
+    const userData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      avatar: user.avatar,
+    };
     const token = generateToken(user.id);
-    res.setHeader("Authorization", `Bearer ${token}`);
-    res.status(200).json({ user, message: "Utilisateur connecté !" });
+    res.setHeader("Authorization", `${token}`);
+    res.status(200).json({ user: userData, message: "Utilisateur connecté !" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -66,7 +83,7 @@ exports.logout = async (req, res) => {
 // Fonction pour mettre à jour un utilisateur
 exports.updateUser = async (req, res) => {
   try {
-    const { id } = req.params;
+    const user = req.user;
     const {
       username,
       firstname,
@@ -77,30 +94,17 @@ exports.updateUser = async (req, res) => {
       removeAvatar,
     } = req.body;
     const avatar = req.file ? req.file.path : null;
-    const requestingUser = req.user;
-
-    if (
-      !requestingUser ||
-      (!requestingUser.isAdmin && requestingUser.id !== parseInt(id, 10))
-    ) {
-      return res.status(403).json({ message: "Action non autorisé" });
-    }
-
-    const user = await User.findByPk(id);
-    if (!user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
-    }
 
     user.username = username || user.username;
     user.firstname = firstname || user.firstname;
     user.lastname = lastname || user.lastname;
     // Si l'utilisateur est admin, in ne peut pas changer son email
-    if (!requestingUser.isAdmin) {
+    if (!req.user.isAdmin) {
       user.email = email || user.email;
     }
 
     // Seul un admin peut changer le statut isAdmin
-    if (requestingUser.isAdmin) {
+    if (req.user.isAdmin) {
       user.isAdmin = isAdmin || user.isAdmin;
     }
 
@@ -120,7 +124,7 @@ exports.updateUser = async (req, res) => {
     }
 
     await user.save();
-    res.status(200).json({ message: "Utilisateur mis à jour !" });
+    res.status(200).json({ user, message: "Utilisateur mis à jour !" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

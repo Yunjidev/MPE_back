@@ -1,9 +1,13 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Team = sequelize.models.Team;
 
 exports.getAllTeams = async (req, res) => {
   try {
-    const team = await Team.findAll();
+    const team = await Team.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     res.status(200).json(team);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +17,11 @@ exports.getAllTeams = async (req, res) => {
 exports.getTeamById = async (req, res) => {
   try {
     const { id } = req.params;
-    const team = await Team.findByPk(id);
+    const team = await Team.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "id"],
+      },
+    });
     if (!team) {
       return res.status(404).json({ message: "Pas de team trouvée" });
     }
@@ -38,7 +46,7 @@ exports.createTeam = async (req, res) => {
       description,
       photo,
     });
-    res.status(201).json(newTeam);
+    res.status(201).json({ message: "Team créée" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -63,7 +71,7 @@ exports.updateTeam = async (req, res) => {
     team.description = description || team.description;
     team.photo = photo || team.photo;
     await team.save();
-    res.status(200).json(team);
+    res.status(200).json({ message: "Team modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

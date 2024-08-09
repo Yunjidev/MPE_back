@@ -1,17 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../../middlewares/auth-middleware");
-const authController = require("../../controllers/auth-controller");
+const authController = require("../../controllers/users/auth-controller");
 const files = require("../../utils/files");
-const {
-  userValidationRules,
-  validate,
-} = require("../../middlewares/validates-users-middleware");
+const { validate } = require("../../middlewares/validations-middleware");
+const { userValidationRules } = require("../../utils/uservalidationsrules");
 
 router.post(
   "/signup",
   files.upload("avatars").single("avatar"),
-  userValidationRules(false),
+  userValidationRules(true),
   validate,
   authController.signup,
 );
