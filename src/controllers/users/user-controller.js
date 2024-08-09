@@ -6,7 +6,6 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.findAll({
       attributes: {
         exclude: [
-          "id",
           "password",
           "resetPasswordToken",
           "resetPasswordExpires",

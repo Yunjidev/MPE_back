@@ -69,7 +69,6 @@ exports.getEnterpriseById = async (req, res) => {
           as: "entrepreneur",
           attributes: {
             exclude: [
-              "id",
               "createdAt",
               "updatedAt",
               "password",

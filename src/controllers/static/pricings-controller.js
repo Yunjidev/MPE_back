@@ -33,8 +33,14 @@ exports.getPricingById = async (req, res) => {
 
 exports.createPricing = async (req, res) => {
   try {
-    const { offre, price, description } = req.body;
-    const newPricing = await Pricing.create({ offre, price, description });
+    const { offre, price, description, isMostPopular, features } = req.body;
+    const newPricing = await Pricing.create({
+      offre,
+      price,
+      description,
+      isMostPopular,
+      features,
+    });
     res.status(201).json({ message: "Tarification créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -44,7 +50,7 @@ exports.createPricing = async (req, res) => {
 exports.updatePricing = async (req, res) => {
   try {
     const { id } = req.params;
-    const { offre, price, description } = req.body;
+    const { offre, price, description, isMostPopular, features } = req.body;
     const pricing = await Pricing.findByPk(id);
     if (!pricing) {
       return res.status(404).json({ message: "Pas de tarification trouvée" });
@@ -52,6 +58,8 @@ exports.updatePricing = async (req, res) => {
     pricing.offre = offre || pricing.offre;
     pricing.price = price || pricing.price;
     pricing.description = description || pricing.description;
+    pricing.isMostPopular = isMostPopular || pricing.isMostPopular;
+    pricing.features = features || pricing.features;
     await pricing.save();
     res.status(200).json({ message: "Tarification modifiée" });
   } catch (error) {
