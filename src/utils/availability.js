@@ -34,13 +34,14 @@ const convertToTime = (minutes) => {
 function subtractTimeSlot(slots, startTime, endTime) {
   const start = convertToMinutes(startTime);
   const end = convertToMinutes(endTime);
+  console.log(`Subtracting from slots: Start - ${startTime}, End - ${endTime}`);
+  console.log(`Original Slots: `, slots);
 
-  return slots.flatMap((slot) => {
+  const updatedSlots = slots.flatMap((slot) => {
     const slotStart = convertToMinutes(slot.start);
     const slotEnd = convertToMinutes(slot.end);
 
     if (start >= slotEnd || end <= slotStart) {
-      // No overlap
       return [slot];
     }
 
@@ -56,6 +57,8 @@ function subtractTimeSlot(slots, startTime, endTime) {
 
     return newSlots;
   });
+  console.log(`Updated Slots: `, updatedSlots);
+  return updatedSlots;
 }
 
 function addMinutes(time, minutes) {
@@ -96,17 +99,28 @@ async function calculateRemainingAvailability(Enterprise_id) {
     ],
   });
 
-  const availabilityByDay = disponibilities.reduce((acc, dispo) => {
+  const daysofWeek = [
+    "Dimanche",
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+  ];
+  const availabilityByDay = daysofWeek.reduce((acc, day) => {
+    acc[day] = [];
+    return acc;
+  }, {});
+
+  disponibilities.forEach((dispo) => {
     const day = dispo.day;
-    if (!acc[day]) {
-      acc[day] = [];
-    }
-    acc[day].push({
+    availabilityByDay[day].push({
       start: dispo.start_hour,
       end: dispo.end_hour,
     });
-    return acc;
-  }, {});
+  });
+  console.log("Initial availability by day:", availabilityByDay);
 
   indisponibilities.forEach((indispo) => {
     const startDay = indispo.start_date.getDay();
@@ -114,16 +128,22 @@ async function calculateRemainingAvailability(Enterprise_id) {
     const startTime = indispo.start_hour;
     const endTime = indispo.end_hour;
 
-    for (let day = startDay; day <= endDay; day++) {
+    const today = new Date();
+    const todayDay = today.getDay();
+
+    for (let day = todayDay; day <= endDay; day++) {
       const dayName = getDayName(day);
-      if (!availabilityByDay[dayName]) {
-        availabilityByDay[dayName] = [];
+
+      if (
+        !availabilityByDay[dayName] &&
+        availabilityByDay[dayName].length > 0
+      ) {
+        availabilityByDay[dayName] = subtractTimeSlot(
+          availabilityByDay[dayName],
+          startTime,
+          endTime,
+        );
       }
-      availabilityByDay[dayName] = subtractTimeSlot(
-        availabilityByDay[dayName],
-        startTime,
-        endTime,
-      );
     }
   });
 
@@ -133,7 +153,10 @@ async function calculateRemainingAvailability(Enterprise_id) {
     const startTime = reservation.start_time;
     const endTime = reservation.end_time;
 
-    for (let day = startDay; day <= endDay; day++) {
+    const today = new Date();
+    const todayDay = today.getDay();
+
+    for (let day = todayDay; day <= endDay; day++) {
       const dayName = getDayName(day);
       if (!availabilityByDay[dayName]) {
         availabilityByDay[dayName] = [];
@@ -167,6 +190,40 @@ const isDateInAvailability = (
   );
 };
 
+const getNextAvailableDate = (remainingAvailability) => {
+  const today = new Date();
+  const dayOfWeek = [
+    "Dimanche",
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+  ];
+
+  for (let i = 0; i < 30; i++) {
+    const currentDate = new Date();
+    currentDate.setDate(today.getDate() + i);
+    const dayName = dayOfWeek[currentDate.getDay()];
+    console.log(`Checking availability for: ${dayName}`);
+    if (remainingAvailability[dayName]) {
+      for (let slot of remainingAvailability[dayName]) {
+        const slotDate = new Date(currentDate);
+        const [startHour, startMin] = slot.start.split(":").map(Number);
+        slotDate.setHours(startHour, startMin, 0, 0);
+        console.log(
+          `Checking slot: ${slot.start} - ${slot.end} on ${slotDate}`,
+        );
+        if (slotDate.getTime() > currentDate.getTime()) {
+          return slotDate.toISOString();
+        }
+      }
+    }
+  }
+  return null;
+};
+
 module.exports = {
   getDayName,
   subtractTimeSlot,
@@ -174,4 +231,5 @@ module.exports = {
   calculateRemainingAvailability,
   isDateInAvailability,
   calculateEndTime,
+  getNextAvailableDate,
 };

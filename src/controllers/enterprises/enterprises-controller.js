@@ -1,20 +1,56 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Enterprise = sequelize.models.Enterprise;
-const { Job, User, Country } = require("../../models/index");
-const files = require("../utils/files");
-const { calculateRemainingAvailability } = require("../utils/availability");
+const { Job, User, Country } = require("../../../models/index");
+const files = require("../../utils/files");
+const {
+  calculateRemainingAvailability,
+  getNextAvailableDate,
+} = require("../../utils/availability");
+const { calculateAverageRatingForEnterprise } = require("../../utils/ratings");
 
 exports.getAllEnterprises = async (req, res) => {
   try {
-    const enterprises = await Enterprise.findAll();
-    res.status(200).json(enterprises);
-  } catch (error) {
-    console.error('Erreur lors de la récupération des entreprises:', error);
-    res.status(500).json({
-      message: 'Une erreur interne est survenue lors de la récupération des entreprises.',
-      error: error.message,
-      stack: error.stack // Inclure la stack trace peut être utile en développement, mais devrait être omise en production pour des raisons de sécurité.
+    const enterprise = await Enterprise.findAll({
+      attributes: {
+        exclude: [
+          "createdAt",
+          "updatedAt",
+          "User_id",
+          "Job_id",
+          "Country_id",
+          "photos",
+          "facebook",
+          "instagram",
+          "twitter",
+          "description",
+          "isValidate",
+          "phone",
+          "mail",
+          "adress",
+          "siret_number",
+          "city",
+          "zip_code",
+        ],
+      },
     });
+    const enterpriseWithDetails = await Promise.all(
+      enterprise.map(async (enterprise) => {
+        const remainingAvailability = await calculateRemainingAvailability(
+          enterprise.id,
+        );
+        const nextAvailableDate = getNextAvailableDate(remainingAvailability);
+        const averageRating = await calculateAverageRatingForEnterprise(
+          enterprise.id,
+        );
+        const enterpriseData = enterprise.toJSON();
+        enterpriseData.nextAvailableDate = nextAvailableDate;
+        enterpriseData.averageRating = averageRating;
+        return enterpriseData;
+      }),
+    );
+    res.status(200).json(enterpriseWithDetails);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -23,12 +59,45 @@ exports.getEnterpriseById = async (req, res) => {
     const { id } = req.params;
     const enterprise = await Enterprise.findByPk(id, {
       include: [
-        "job",
-        "entrepreneur",
-        "disponibilities",
-        "indisponibilities",
-        "ratings",
-        "countries",
+        {
+          model: sequelize.models.Job,
+          as: "job",
+          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+        },
+        {
+          model: sequelize.models.User,
+          as: "entrepreneur",
+          attributes: {
+            exclude: [
+              "id",
+              "createdAt",
+              "updatedAt",
+              "password",
+              "resetPasswordToken",
+              "resetPasswordExpires",
+              "isEntrepeneur",
+            ],
+          },
+        },
+        {
+          model: sequelize.models.Country,
+          as: "country",
+          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+        },
+        {
+          model: sequelize.models.Disponibility,
+          as: "disponibilities",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
+          },
+        },
+        {
+          model: sequelize.models.Indisponibility,
+          as: "indisponibilities",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
+          },
+        },
         {
           model: sequelize.models.Offer,
           as: "offers",
@@ -36,23 +105,41 @@ exports.getEnterpriseById = async (req, res) => {
             {
               model: sequelize.models.Reservation,
               as: "reservations",
+              attributes: {
+                exclude: [
+                  "createdAt",
+                  "updatedAt",
+                  "id",
+                  "Offer_id",
+                  "User_id",
+                ],
+              },
             },
           ],
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
+          },
         },
       ],
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "User_id", "Job_id", "Country_id"],
+      },
     });
     if (!enterprise) {
-      return res.status(404).json({ message: "Pas de Enterprise trouvée" });
+      return res.status(404).json({ message: "Pas de Enterprise trouv├®e" });
     }
     const remainingAvailability = await calculateRemainingAvailability(id);
+    const nextAvailableDate = getNextAvailableDate(remainingAvailability);
+    const averageRating = await calculateAverageRatingForEnterprise(id);
     const enterpriseData = enterprise.toJSON();
     enterpriseData.remainingAvailability = remainingAvailability;
+    enterpriseData.nextAvailableDate = nextAvailableDate;
+    enterpriseData.averageRating = averageRating;
     res.status(200).json(enterpriseData);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 exports.createEnterprise = async (req, res) => {
   try {
@@ -83,6 +170,9 @@ exports.createEnterprise = async (req, res) => {
     if (!country) {
       return res.status(404).json({ message: "Pas de Region trouvé" });
     }
+    if (!req.user.firstname || !req.user.lastname) {
+      return res.status(400).json({ message: "Veuillez renseigner votre nom" });
+    }
     const newEnterprise = await Enterprise.create({
       name,
       phone,
@@ -101,7 +191,7 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     });
-    res.status(201).json(newEnterprise);
+    res.status(201).json({ message: "Entreprise créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -120,16 +210,15 @@ exports.updateEnterprise = async (req, res) => {
       facebook,
       instagram,
       twitter,
+      isValidate,
       Job_id,
       Country_id,
       removePhotos = [],
+      removeLogo = [],
     } = req.body;
 
     // Trouver l'entreprise
     const enterprise = req.enterprise;
-    if (!enterprise) {
-      return res.status(404).json({ message: "Entreprise non trouv�e" });
-    }
 
     // Mise � jour des informations de l'entreprise
     enterprise.name = name || enterprise.name;
@@ -144,13 +233,15 @@ exports.updateEnterprise = async (req, res) => {
     enterprise.twitter = twitter || enterprise.twitter;
     enterprise.Country_id = Country_id || enterprise.Country_id;
     enterprise.Job_id = Job_id || enterprise.Job_id;
-
+    if (req.user.isAdmin) {
+      enterprise.isValidate = isValidate || enterprise.isValidate;
+    }
     // Gestion des nouvelles photos
     if (req.files.photos && req.files.photos.length > 0) {
       const newPhotos = req.files.photos.map((file) => file.path);
       enterprise.photos = [...enterprise.photos, ...newPhotos];
     }
-    if (req.files.logo[0]) {
+    if (req.files.logo && req.files.logo.length > 0) {
       enterprise.logo = req.files.logo[0].path;
     }
 
@@ -164,9 +255,14 @@ exports.updateEnterprise = async (req, res) => {
         }
       });
     }
-
+    if (req.body.removeLogo) {
+      if (enterprise.logo) {
+        files.deleteFile(enterprise.logo);
+        enterprise.logo = null;
+      }
+    }
     await enterprise.save();
-    res.status(200).json(enterprise);
+    res.status(200).json({ message: "Entreprise modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

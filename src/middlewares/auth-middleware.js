@@ -8,7 +8,7 @@ const isAuthenticated = async (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: "Utilisateur non connecté" });
   }
-  token = token.split(" ")[2];
+  token = token.split(" ")[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findByPk(decoded.User_id);
@@ -29,15 +29,13 @@ const isAdmin = async (req, res, next) => {
 const isOwner = (model) => async (req, res, next) => {
   const { id } = req.params;
   try {
+    if (model === "User") {
+      return next();
+    }
     let resourceId;
     const resource = await sequelize.models[model].findByPk(id);
     if (!resource) {
       return res.status(404).json({ message: "Ressource non trouvée" });
-    }
-    if (model === "User") {
-      resourceId = resource.id;
-    } else {
-      resourceId = resource.User_id;
     }
     if (resourceId !== req.user.id && req.user.isAdmin !== true) {
       return res
@@ -63,7 +61,11 @@ const isEnterpriseOwner = () => async (req, res, next) => {
       return res.status(404).json({ message: "Entreprise non trouvée" });
     }
 
-    if (enterprise.User_id !== req.user.id && req.user.isAdmin !== true) {
+    if (
+      enterprise.User_id !== req.user.id &&
+      req.user.isAdmin !== true &&
+      enterprise.isValidate !== true
+    ) {
       return res
         .status(403)
         .json({ message: "Vous n'êtes pas autorisé à effectuer cette action" });

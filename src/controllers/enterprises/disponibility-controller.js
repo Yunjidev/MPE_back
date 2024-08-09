@@ -1,9 +1,40 @@
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../../../models/index");
 const Disponibility = sequelize.models.Disponibility;
 
 exports.getAllDisponibilities = async (req, res) => {
   try {
-    const disponibility = await Disponibility.findAll();
+    const disponibility = await Disponibility.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+      },
+      include: {
+        model: sequelize.models.Enterprise,
+        as: "enterprise",
+        attributes: {
+          exclude: [
+            "createdAt",
+            "updatedAt",
+            "id",
+            "User_id",
+            "Job_id",
+            "Country_id",
+            "phone",
+            "mail",
+            "adress",
+            "city",
+            "zip_code",
+            "isValidate",
+            "facebook",
+            "instagram",
+            "twitter",
+            "siret_number",
+            "description",
+            "website",
+            "photos",
+          ],
+        },
+      },
+    });
     res.status(200).json(disponibility);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +44,38 @@ exports.getAllDisponibilities = async (req, res) => {
 exports.getDisponibilityById = async (req, res) => {
   try {
     const { id } = req.params;
-    const disponibility = await Disponibility.findByPk(id);
+    const disponibility = await Disponibility.findByPk(id, {
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+      },
+      include: {
+        model: sequelize.models.Enterprise,
+        as: "enterprise",
+        attributes: {
+          exclude: [
+            "createdAt",
+            "updatedAt",
+            "id",
+            "User_id",
+            "Job_id",
+            "Country_id",
+            "phone",
+            "mail",
+            "adress",
+            "city",
+            "zip_code",
+            "isValidate",
+            "facebook",
+            "instagram",
+            "twitter",
+            "siret_number",
+            "description",
+            "website",
+            "photos",
+          ],
+        },
+      },
+    });
     if (!disponibility) {
       return res.status(404).json({ message: "Pas de disponibility trouvée" });
     }
@@ -52,7 +114,7 @@ exports.createDisponibility = async (req, res) => {
         });
       }),
     );
-    res.status(201).json(newDisponibilities);
+    res.status(201).json({ message: "Disponibilité créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -64,7 +126,7 @@ exports.updateDisponibility = async (req, res) => {
     const { day, start_hour, end_hour } = req.body;
     const disponibility = await Disponibility.findByPk(id);
     if (!disponibility) {
-      return res.status(404).json({ message: "Pas de disponibility trouvée" });
+      return res.status(404).json({ message: "Pas de disponibilité trouvée" });
     }
     const overlapping = await Disponibility.isOverlapping(
       day || disponibility.day,
@@ -81,7 +143,7 @@ exports.updateDisponibility = async (req, res) => {
     disponibility.start_hour = start_hour || disponibility.start_hour;
     disponibility.end_hour = end_hour || disponibility.end_hour;
     await disponibility.save();
-    res.status(200).json(disponibility);
+    res.status(200).json({ message: "Disponibilité modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -92,10 +154,10 @@ exports.deleteDisponibility = async (req, res) => {
     const { id } = req.params;
     const disponibility = await Disponibility.findByPk(id);
     if (!disponibility) {
-      return res.status(404).json({ message: "Pas de disponibility trouvée" });
+      return res.status(404).json({ message: "Pas de disponibilité trouvée" });
     }
     await disponibility.destroy();
-    res.status(200).json({ message: "disponibility supprimée" });
+    res.status(200).json({ message: "disponibilité supprimée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

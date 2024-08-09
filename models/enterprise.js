@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "Enterprise_id",
         as: "subscriptions",
       });
+      Enterprise.hasMany(models.Like, {
+        foreignKey: "Enterprise_id",
+        as: "likes",
+      });
     }
   }
   Enterprise.init(
