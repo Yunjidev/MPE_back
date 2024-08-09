@@ -57,9 +57,27 @@ const enterpriseValidationRules = (isUpdate = false) => {
         .escape()
         .isLength({ min: 14, max: 14 }),
       body("description").bail().trim().escape(),
-      body("facebook").bail().trim().escape().isURL(),
-      body("instagram").bail().trim().escape().isURL(),
-      body("twitter").bail().trim().escape().isURL(),
+      body("facebook")
+        .optional({ checkFalsy: true })
+        .bail()
+        .trim()
+        .escape()
+        .isURL()
+        .withMessage("L'URL Facebook est invalide"),
+      body("instagram")
+        .optional({ checkFalsy: true })
+        .bail()
+        .trim()
+        .escape()
+        .isURL()
+        .withMessage("L'URL Instagram est invalide"),
+      body("twitter")
+        .optional({ checkFalsy: true })
+        .bail()
+        .trim()
+        .escape()
+        .isURL()
+        .withMessage("L'URL Twitter est invalide"),
     );
   } else {
     rules.push(

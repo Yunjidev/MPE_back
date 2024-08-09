@@ -29,10 +29,20 @@ exports.getAllEnterprisesValidate = async (req, res) => {
           "mail",
           "adress",
           "siret_number",
-          "city",
-          "zip_code",
         ],
       },
+      include: [
+        {
+          model: sequelize.models.Job,
+          as: "job",
+          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+        },
+        {
+          model: sequelize.models.Country,
+          as: "country",
+          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+        },
+      ],
     });
     const enterpriseWithDetails = await Promise.all(
       enterprise.map(async (enterprise) => {
@@ -70,7 +80,6 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
           as: "entrepreneur",
           attributes: {
             exclude: [
-              "id",
               "createdAt",
               "updatedAt",
               "password",
