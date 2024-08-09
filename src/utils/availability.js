@@ -182,15 +182,7 @@ const isDateInAvailability = (
 
 const getNextAvailableDate = (remainingAvailability) => {
   const today = new Date();
-  const dayOfWeek = [
-    "Dimanche",
-    "Lundi",
-    "Mardi",
-    "Mercredi",
-    "Jeudi",
-    "Vendredi",
-    "Samedi",
-  ];
+  const dayOfWeek = Array.from({ length: 7 }, (_, i) => getDayName(i));
 
   for (let i = 0; i < 30; i++) {
     const currentDate = new Date();
