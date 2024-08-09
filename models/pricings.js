@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   Pricings.init(
     {
       offre: {
-        type: DataTypes.ENUM("monthly", "yearly", "forever"),
+        type: DataTypes.STRING,
         allowNull: false,
         validate: {
           notEmpty: true,
@@ -34,6 +34,14 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: true,
           isFloat: true,
         },
+      },
+      isMostPopular: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      features: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: false,
       },
     },
     {

@@ -70,7 +70,6 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
           as: "entrepreneur",
           attributes: {
             exclude: [
-              "id",
               "createdAt",
               "updatedAt",
               "password",

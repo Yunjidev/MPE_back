@@ -69,7 +69,6 @@ exports.getEnterpriseById = async (req, res) => {
           as: "entrepreneur",
           attributes: {
             exclude: [
-              "id",
               "createdAt",
               "updatedAt",
               "password",
@@ -158,10 +157,14 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     } = req.body;
-    const photos = req.files.photos
-      ? req.files.photos.map((file) => file.path)
-      : [];
-    const logo = req.files && req.files.logo[0] ? req.files.logo[0].path : null;
+    const photos =
+      req.files && req.files.photos && req.files.photos.length > 0
+        ? req.files.photos.map((file) => file.path)
+        : [];
+    const logo =
+      req.files && req.files.logo && req.files.logo.length > 0
+        ? req.files.logo[0].path
+        : null;
     const job = await Job.findByPk(Job_id);
     if (!job) {
       return res.status(404).json({ message: "Pas de job trouvé" });

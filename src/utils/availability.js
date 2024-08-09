@@ -7,13 +7,13 @@ const {
 
 function getDayName(dayIndex) {
   const days = [
-    "Dimanche",
     "Lundi",
     "Mardi",
     "Mercredi",
     "Jeudi",
     "Vendredi",
     "Samedi",
+    "Dimanche",
   ];
   return days[dayIndex];
 }
@@ -99,19 +99,11 @@ async function calculateRemainingAvailability(Enterprise_id) {
     ],
   });
 
-  const daysofWeek = [
-    "Dimanche",
-    "Lundi",
-    "Mardi",
-    "Mercredi",
-    "Jeudi",
-    "Vendredi",
-    "Samedi",
-  ];
+  const daysofWeek = Array.from({ length: 7 }, (_, i) => getDayName(i));
   const availabilityByDay = daysofWeek.reduce((acc, day) => {
     acc[day] = [];
     return acc;
-  }, {});
+  }, {}); // { 'Dimanche': [], 'Lundi': [], 'Mardi': [], ... }
 
   disponibilities.forEach((dispo) => {
     const day = dispo.day;
@@ -120,7 +112,6 @@ async function calculateRemainingAvailability(Enterprise_id) {
       end: dispo.end_hour,
     });
   });
-  console.log("Initial availability by day:", availabilityByDay);
 
   indisponibilities.forEach((indispo) => {
     const startDay = indispo.start_date.getDay();
@@ -168,7 +159,6 @@ async function calculateRemainingAvailability(Enterprise_id) {
       );
     }
   });
-
   return availabilityByDay;
 }
 
@@ -192,15 +182,7 @@ const isDateInAvailability = (
 
 const getNextAvailableDate = (remainingAvailability) => {
   const today = new Date();
-  const dayOfWeek = [
-    "Dimanche",
-    "Lundi",
-    "Mardi",
-    "Mercredi",
-    "Jeudi",
-    "Vendredi",
-    "Samedi",
-  ];
+  const dayOfWeek = Array.from({ length: 7 }, (_, i) => getDayName(i));
 
   for (let i = 0; i < 30; i++) {
     const currentDate = new Date();

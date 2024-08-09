@@ -27,6 +27,7 @@ const ratingController = require("../../controllers/rating-controller");
 
 // Routes Users
 router.get("/users", userController.getAllUsers);
+router.get("/user/:id", userController.getUserById);
 
 // Routes Enterprise
 router.get("/enterprises", enterpriseController.getAllEnterprises);
