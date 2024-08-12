@@ -28,6 +28,8 @@ exports.signup = async (req, res) => {
       id: user.id,
       username: user.username,
       email: user.email,
+      firstname: user.firstname,
+      lastname: user.lastname,
       isAdmin: user.isAdmin,
       avatar: user.avatar,
     };
@@ -60,6 +62,8 @@ exports.login = async (req, res) => {
       id: user.id,
       username: user.username,
       email: user.email,
+      firstname: user.firstname,
+      lastname: user.lastname,
       isAdmin: user.isAdmin,
       avatar: user.avatar,
     };
