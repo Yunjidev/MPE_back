@@ -7,13 +7,13 @@ const {
 
 function getDayName(dayIndex) {
   const days = [
+    "Dimanche",
     "Lundi",
     "Mardi",
     "Mercredi",
     "Jeudi",
     "Vendredi",
     "Samedi",
-    "Dimanche",
   ];
   return days[dayIndex];
 }
@@ -34,6 +34,7 @@ const convertToTime = (minutes) => {
 function subtractTimeSlot(slots, startTime, endTime) {
   const start = convertToMinutes(startTime);
   const end = convertToMinutes(endTime);
+
   console.log(`Subtracting from slots: Start - ${startTime}, End - ${endTime}`);
   console.log(`Original Slots: `, slots);
 
@@ -57,6 +58,7 @@ function subtractTimeSlot(slots, startTime, endTime) {
 
     return newSlots;
   });
+
   console.log(`Updated Slots: `, updatedSlots);
   return updatedSlots;
 }
@@ -72,7 +74,9 @@ const calculateEndTime = (startTime, duration) => {
   const [startHour, startMin] = startTime.split(":").map(Number);
   const endHour = startHour + Math.floor((startMin + duration) / 60);
   const endMin = (startMin + duration) % 60;
-  const endTime = `${endHour.toString().padStart(2, "0")}:${endMin.toString().padStart(2, "0")}`;
+  const endTime = `${endHour.toString().padStart(2, "0")}:${endMin
+    .toString()
+    .padStart(2, "0")}`;
   return endTime;
 };
 
@@ -99,11 +103,19 @@ async function calculateRemainingAvailability(Enterprise_id) {
     ],
   });
 
-  const daysofWeek = Array.from({ length: 7 }, (_, i) => getDayName(i));
+  const daysofWeek = [
+    "Dimanche",
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+  ];
   const availabilityByDay = daysofWeek.reduce((acc, day) => {
     acc[day] = [];
     return acc;
-  }, {}); // { 'Dimanche': [], 'Lundi': [], 'Mardi': [], ... }
+  }, {});
 
   disponibilities.forEach((dispo) => {
     const day = dispo.day;
@@ -112,6 +124,7 @@ async function calculateRemainingAvailability(Enterprise_id) {
       end: dispo.end_hour,
     });
   });
+  console.log("Initial availability by day:", availabilityByDay);
 
   indisponibilities.forEach((indispo) => {
     const startDay = indispo.start_date.getDay();
@@ -125,10 +138,7 @@ async function calculateRemainingAvailability(Enterprise_id) {
     for (let day = todayDay; day <= endDay; day++) {
       const dayName = getDayName(day);
 
-      if (
-        !availabilityByDay[dayName] &&
-        availabilityByDay[dayName].length > 0
-      ) {
+      if (availabilityByDay[dayName] && availabilityByDay[dayName].length > 0) {
         availabilityByDay[dayName] = subtractTimeSlot(
           availabilityByDay[dayName],
           startTime,
@@ -159,6 +169,8 @@ async function calculateRemainingAvailability(Enterprise_id) {
       );
     }
   });
+
+  console.log("Final availability by day:", availabilityByDay);
   return availabilityByDay;
 }
 
@@ -182,22 +194,67 @@ const isDateInAvailability = (
 
 const getNextAvailableDate = (remainingAvailability) => {
   const today = new Date();
-  const dayOfWeek = Array.from({ length: 7 }, (_, i) => getDayName(i));
+  const currentHour = today.getHours();
+  const currentMinutes = today.getMinutes();
+  const currentTimeInMinutes = currentHour * 60 + currentMinutes;
+
+  const dayOfWeek = [
+    "Dimanche",
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+  ];
 
   for (let i = 0; i < 30; i++) {
     const currentDate = new Date();
     currentDate.setDate(today.getDate() + i);
     const dayName = dayOfWeek[currentDate.getDay()];
+
     console.log(`Checking availability for: ${dayName}`);
+
     if (remainingAvailability[dayName]) {
       for (let slot of remainingAvailability[dayName]) {
+        let slotStartMinutes = convertToMinutes(slot.start);
+        let slotEndMinutes = convertToMinutes(slot.end);
+
+        // Si c'est aujourd'hui et l'heure actuelle dépasse le début du créneau, ajuster le créneau
+        if (i === 0 && currentTimeInMinutes > slotStartMinutes) {
+          if (currentTimeInMinutes < slotEndMinutes) {
+            console.log(
+              `Adjusting slot start time from ${slot.start} to ${convertToTime(currentTimeInMinutes)}`,
+            );
+            slot.start = convertToTime(currentTimeInMinutes);
+            slotStartMinutes = currentTimeInMinutes;
+          } else {
+            console.log(
+              `Ignoring slot: ${slot.start} - ${slot.end} because it has already passed.`,
+            );
+            continue;
+          }
+        }
+
+        // Vérifier si le créneau est déjà passé
+        if (i === 0 && slotEndMinutes < currentTimeInMinutes) {
+          console.log(
+            `Ignoring slot: ${slot.start} - ${slot.end} because it has already passed.`,
+          );
+          continue;
+        }
+
         const slotDate = new Date(currentDate);
         const [startHour, startMin] = slot.start.split(":").map(Number);
         slotDate.setHours(startHour, startMin, 0, 0);
+
         console.log(
           `Checking slot: ${slot.start} - ${slot.end} on ${slotDate}`,
         );
-        if (slotDate.getTime() > currentDate.getTime()) {
+
+        // Retourner le créneau s'il est après l'heure actuelle
+        if (slotDate.getTime() > today.getTime()) {
+          console.log(`Next available slot: ${slotDate}`);
           return slotDate.toISOString();
         }
       }
@@ -205,7 +262,6 @@ const getNextAvailableDate = (remainingAvailability) => {
   }
   return null;
 };
-
 module.exports = {
   getDayName,
   subtractTimeSlot,
