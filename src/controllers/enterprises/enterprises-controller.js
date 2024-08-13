@@ -242,7 +242,7 @@ exports.updateEnterprise = async (req, res) => {
       enterprise.isValidate = isValidate || enterprise.isValidate;
     }
     // Gestion des nouvelles photos
-    if (req.files.photos && req.files.photos.length > 0) {
+    /*    if (req.files.photos && req.files.photos.length > 0) {
       const newPhotos = req.files.photos.map((file) => file.path);
       enterprise.photos = [...enterprise.photos, ...newPhotos];
     }
@@ -265,7 +265,7 @@ exports.updateEnterprise = async (req, res) => {
         files.deleteFile(enterprise.logo);
         enterprise.logo = null;
       }
-    }
+    }*/
     await enterprise.save();
     res.status(200).json({ message: "Entreprise modifiée" });
   } catch (error) {
