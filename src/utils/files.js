@@ -44,4 +44,8 @@ const deleteFile = (filePath) => {
   });
 };
 
-module.exports = { upload, deleteFile };
+const getFilePath = (folder, file) => {
+  return `${__dirname}/../../uploads/${folder}/${file}`;
+};
+
+module.exports = { upload, deleteFile, getFilePath };
