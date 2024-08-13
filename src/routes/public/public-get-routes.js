@@ -11,6 +11,7 @@ const pricingController = require("../../controllers/static/pricings-controller"
 const teamController = require("../../controllers/static/team-controller");
 const countryController = require("../../controllers/static/country-controller");
 const jobsController = require("../../controllers/static/job-controller");
+const searchController = require("../../controllers/static/search-controller");
 
 // Enterprise routes
 router.get(
@@ -43,5 +44,8 @@ router.get("/countries", countryController.getAllCountries);
 
 // Routes Job
 router.get("/jobs", jobsController.getAllJobs);
+
+// Routes Search
+router.get("/search", searchController.search);
 
 module.exports = router;

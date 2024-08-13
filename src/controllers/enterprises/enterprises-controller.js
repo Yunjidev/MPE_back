@@ -194,6 +194,8 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     });
+    req.user.isEntrepreneur = true;
+    await req.user.save();
     res.status(201).json({ message: "Entreprise créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });

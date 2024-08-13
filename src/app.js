@@ -12,12 +12,12 @@ const adminRoutes = require("./routes/admin/admin-routes");
 const corsOptions = {
   origin: "http://localhost:5173",
   exposedHeaders: ["Authorization"],
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
+app.use("api/app/uploads/", express.static(path.join(__dirname, "uploads")));
 db.sequelize
   .authenticate()
   .then(() => {
