@@ -149,23 +149,11 @@ exports.updateUser = async (req, res) => {
 // Fonction pour supprimer un utilisateur
 exports.deleteUser = async (req, res) => {
   try {
-    const { id } = req.params;
-    const requestingUser = req.user;
-
-    if (requestingUser.id !== parseInt(id, 10)) {
-      return res.status(403).json({ message: "Action non autorisé" });
-    }
-
-    const user = await User.findByPk(id);
-    if (!user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
-    }
-
-    if (user.avatar) {
+    if (req.user.avatar) {
       files.deleteFile(user.avatar);
     }
 
-    await user.destroy();
+    await req.user.destroy();
     res.status(200).json({ message: "Utilisateur supprimé" });
   } catch (error) {
     res.status(500).json({ message: error.message });

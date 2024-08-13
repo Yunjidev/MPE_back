@@ -6,6 +6,7 @@ const files = require("../../utils/files");
 // Controllers
 // users
 const userController = require("../../controllers/users/user-controller");
+const userModerationController = require("../../controllers/users/user-moderation-controller");
 // enterprises
 const enterpriseController = require("../../controllers/enterprises/enterprises-controller");
 const enterpriseNotValidateController = require("../../controllers/enterprises/enterprises-not-validate-controller");
@@ -28,6 +29,12 @@ const ratingController = require("../../controllers/rating-controller");
 // Routes Users
 router.get("/users", userController.getAllUsers);
 router.get("/user/:id", userController.getUserById);
+router.put(
+  "/user/:id",
+  files.upload("avatars").single("avatar"),
+  userModerationController.moderateUser,
+);
+router.delete("/users/:id", userModerationController.deleteUser);
 
 // Routes Enterprise
 router.get("/enterprises", enterpriseController.getAllEnterprises);
