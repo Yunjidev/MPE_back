@@ -127,8 +127,20 @@ exports.updateUser = async (req, res) => {
       user.avatar = null;
     }
 
+    const userData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      isAdmin: user.isAdmin,
+      avatar: user.avatar,
+    };
+
     await user.save();
-    res.status(200).json({ user, message: "Utilisateur mis à jour !" });
+    res
+      .status(200)
+      .json({ user: userData, message: "Utilisateur mis à jour !" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
