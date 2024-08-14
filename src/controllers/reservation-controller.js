@@ -122,7 +122,7 @@ exports.getReservationById = async (req, res) => {
               "updatedAt",
               "id",
               "isAdmin",
-              "isEntrepeneur",
+              "isEntrepreneur",
               "password",
               "resetPasswordToken",
               "resetPasswordExpires",

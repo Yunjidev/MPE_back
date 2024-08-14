@@ -74,7 +74,7 @@ exports.getEnterpriseById = async (req, res) => {
               "password",
               "resetPasswordToken",
               "resetPasswordExpires",
-              "isEntrepeneur",
+              "isEntrepreneur",
             ],
           },
         },
@@ -173,8 +173,15 @@ exports.createEnterprise = async (req, res) => {
     if (!country) {
       return res.status(404).json({ message: "Pas de Region trouvé" });
     }
-    if (!req.user.firstname || !req.user.lastname) {
-      return res.status(400).json({ message: "Veuillez renseigner votre nom" });
+    if (!req.user.firstname && !req.user.lastname) {
+      return res
+        .status(400)
+        .json({ message: "Veuillez renseigner votre nom et votre prénom" });
+    }
+
+    if (!req.user.isEntrepreneur) {
+      req.user.isEntrepreneur = true;
+      await req.user.save();
     }
     const newEnterprise = await Enterprise.create({
       name,
@@ -194,8 +201,6 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     });
-    req.user.isEntrepreneur = true;
-    await req.user.save();
     res.status(201).json({ message: "Entreprise créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
