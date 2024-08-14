@@ -74,7 +74,7 @@ exports.getEnterpriseById = async (req, res) => {
               "password",
               "resetPasswordToken",
               "resetPasswordExpires",
-              "isEntrepeneur",
+              "isEntrepreneur",
             ],
           },
         },
@@ -179,12 +179,10 @@ exports.createEnterprise = async (req, res) => {
         .json({ message: "Veuillez renseigner votre nom et votre prénom" });
     }
 
-    console.log("req.user.isEntrepreneur", req.user.isEntrepeneur);
-    if (!req.user.isEntrepeneur) {
-      req.user.isEntrepeneur = true;
+    if (!req.user.isEntrepreneur) {
+      req.user.isEntrepreneur = true;
       await req.user.save();
     }
-    console.log("after save", req.user.isEntrepeneur);
     const newEnterprise = await Enterprise.create({
       name,
       phone,
