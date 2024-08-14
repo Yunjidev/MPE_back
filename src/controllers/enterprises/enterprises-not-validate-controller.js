@@ -54,7 +54,7 @@ exports.getEnterpriseByIdNotValidate = async (req, res) => {
               "password",
               "resetPasswordToken",
               "resetPasswordExpires",
-              "isEntrepeneur",
+              "isEntrepreneur",
             ],
           },
         },

@@ -30,7 +30,6 @@ exports.signup = async (req, res) => {
       email: user.email,
       firstname: user.firstname,
       lastname: user.lastname,
-      isAdmin: user.isAdmin,
       avatar: user.avatar,
     };
     res.setHeader("Authorization", `${token}`);
