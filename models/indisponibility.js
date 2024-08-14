@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Indisponibility.belongsTo(models.Enterprise, {
         foreignKey: "Enterprise_id",
+        as: "enterprise",
       });
     }
   }

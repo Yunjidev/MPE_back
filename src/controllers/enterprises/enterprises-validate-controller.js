@@ -10,6 +10,7 @@ const { calculateAverageRatingForEnterprise } = require("../../utils/ratings");
 
 exports.getAllEnterprisesValidate = async (req, res) => {
   try {
+    console.log('Fetching all validated enterprises...');
     const enterprise = await Enterprise.findAll({
       where: { isValidate: true },
       attributes: {
@@ -44,8 +45,12 @@ exports.getAllEnterprisesValidate = async (req, res) => {
         },
       ],
     });
+    console.log(`Found ${enterprise.length} validated enterprises`);
+
     const enterpriseWithDetails = await Promise.all(
       enterprise.map(async (enterprise) => {
+        try{
+        console.log(`Processing enterprise ID: ${enterprise.id}`);
         const remainingAvailability = await calculateRemainingAvailability(
           enterprise.id,
         );
@@ -56,14 +61,22 @@ exports.getAllEnterprisesValidate = async (req, res) => {
         const enterpriseData = enterprise.toJSON();
         enterpriseData.nextAvailableDate = nextAvailableDate;
         enterpriseData.averageRating = averageRating;
+        console.log(`Processed enterprise ID: ${enterprise.id}`);
         return enterpriseData;
-      }),
-    );
-    res.status(200).json(enterpriseWithDetails);
+      } catch (error) {
+        console.error(`Error processing enterprise ID: ${enterprise.id}:`, error);
+        // Vous pouvez décider de renvoyer une partie des données, ou de sauter cette entreprise.
+        return null; // ou {} pour un objet vide si cela a du sens pour votre application
+      }
+    }));
+    console.log('Sending response with detailed enterprises');
+    res.status(200).json(enterpriseWithDetails.filter(e => e)); // Filtrer les valeurs null si nécessaire
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error in getAllEnterprisesValidate:', error);
+    res.status(500).json({ message: 'An error occurred while fetching validated enterprises.' });
   }
 };
+
 
 exports.getEnterpriseByIdValidate = async (req, res) => {
   try {

@@ -81,6 +81,7 @@ const calculateEndTime = (startTime, duration) => {
 };
 
 async function calculateRemainingAvailability(Enterprise_id) {
+  try {
   const disponibilities = await Disponibility.findAll({
     where: {
       Enterprise_id,
@@ -119,6 +120,11 @@ async function calculateRemainingAvailability(Enterprise_id) {
 
   disponibilities.forEach((dispo) => {
     const day = dispo.day;
+    if (!Array.isArray(availabilityByDay[day])) {
+      console.error(`availabilityByDay[${day}] is not an array.`);
+      availabilityByDay[day] = []; // Assurez-vous que c'est un tableau.
+    }
+    console.log(`Pushing to availabilityByDay[${day}]`);
     availabilityByDay[day].push({
       start: dispo.start_hour,
       end: dispo.end_hour,
@@ -171,7 +177,11 @@ async function calculateRemainingAvailability(Enterprise_id) {
   });
 
   console.log("Final availability by day:", availabilityByDay);
-  return availabilityByDay;
+    return availabilityByDay;
+  } catch (error) {
+    console.error('Error in calculateRemainingAvailability:', error);
+    throw error; // Rethrow l'erreur pour la gérer à un niveau supérieur.
+  }
 }
 
 const isDateInAvailability = (
