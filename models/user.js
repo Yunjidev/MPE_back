@@ -74,7 +74,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      isEntrepeneur: {
+      isEntrepreneur: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },

@@ -29,7 +29,7 @@ router.put(
   authController.updateUser,
 );
 router.post("/signout", authController.logout);
-router.delete("/users/:id", authController.deleteUser);
+router.delete("/users/delete", authController.deleteUser);
 
 // Routes Enterprise
 const uploadFiles = files.upload("enterprise").fields([

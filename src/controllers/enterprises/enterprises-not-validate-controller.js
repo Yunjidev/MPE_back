@@ -15,6 +15,18 @@ exports.getAllEnterprisesNotValidate = async (req, res) => {
       attributes: {
         exclude: ["createdAt", "updatedAt", "User_id", "Job_id", "Country_id"],
       },
+      include: [
+        {
+          model: sequelize.models.Job,
+          as: "job",
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+        {
+          model: sequelize.models.Country,
+          as: "country",
+          attributes: { exclude: ["createdAt", "updatedAt"] },
+        },
+      ],
     });
     res.status(200).json(enterprise);
   } catch (error) {
@@ -42,7 +54,7 @@ exports.getEnterpriseByIdNotValidate = async (req, res) => {
               "password",
               "resetPasswordToken",
               "resetPasswordExpires",
-              "isEntrepeneur",
+              "isEntrepreneur",
             ],
           },
         },
