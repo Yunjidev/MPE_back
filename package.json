@@ -5,8 +5,9 @@
   "main": "./src/app.js",
   "scripts": {
     "start": "nodemon ./src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "reseed": "npx sequelize-cli db:seed:undo:all && npx sequelize-cli db:seed --seed admin-seed.js && npx sequelize-cli db:seed --seed users_seed.js && npx sequelize-cli db:seed --seed country-seed.js && npx sequelize-cli db:seed --seed job-seed.js && npx sequelize-cli db:seed --seed enterprises_validates_seed.js && npx sequelize-cli db:seed --seed disponibilities_seed.js && npx sequelize-cli db:seed --seed indisponibilities_seed.js && npx sequelize-cli db:seed --seed pricing-seed.js && npx sequelize-cli db:seed --seed offers_seed.js && npx sequelize-cli db:seed --seed reservations_seed.js && npx sequelize-cli db:seed --seed ratings_seed.js && npx sequelize-cli db:seed --seed team_seed.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

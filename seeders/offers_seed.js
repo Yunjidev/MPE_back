@@ -16,7 +16,7 @@ module.exports = {
 
     // Créer vos seeds pour 'Offers'
     const offers = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 30; i++) {
       offers.push({
         name: faker.commerce.productName(),
         description: faker.lorem.sentences(),

@@ -4,7 +4,7 @@ const { faker } = require('@faker-js/faker/locale/fr');
 module.exports = {
   async up (queryInterface, Sequelize) {
     const usersData = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 50; i++) {
       usersData.push({
         username: faker.internet.userName(),
         email: faker.internet.email(),
@@ -12,6 +12,7 @@ module.exports = {
         resetPasswordToken: null,
         resetPasswordExpires: null,
         isAdmin: faker.datatype.boolean(),
+        isEntrepreneur: true,
         avatar: faker.image.avatar(),
         createdAt: new Date(),
         updatedAt: new Date()

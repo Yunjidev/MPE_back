@@ -21,7 +21,7 @@ module.exports = {
 
     // Créer vos seeds pour 'Reservations'
     const reservations = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 50; i++) {
       reservations.push({
         date: faker.date.future(),
         start_time: faker.date.recent().toISOString().split('T')[1].substr(0, 5),
