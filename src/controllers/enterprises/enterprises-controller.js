@@ -114,6 +114,13 @@ exports.getEnterpriseById = async (req, res) => {
                 ],
               },
             },
+            {
+              model: sequelize.models.Rating,
+              as: "ratings",
+              attributes: {
+                exclude: ["createdAt", "updatedAt", "Enterprise_id"],
+              },
+            },
           ],
           attributes: {
             exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
