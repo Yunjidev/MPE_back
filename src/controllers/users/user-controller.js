@@ -1,8 +1,6 @@
 const { sequelize } = require("../../../models/index");
 const User = sequelize.models.User;
 const files = require("../../utils/files");
-const fs = require("fs");
-const path = require("path");
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -237,18 +235,10 @@ exports.getUserProfile = async (req, res) => {
         },
       ],
     });
-    if (user.avatar) {
-      const avatarPath = files.getFilePath(
-        "avatars",
-        path.basename(user.avatar),
-      );
 
-      if (fs.existsSync(avatarPath)) {
-        const avatarUrl = `${req.protocol}://${req.get("host")}/uploads/avatars/${path.basename(user.avatar)}`;
-        user.dataValues.avatar = avatarUrl;
-      } else {
-        user.dataValues.avatar = null;
-      }
+    if (user.avatar) {
+      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      user.dataValues.avatar = avatarUrl;
     }
     res.status(200).json(user);
   } catch (error) {
