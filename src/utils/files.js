@@ -10,7 +10,8 @@ const storage = (folder) =>
       cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
-      cb(null, `${Date.now()}-${file.originalname}`);
+      const name = file.originalname.split(" ").join("_");
+      cb(null, `${Date.now()}-${name}`);
     },
   });
 
@@ -44,8 +45,8 @@ const deleteFile = (filePath) => {
   });
 };
 
-const getFilePath = (folder, file) => {
-  return `${__dirname}/../../uploads/${folder}/${file}`;
+const getUrl = (req, folder, file) => {
+  return `${req.protocol}://${req.get("host")}/app/uploads/${folder}/${path.basename(file)}`;
 };
 
-module.exports = { upload, deleteFile, getFilePath };
+module.exports = { upload, deleteFile, getUrl };

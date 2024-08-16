@@ -32,6 +32,10 @@ exports.signup = async (req, res) => {
       lastname: user.lastname,
       avatar: user.avatar,
     };
+    if (user.avatar) {
+      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      userData.avatar = avatarUrl;
+    }
     res.setHeader("Authorization", `${token}`);
     res
       .status(201)
@@ -66,6 +70,10 @@ exports.login = async (req, res) => {
       isAdmin: user.isAdmin,
       avatar: user.avatar,
     };
+    if (user.avatar) {
+      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      userData.avatar = avatarUrl;
+    }
     const token = generateToken(user.id);
     res.setHeader("Authorization", `${token}`);
     res.status(200).json({ user: userData, message: "Utilisateur connecté !" });
@@ -135,7 +143,10 @@ exports.updateUser = async (req, res) => {
       isAdmin: user.isAdmin,
       avatar: user.avatar,
     };
-
+    if (user.avatar) {
+      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      userData.avatar = avatarUrl;
+    }
     await user.save();
     res
       .status(200)
@@ -148,8 +159,9 @@ exports.updateUser = async (req, res) => {
 // Fonction pour supprimer un utilisateur
 exports.deleteUser = async (req, res) => {
   try {
+    console.log("req.user", req.user);
     if (req.user.avatar) {
-      files.deleteFile(user.avatar);
+      files.deleteFile(req.user.avatar);
     }
 
     await req.user.destroy();
