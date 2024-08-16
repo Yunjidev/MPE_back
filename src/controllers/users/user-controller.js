@@ -235,7 +235,6 @@ exports.getUserProfile = async (req, res) => {
         },
       ],
     });
-
     if (user.avatar) {
       const avatarUrl = files.getUrl(req, "avatars", user.avatar);
       user.dataValues.avatar = avatarUrl;
