@@ -47,12 +47,12 @@ router.get(
 router.get("/job/:id", jobsController.getJobById);
 router.post(
   "/job",
-  files.upload("job-picture").single("picture"),
+  files.upload("jobs-pictures").single("picture"),
   jobsController.createJob,
 );
 router.put(
   "/job/:id",
-  files.upload("job-picture").single("picture"),
+  files.upload("jobs-pictures").single("picture"),
   jobsController.updateJob,
 );
 router.delete("/job/:id", jobsController.deleteJob);
