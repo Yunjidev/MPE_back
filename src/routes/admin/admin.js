@@ -38,6 +38,7 @@ router.delete("/users/:id", userModerationController.deleteUser);
 
 // Routes Enterprise
 router.get("/enterprises", enterpriseController.getAllEnterprises);
+router.get("/enterprises/:id", enterpriseController.getEnterpriseById);
 router.get(
   "/enterprises/not-validate",
   enterpriseNotValidateController.getAllEnterprisesNotValidate,

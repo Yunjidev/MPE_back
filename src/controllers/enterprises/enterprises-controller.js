@@ -43,6 +43,18 @@ exports.getAllEnterprises = async (req, res) => {
           enterprise.id,
         );
         const enterpriseData = enterprise.toJSON();
+        if (enterpriseData.photos) {
+          enterpriseData.photos = enterpriseData.photos.map((photo) => {
+            return files.getUrl(req, "enterprises/photos", photo);
+          });
+        }
+        if (enterpriseData.logo) {
+          enterpriseData.logo = files.getUrl(
+            req,
+            "enterprises/logo",
+            enterpriseData.logo,
+          );
+        }
         enterpriseData.nextAvailableDate = nextAvailableDate;
         enterpriseData.averageRating = averageRating;
         return enterpriseData;
@@ -141,6 +153,18 @@ exports.getEnterpriseById = async (req, res) => {
     enterpriseData.remainingAvailability = remainingAvailability;
     enterpriseData.nextAvailableDate = nextAvailableDate;
     enterpriseData.averageRating = averageRating;
+    if (enterpriseData.photos) {
+      enterpriseData.photos = enterpriseData.photos.map((photo) => {
+        return files.getUrl(req, "enterprises/photos", photo);
+      });
+    }
+    if (enterpriseData.logo) {
+      enterpriseData.logo = files.getUrl(
+        req,
+        "enterprises/logo",
+        enterpriseData.logo,
+      );
+    }
     res.status(200).json(enterpriseData);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -216,6 +240,7 @@ exports.createEnterprise = async (req, res) => {
 
 exports.updateEnterprise = async (req, res) => {
   try {
+    const enterprise = req.enterprise;
     const {
       name,
       phone,
@@ -230,14 +255,10 @@ exports.updateEnterprise = async (req, res) => {
       isValidate,
       Job_id,
       Country_id,
+      removeLogo,
       removePhotos = [],
-      removeLogo = [],
     } = req.body;
 
-    // Trouver l'entreprise
-    const enterprise = req.enterprise;
-
-    // Mise � jour des informations de l'entreprise
     enterprise.name = name || enterprise.name;
     enterprise.phone = phone || enterprise.phone;
     enterprise.mail = mail || enterprise.mail;
@@ -250,34 +271,53 @@ exports.updateEnterprise = async (req, res) => {
     enterprise.twitter = twitter || enterprise.twitter;
     enterprise.Country_id = Country_id || enterprise.Country_id;
     enterprise.Job_id = Job_id || enterprise.Job_id;
+
     if (req.user.isAdmin) {
       enterprise.isValidate = isValidate || enterprise.isValidate;
     }
-    // Gestion des nouvelles photos
-    /*    if (req.files.photos && req.files.photos.length > 0) {
-      const newPhotos = req.files.photos.map((file) => file.path);
-      enterprise.photos = [...enterprise.photos, ...newPhotos];
-    }
-    if (req.files.logo && req.files.logo.length > 0) {
-      enterprise.logo = req.files.logo[0].path;
-    }
-
-    // Suppression des photos
-    if (removePhotos.length > 0) {
-      removePhotos.forEach((photo) => {
-        const index = enterprise.photos.indexOf(photo);
-        if (index > -1) {
-          enterprise.photos.splice(index, 1);
-          files.deleteFile(photo);
-        }
-      });
-    }
-    if (req.body.removeLogo) {
+    // Gestion du logo
+    const logo = req.files.logo ? req.files.logo.path : null;
+    if (logo) {
       if (enterprise.logo) {
         files.deleteFile(enterprise.logo);
-        enterprise.logo = null;
       }
-    }*/
+      enterprise.logo = logo;
+    } else if (removeLogo === "true" && enterprise.logo) {
+      files.deleteFile(enterprise.logo);
+      enterprise.logo = null;
+    }
+    // Gestion des nouvelles photos
+    const newPhotos = req.files.photos
+      ? req.files.photos.map((file) => file.path)
+      : [];
+    if (newPhotos.length > 0) {
+      if (enterprise.photos) {
+        const maxPhotos = 3;
+        const currentPhotos = enterprise.photos ? enterprise.photos.length : 0;
+        if (currentPhotos + newPhotos.length > maxPhotos) {
+          const photosToDelete = enterprise.photos.slice(
+            currentPhotos + newPhotos.length - maxPhotos,
+            currentPhotos + newPhotos.length,
+          );
+          photosToDelete.forEach((photo) => {
+            files.deleteFile(photo);
+          });
+          newPhotos.splice(0, photosToDelete.length);
+        }
+      }
+      enterprise.photos = [...enterprise.photos, ...newPhotos];
+    }
+    if (removePhotos.length > 0) {
+      if (Array.isArray(removePhotos)) {
+        removePhotos.forEach((photo) => {
+          const index = enterprise.photos.indexOf(photo);
+          if (index > -1) {
+            enterprise.photos.splice(index, 1);
+            files.deleteFile(photo);
+          }
+        });
+      }
+    }
     await enterprise.save();
     res.status(200).json({ message: "Entreprise modifiée" });
   } catch (error) {
