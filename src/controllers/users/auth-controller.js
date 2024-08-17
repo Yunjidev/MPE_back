@@ -143,11 +143,11 @@ exports.updateUser = async (req, res) => {
       isAdmin: user.isAdmin,
       avatar: user.avatar,
     };
+    await user.save();
     if (user.avatar) {
       const avatarUrl = files.getUrl(req, "avatars", user.avatar);
       userData.avatar = avatarUrl;
     }
-    await user.save();
     res
       .status(200)
       .json({ user: userData, message: "Utilisateur mis à jour !" });

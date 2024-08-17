@@ -213,8 +213,6 @@ const getNextAvailableDate = (remainingAvailability) => {
     currentDate.setDate(today.getDate() + i);
     const dayName = dayOfWeek[currentDate.getDay()];
 
-    console.log(`Checking availability for: ${dayName}`);
-
     if (remainingAvailability[dayName]) {
       for (let slot of remainingAvailability[dayName]) {
         let slotStartMinutes = convertToMinutes(slot.start);
@@ -223,24 +221,15 @@ const getNextAvailableDate = (remainingAvailability) => {
         // Si c'est aujourd'hui et l'heure actuelle dépasse le début du créneau, ajuster le créneau
         if (i === 0 && currentTimeInMinutes > slotStartMinutes) {
           if (currentTimeInMinutes < slotEndMinutes) {
-            console.log(
-              `Adjusting slot start time from ${slot.start} to ${convertToTime(currentTimeInMinutes)}`,
-            );
             slot.start = convertToTime(currentTimeInMinutes);
             slotStartMinutes = currentTimeInMinutes;
           } else {
-            console.log(
-              `Ignoring slot: ${slot.start} - ${slot.end} because it has already passed.`,
-            );
             continue;
           }
         }
 
         // Vérifier si le créneau est déjà passé
         if (i === 0 && slotEndMinutes < currentTimeInMinutes) {
-          console.log(
-            `Ignoring slot: ${slot.start} - ${slot.end} because it has already passed.`,
-          );
           continue;
         }
 
@@ -248,13 +237,8 @@ const getNextAvailableDate = (remainingAvailability) => {
         const [startHour, startMin] = slot.start.split(":").map(Number);
         slotDate.setHours(startHour, startMin, 0, 0);
 
-        console.log(
-          `Checking slot: ${slot.start} - ${slot.end} on ${slotDate}`,
-        );
-
         // Retourner le créneau s'il est après l'heure actuelle
         if (slotDate.getTime() > today.getTime()) {
-          console.log(`Next available slot: ${slotDate}`);
           return slotDate.toISOString();
         }
       }
