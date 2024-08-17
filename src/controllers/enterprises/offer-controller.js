@@ -76,6 +76,9 @@ exports.createOffer = async (req, res) => {
     const estimateBoolean = req.body.estimate === "true";
     const price = estimateBoolean ? null : parseFloat(req.body.price);
     const image = req.file ? req.file.path : null;
+    if (!req.enterprise.isValidate) {
+      return res(400).json({ message: "L'entreprise n'est pas validée" });
+    }
     const newOffer = await Offer.create({
       name,
       description,
