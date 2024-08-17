@@ -188,14 +188,14 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     } = req.body;
-    const photos =
-      req.files && req.files.photos && req.files.photos.length > 0
-        ? req.files.photos.map((file) => file.path)
-        : [];
     const logo =
       req.files && req.files.logo && req.files.logo.length > 0
         ? req.files.logo[0].path
         : null;
+    const photos =
+      req.files && req.files.photos && req.files.photos.length > 0
+        ? req.files.photos.map((file) => file.path)
+        : [];
     const job = await Job.findByPk(Job_id);
     if (!job) {
       return res.status(404).json({ message: "Pas de job trouvé" });
@@ -256,7 +256,7 @@ exports.updateEnterprise = async (req, res) => {
       Job_id,
       Country_id,
       removeLogo,
-      removePhotos = [],
+      removePhotos,
     } = req.body;
 
     enterprise.name = name || enterprise.name;
@@ -293,30 +293,35 @@ exports.updateEnterprise = async (req, res) => {
     if (newPhotos.length > 0) {
       if (enterprise.photos) {
         const maxPhotos = 3;
-        const currentPhotos = enterprise.photos ? enterprise.photos.length : 0;
+        const currentPhotos = enterprise.photos.length;
         if (currentPhotos + newPhotos.length > maxPhotos) {
+          const photosToDeleteCount =
+            currentPhotos + newPhotos.length - maxPhotos;
           const photosToDelete = enterprise.photos.slice(
-            currentPhotos + newPhotos.length - maxPhotos,
-            currentPhotos + newPhotos.length,
+            0,
+            photosToDeleteCount,
           );
           photosToDelete.forEach((photo) => {
             files.deleteFile(photo);
           });
-          newPhotos.splice(0, photosToDelete.length);
+          enterprise.photos = enterprise.photos.slice(photosToDeleteCount);
         }
       }
       enterprise.photos = [...enterprise.photos, ...newPhotos];
     }
-    if (removePhotos.length > 0) {
-      if (Array.isArray(removePhotos)) {
-        removePhotos.forEach((photo) => {
-          const index = enterprise.photos.indexOf(photo);
-          if (index > -1) {
-            enterprise.photos.splice(index, 1);
-            files.deleteFile(photo);
-          }
-        });
-      }
+    if (removePhotos) {
+      const photosToRemove = removePhotos.split(",").map(Number);
+      const photosToDelete = photosToRemove.map(
+        (index) => enterprise.photos[index],
+      );
+      enterprise.photos = enterprise.photos.filter(
+        (photo, index) => !photosToRemove.includes(index),
+      );
+      photosToDelete.forEach((photo) => {
+        if (photo) {
+          files.deleteFile(photo);
+        }
+      });
     }
     await enterprise.save();
     res.status(200).json({ message: "Entreprise modifiée" });
@@ -330,6 +335,14 @@ exports.deleteEnterprise = async (req, res) => {
     const enterprise = req.enterprise;
     if (!enterprise) {
       return res.status(404).json({ message: "Pas de enterprises trouvée" });
+    }
+    if (enterprise.logo) {
+      files.deleteFile(enterprise.logo);
+    }
+    if (enterprise.photos) {
+      enterprise.photos.forEach((photo) => {
+        files.deleteFile(photo);
+      });
     }
     await enterprise.destroy();
     res.status(200).json({ message: "enterprises supprimée" });
