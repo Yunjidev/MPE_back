@@ -129,8 +129,28 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
               model: sequelize.models.Rating,
               as: "ratings",
               attributes: {
-                exclude: ["createdAt", "updatedAt", "Enterprise_id"],
+                exclude: ["updatedAt", "Enterprise_id"],
               },
+              include: [
+                {
+                  model: sequelize.models.User,
+                  as: "user",
+                  attributes: {
+                    exclude: [
+                      "createdAt",
+                      "updatedAt",
+                      "password",
+                      "resetPasswordToken",
+                      "resetPasswordExpires",
+                      "isEntrepreneur",
+                      "isAdmin",
+                      "firstName",
+                      "lastName",
+                      "email",
+                    ],
+                  },
+                },
+              ],
             },
           ],
           attributes: {
