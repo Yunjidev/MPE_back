@@ -1,10 +1,11 @@
 const { sequelize } = require("../../models/index");
+const { Op } = require("sequelize");
 const Reservation = sequelize.models.Reservation;
 const {
-  calculateRemainingAvailability,
-  isDateInAvailability,
   calculateEndTime,
+  getAvailabilityDates,
 } = require("../utils/availability");
+const moment = require("moment");
 
 exports.getAllReservations = async (req, res) => {
   try {
@@ -156,31 +157,52 @@ exports.createReservation = async (req, res) => {
     if (req.user.id === enterprise.User_id) {
       return res
         .status(400)
-        .json({ message: "Vous ne pouvez pas reserver votre propre offre" });
+        .json({ message: "Vous ne pouvez pas réserver votre propre offre" });
     }
     if (date < now) {
       return res
         .status(400)
         .json({ message: "La date doit être dans le futur" });
     }
-    const remainingAvailability = await calculateRemainingAvailability(
-      offer.Enterprise_id,
-    );
-    const isAvailable = isDateInAvailability(
-      date,
-      start_time,
-      offer.duration,
-      remainingAvailability,
-    );
-    const endTime = calculateEndTime(start_time, offer.duration);
+
+    const disponibilities = await enterprise.getDisponibilities();
+    const indisponibilities = await enterprise.getIndisponibilities();
+    const reservations = await Reservation.findAll({
+      where: {
+        Offer_id: {
+          [Op.in]: (await enterprise.getOffers()).map((offer) => offer.id),
+        },
+      },
+    });
+
+    const isAvailable = !reservations.some((reservation) => {
+      if (reservation.date === date) {
+        const startTime = moment(start_time, "HH:mm");
+        const endTime = calculateEndTime(startTime, offer.duration);
+        const reservationStartTime = moment(reservation.start_time, "HH:mm");
+        const reservationEndTime = moment(reservation.end_time, "HH:mm");
+        if (
+          (startTime >= reservationStartTime &&
+            startTime < reservationEndTime) ||
+          (endTime > reservationStartTime && endTime <= reservationEndTime) ||
+          (startTime <= reservationStartTime && endTime >= reservationEndTime)
+        ) {
+          return true;
+        }
+      }
+      return false;
+    });
+
     if (!isAvailable) {
-      return res.status(400).json({ message: "Date non disponible" });
+      return res
+        .status(400)
+        .json({ message: "Le créneau horaire est déjà réservé" });
     }
 
     const newReservation = await Reservation.create({
       date,
       start_time,
-      end_time: endTime,
+      end_time: calculateEndTime(start_time, offer.duration),
       status: "pending",
       Offer_id: id,
       User_id: req.user.id,
@@ -217,11 +239,9 @@ exports.updateReservation = async (req, res) => {
       reservation.offer.enterprise.User_id === req.user.id;
 
     if (req.user.isAdmin) {
-      reservation.status = status || status;
+      reservation.status = status || reservation.status;
       reservation.date = date || reservation.date;
       reservation.start_time = start_time || reservation.start_time;
-      await reservation.save();
-      res.status(200).json(reservation);
     }
     if (!isReservationOwner && !isReservationOfferOwner) {
       return res
@@ -232,31 +252,67 @@ exports.updateReservation = async (req, res) => {
       if (status && status === "cancelled") {
         reservation.status = "cancelled";
       } else if (date && reservation.status === "pending") {
-        const remainingAvailability = await calculateRemainingAvailability(
-          reservation.offer.Enterprise_id,
-        );
-        const isAvailable = isDateInAvailability(
-          date,
-          reservation.start_time,
-          reservation.offer.duration,
-          remainingAvailability,
-        );
-        const endTime = calculateEndTime(
-          reservation.start_time,
-          reservation.offer.duration,
-        );
+        const enterprise = reservation.offer.enterprise;
+        const disponibilities = await enterprise.getDisponibilities();
+        const indisponibilities = await enterprise.getIndisponibilities();
+        const reservations = await Reservation.findAll({
+          where: {
+            Offer_id: {
+              [Op.in]: (await enterprise.getOffers()).map((offer) => offer.id),
+            },
+          },
+        });
+
+        const isAvailable = !reservations.some((otherReservation) => {
+          if (otherReservation.date === date) {
+            const startTime = moment(start_time, "HH:mm");
+            const endTime = calculateEndTime(
+              startTime,
+              reservation.offer.duration,
+            );
+            const otherReservationStartTime = moment(
+              otherReservation.start_time,
+              "HH:mm",
+            );
+            const otherReservationEndTime = moment(
+              otherReservation.end_time,
+              "HH:mm",
+            );
+            if (
+              (startTime >= otherReservationStartTime &&
+                startTime < otherReservationEndTime) ||
+              (endTime > otherReservationStartTime &&
+                endTime <= otherReservationEndTime) ||
+              (startTime <= otherReservationStartTime &&
+                endTime >= otherReservationEndTime)
+            ) {
+              return true;
+            }
+          }
+          return false;
+        });
+
         if (!isAvailable) {
-          return res.status(400).json({ message: "Date non disponible" });
+          return res
+            .status(400)
+            .json({ message: "Le créneau horaire est déjà réservé" });
         }
+
         reservation.date = date;
         reservation.start_time = start_time;
-        reservation.end_time = endTime;
-      } else if (status && reservation.status !== "pending") {
-        return res.status(400).json({
-          message: "Vous ne pouvez pas changer le statut de la reservation",
-        });
+        reservation.end_time = calculateEndTime(
+          start_time,
+          reservation.offer.duration,
+        );
+        reservation.status = reservation.status; // Ajoutez cette ligne
       } else {
-        return res.status(400).json({ message: "Operation non autorisée" });
+        reservation.date = date || reservation.date;
+        reservation.start_time = start_time || reservation.start_time;
+        reservation.end_time = calculateEndTime(
+          start_time,
+          reservation.offer.duration,
+        );
+        reservation.status = reservation.status; // Ajoutez cette ligne
       }
     }
     if (isReservationOfferOwner) {
