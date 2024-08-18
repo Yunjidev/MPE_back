@@ -10,7 +10,7 @@ exports.getAllReservations = async (req, res) => {
   try {
     const reservation = await Reservation.findAll({
       attributes: {
-        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id", "User_id"],
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "User_id"],
       },
       include: [
         {

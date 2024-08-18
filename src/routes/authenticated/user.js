@@ -68,7 +68,7 @@ router.put(
 
 // Routes Like
 router.get("/likes", likeController.getLikes);
-router.post("/like", likeController.createLike);
-router.delete("/like", likeController.deleteLike);
+router.post("/enterprise/:id/like", likeController.createLike);
+router.delete("/enterprise/:id/like", likeController.deleteLike);
 
 module.exports = router;

@@ -35,7 +35,7 @@ exports.getTeamById = async (req, res) => {
     }
     if (team.photo) {
       const photoUrl = files.getUrl(req, "team-photo", team.photo);
-      user.dataValues.avatar = photoUrl;
+      team.dataValues.avatar = photoUrl;
     }
     res.status(200).json(team);
   } catch (error) {

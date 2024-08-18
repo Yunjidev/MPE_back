@@ -26,12 +26,31 @@ exports.getAllUsers = async (req, res) => {
               "User_id",
               "Job_id",
               "Country_id",
+              "photos",
             ],
           },
         },
       ],
     });
-    res.status(200).json(users);
+    const usersData = users.map((user) => {
+      if (user.avatar) {
+        const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+        user.dataValues.avatar = avatarUrl;
+      }
+      user.enterprises = user.enterprises.map((enterprise) => {
+        if (enterprise.logo) {
+          const logoUrl = files.getUrl(
+            req,
+            "enterprises-logos",
+            enterprise.logo,
+          );
+          enterprise.dataValues.logo = logoUrl;
+        }
+        return enterprise.dataValues;
+      });
+      return user.dataValues;
+    });
+    res.status(200).json(usersData);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -135,6 +154,41 @@ exports.getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
     }
+    if (user.avatar) {
+      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      user.dataValues.avatar = avatarUrl;
+    }
+    user.enterprises = user.enterprises.map((enterprise) => {
+      if (enterprise.logo) {
+        const logoUrl = files.getUrl(req, "enterprises-logos", enterprise.logo);
+        enterprise.dataValues.logo = logoUrl;
+      }
+      return enterprise.dataValues;
+    });
+
+    user.reservations.map((reservation) => {
+      if (reservation.offer.enterprise.logo) {
+        const logoUrl = files.getUrl(
+          req,
+          "enterprises-logos",
+          reservation.offer.enterprise.logo,
+        );
+        reservation.offer.enterprise.dataValues.logo = logoUrl;
+      }
+      return reservation.dataValues;
+    });
+
+    user.likes.map((like) => {
+      if (like.enterprise.logo) {
+        const logoUrl = files.getUrl(
+          req,
+          "enterprises-logos",
+          like.enterprise.logo,
+        );
+        like.enterprise.dataValues.logo = logoUrl;
+      }
+      return like.dataValues;
+    });
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -239,6 +293,37 @@ exports.getUserProfile = async (req, res) => {
       const avatarUrl = files.getUrl(req, "avatars", user.avatar);
       user.dataValues.avatar = avatarUrl;
     }
+    user.enterprises = user.enterprises.map((enterprise) => {
+      if (enterprise.logo) {
+        const logoUrl = files.getUrl(req, "enterprises-logos", enterprise.logo);
+        enterprise.dataValues.logo = logoUrl;
+      }
+      return enterprise.dataValues;
+    });
+
+    user.reservations.map((reservation) => {
+      if (reservation.offer.enterprise.logo) {
+        const logoUrl = files.getUrl(
+          req,
+          "enterprises-logos",
+          reservation.offer.enterprise.logo,
+        );
+        reservation.offer.enterprise.dataValues.logo = logoUrl;
+      }
+      return reservation.dataValues;
+    });
+
+    user.likes.map((like) => {
+      if (like.enterprise.logo) {
+        const logoUrl = files.getUrl(
+          req,
+          "enterprises-logos",
+          like.enterprise.logo,
+        );
+        like.enterprise.dataValues.logo = logoUrl;
+      }
+      return like.dataValues;
+    });
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
