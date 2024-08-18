@@ -2,10 +2,7 @@ const { sequelize } = require("../../../models/index");
 const Enterprise = sequelize.models.Enterprise;
 const { Job, User, Country } = require("../../../models/index");
 const files = require("../../utils/files");
-const {
-  calculateRemainingAvailability,
-  getNextAvailableDate,
-} = require("../../utils/availability");
+const { getAvailabilityDates } = require("../../utils/availability.js");
 const { calculateAverageRatingForEnterprise } = require("../../utils/ratings");
 
 exports.getAllEnterprises = async (req, res) => {
@@ -28,35 +25,80 @@ exports.getAllEnterprises = async (req, res) => {
           "mail",
           "adress",
           "siret_number",
-          "city",
-          "zip_code",
         ],
       },
+      include: [
+        {
+          model: sequelize.models.Job,
+          as: "job",
+          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+        },
+        {
+          model: sequelize.models.Country,
+          as: "country",
+          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+        },
+        {
+          model: sequelize.models.Disponibility,
+          as: "disponibilities",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
+          },
+        },
+        {
+          model: sequelize.models.Indisponibility,
+          as: "indisponibilities",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
+          },
+        },
+        {
+          model: sequelize.models.Offer,
+          as: "offers",
+          include: [
+            {
+              model: sequelize.models.Reservation,
+              as: "reservations",
+              attributes: {
+                exclude: ["createdAt", "updatedAt", "Offer_id"],
+              },
+            },
+          ],
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "Enterprise_id"],
+          },
+        },
+      ],
     });
     const enterpriseWithDetails = await Promise.all(
       enterprise.map(async (enterprise) => {
-        const remainingAvailability = await calculateRemainingAvailability(
-          enterprise.id,
-        );
-        const nextAvailableDate = getNextAvailableDate(remainingAvailability);
+        if (enterprise.logo) {
+          enterprise.logo = files.getUrl(
+            req,
+            "enterprises/logo",
+            enterprise.logo,
+          );
+        }
+        if (enterprise.job.picture) {
+          enterprise.job.dataValues.picture = files.getUrl(
+            req,
+            "jobs-pictures",
+            enterprise.job.picture,
+          );
+        }
         const averageRating = await calculateAverageRatingForEnterprise(
           enterprise.id,
         );
-        const enterpriseData = enterprise.toJSON();
-        if (enterpriseData.photos) {
-          enterpriseData.photos = enterpriseData.photos.map((photo) => {
-            return files.getUrl(req, "enterprises/photos", photo);
-          });
-        }
-        if (enterpriseData.logo) {
-          enterpriseData.logo = files.getUrl(
-            req,
-            "enterprises/logo",
-            enterpriseData.logo,
-          );
-        }
-        enterpriseData.nextAvailableDate = nextAvailableDate;
-        enterpriseData.averageRating = averageRating;
+        const availabilityDates = getAvailabilityDates(
+          enterprise.disponibilities,
+          enterprise.indisponibilities,
+          enterprise.offers.map((offer) => offer.reservations).flat(),
+        );
+        const enterpriseData = Object.assign({}, enterprise.toJSON(), {
+          averageRating: averageRating,
+          availabilityDates: availabilityDates,
+          nextAvalaibleDate: availabilityDates[0],
+        });
         return enterpriseData;
       }),
     );
@@ -117,20 +159,14 @@ exports.getEnterpriseById = async (req, res) => {
               model: sequelize.models.Reservation,
               as: "reservations",
               attributes: {
-                exclude: [
-                  "createdAt",
-                  "updatedAt",
-                  "id",
-                  "Offer_id",
-                  "User_id",
-                ],
+                exclude: ["createdAt", "updatedAt", "Offer_id"],
               },
             },
             {
               model: sequelize.models.Rating,
               as: "ratings",
               attributes: {
-                exclude: ["createdAt", "updatedAt", "Enterprise_id"],
+                exclude: ["updatedAt", "Enterprise_id"],
               },
               include: [
                 {
@@ -155,7 +191,7 @@ exports.getEnterpriseById = async (req, res) => {
             },
           ],
           attributes: {
-            exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
+            exclude: ["createdAt", "updatedAt", "Enterprise_id"],
           },
         },
       ],
@@ -164,13 +200,32 @@ exports.getEnterpriseById = async (req, res) => {
       },
     });
     if (!enterprise) {
-      return res.status(404).json({ message: "Pas de Enterprise trouv├®e" });
+      return res.status(404).json({ message: "Pas de Enterprise trouvée" });
+    }
+    if (!enterprise.isValidate) {
+      return res
+        .status(404)
+        .json({ message: "L'entreprise n'est pas validée" });
+    }
+    if (enterprise.logo) {
+      enterprise.logo = files.getUrl(req, "enterprises/logo", enterprise.logo);
+    }
+    if (enterprise.photos) {
+      enterprise.photos = enterprise.photos.map((photo) => {
+        return files.getUrl(req, "enterprises/photos", photo);
+      });
+    }
+    if (enterprise.job.picture) {
+      enterprise.job.dataValues.picture = files.getUrl(
+        req,
+        "jobs-pictures",
+        enterprise.job.picture,
+      );
     }
     // Creations des routes avatars
     const offers = enterprise.offers;
     const reservations = enterprise.offers.map((offer) => offer.reservations);
     const ratings = enterprise.offers.map((offer) => offer.ratings).flat();
-    console.log(ratings);
     const raters = ratings.map((rating) => rating.user);
     raters.forEach((rater) => {
       if (rater.avatar) {
@@ -186,38 +241,18 @@ exports.getEnterpriseById = async (req, res) => {
       );
       enterprise.entrepreneur.dataValues.avatar = avatarUrl;
     }
-    const remainingAvailability = await calculateRemainingAvailability(id);
-    const nextAvailableDate = getNextAvailableDate(remainingAvailability);
     const averageRating = await calculateAverageRatingForEnterprise(id);
-    const enterpriseData = enterprise.toJSON();
-    enterpriseData.remainingAvailability = remainingAvailability;
-    enterpriseData.nextAvailableDate = nextAvailableDate;
-    enterpriseData.averageRating = averageRating;
-    if (enterpriseData.photos) {
-      enterpriseData.photos = enterpriseData.photos.map((photo) => {
-        return files.getUrl(req, "enterprises/photos", photo);
-      });
-    }
-    if (enterpriseData.logo) {
-      enterpriseData.logo = files.getUrl(
-        req,
-        "enterprises/logo",
-        enterpriseData.logo,
-      );
-    }
-    enterpriseData.offers.map((offer) => {
-      if (offer.image) {
-        offer.image = files.getUrl(req, "offers-images", offer.image);
-      }
-      return offer.dataValues;
+    enterprise.averageRating = averageRating;
+    enterprise.availabilityDates = getAvailabilityDates(
+      enterprise.disponibilities,
+      enterprise.indisponibilities,
+      enterprise.offers.map((offer) => offer.reservations).flat(),
+    );
+    const enterpriseData = Object.assign({}, enterprise.toJSON(), {
+      averageRating: averageRating,
+      availabilityDates: enterprise.availabilityDates,
+      nextAvalaibleDate: enterprise.availabilityDates[0],
     });
-    if (enterpriseData.job.picture) {
-      enterpriseData.job.picture = files.getUrl(
-        req,
-        "jobs-pictures",
-        enterpriseData.job.picture,
-      );
-    }
     res.status(200).json(enterpriseData);
   } catch (error) {
     res.status(500).json({ message: error.message });
