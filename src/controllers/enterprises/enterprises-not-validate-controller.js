@@ -38,6 +38,7 @@ exports.getEnterpriseByIdNotValidate = async (req, res) => {
   try {
     const { id } = req.params;
     const enterprise = await Enterprise.findByPk(id, {
+      where: { isValidate: false },
       include: [
         {
           model: sequelize.models.Job,
