@@ -30,6 +30,24 @@ exports.getAllEnterprisesValidate = async (req, res) => {
       },
       include: [
         {
+          model: sequelize.models.User,
+          as: "entrepreneur",
+          attributes: {
+            exclude: [
+              "createdAt",
+              "updatedAt",
+              "password",
+              "resetPasswordToken",
+              "resetPasswordExpires",
+              "isEntrepreneur",
+              "isAdmin",
+              "firstname",
+              "lastname",
+              "email",
+            ],
+          },
+        },
+        {
           model: sequelize.models.Job,
           as: "job",
           attributes: { exclude: ["createdAt", "updatedAt", "id"] },
@@ -239,6 +257,11 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
     }
     // Creations des routes avatars
     const offers = enterprise.offers;
+    offers.forEach((offer) => {
+      if (offer.image) {
+        offer.image = files.getUrl(req, "offers", offer.image);
+      }
+    });
     const reservations = enterprise.offers.map((offer) => offer.reservations);
     const ratings = enterprise.offers.map((offer) => offer.ratings).flat();
     const raters = ratings.map((rating) => rating.user);
