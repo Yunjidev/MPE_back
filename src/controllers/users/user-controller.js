@@ -41,7 +41,7 @@ exports.getAllUsers = async (req, res) => {
         if (enterprise.logo) {
           const logoUrl = files.getUrl(
             req,
-            "enterprises-logos",
+            "enterprises/logo",
             enterprise.logo,
           );
           enterprise.dataValues.logo = logoUrl;
@@ -160,7 +160,7 @@ exports.getUserById = async (req, res) => {
     }
     user.enterprises = user.enterprises.map((enterprise) => {
       if (enterprise.logo) {
-        const logoUrl = files.getUrl(req, "enterprises-logos", enterprise.logo);
+        const logoUrl = files.getUrl(req, "enterprises/logo", enterprise.logo);
         enterprise.dataValues.logo = logoUrl;
       }
       return enterprise.dataValues;
@@ -170,7 +170,7 @@ exports.getUserById = async (req, res) => {
       if (reservation.offer.enterprise.logo) {
         const logoUrl = files.getUrl(
           req,
-          "enterprises-logos",
+          "enterprises/logo",
           reservation.offer.enterprise.logo,
         );
         reservation.offer.enterprise.dataValues.logo = logoUrl;
@@ -295,7 +295,7 @@ exports.getUserProfile = async (req, res) => {
     }
     user.enterprises = user.enterprises.map((enterprise) => {
       if (enterprise.logo) {
-        const logoUrl = files.getUrl(req, "enterprises-logos", enterprise.logo);
+        const logoUrl = files.getUrl(req, "enterprises/logo", enterprise.logo);
         enterprise.dataValues.logo = logoUrl;
       }
       return enterprise.dataValues;
@@ -305,7 +305,7 @@ exports.getUserProfile = async (req, res) => {
       if (reservation.offer.enterprise.logo) {
         const logoUrl = files.getUrl(
           req,
-          "enterprises-logos",
+          "enterprises/logo",
           reservation.offer.enterprise.logo,
         );
         reservation.offer.enterprise.dataValues.logo = logoUrl;
