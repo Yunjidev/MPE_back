@@ -110,9 +110,7 @@ exports.updateEnterprise = async (req, res) => {
       return res.status(403).json({ message: "Vous n'êtes pas admin" });
     }
     // Gestion du logo
-    console.log(req.files.logo);
     const logo = req.files.logo ? req.files.logo[0].path : null;
-    console.log("logo", logo);
     if (logo) {
       if (enterprise.logo) {
         files.deleteFile(enterprise.logo);
