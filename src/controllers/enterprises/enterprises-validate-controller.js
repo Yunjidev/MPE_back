@@ -87,6 +87,19 @@ exports.getAllEnterprisesValidate = async (req, res) => {
             enterprise.job.picture,
           );
         }
+        if (enterprise.entrepreneur.avatar) {
+          const avatarUrl = files.getUrl(
+            req,
+            "avatars",
+            enterprise.entrepreneur.avatar,
+          );
+          enterprise.entrepreneur.dataValues.avatar = avatarUrl;
+        }
+        enterprise.offers.forEach((offer) => {
+          if (offer.image) {
+            offer.image = files.getUrl(req, "offers", offer.image);
+          }
+        });
         const averageRating = await calculateAverageRatingForEnterprise(
           enterprise.id,
         );
