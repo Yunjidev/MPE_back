@@ -7,9 +7,9 @@ async function calculateAverageRatingForOffer(offerId) {
     },
   });
   if (ratings.length === 0) {
-    return 0;
+    return null;
   }
-  const totalRating = ratings.reduce((acc, rating) => acc + rating.rating, 0);
+  const totalRating = ratings.reduce((acc, rating) => acc + rating.note, 0);
   return totalRating / ratings.length;
 }
 
@@ -25,11 +25,15 @@ async function calculateAverageRatingForEnterprise(enterpriseId) {
   const ratings = await Promise.all(
     offers.map(async (offer) => {
       const averageRating = await calculateAverageRatingForOffer(offer.id);
-      return averageRating;
+      return averageRating !== undefined ? averageRating : null;
     }),
   );
-  const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
-  return totalRating / offers.length;
+  const filteredRatings = ratings.filter((rating) => rating !== null);
+  if (filteredRatings.length === 0) {
+    return 0;
+  }
+  const totalRating = filteredRatings.reduce((acc, rating) => acc + rating, 0);
+  return totalRating / filteredRatings.length;
 }
 
 module.exports = {

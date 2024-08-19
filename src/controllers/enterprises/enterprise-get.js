@@ -2,13 +2,12 @@ const { sequelize } = require("../../../models/index");
 const Enterprise = sequelize.models.Enterprise;
 const { Job, User, Country } = require("../../../models/index");
 const files = require("../../utils/files");
+const { getAvailabilityDates } = require("../../utils/availability.js");
 const { calculateAverageRatingForEnterprise } = require("../../utils/ratings");
-const { getAvailabilityDates } = require("../../utils/availability");
 
-exports.getAllEnterprisesValidate = async (req, res) => {
+exports.getAllEnterprises = async (req, res) => {
   try {
     const enterprise = await Enterprise.findAll({
-      where: { isValidate: true },
       attributes: {
         exclude: [
           "createdAt",
@@ -87,19 +86,6 @@ exports.getAllEnterprisesValidate = async (req, res) => {
             enterprise.job.picture,
           );
         }
-        if (enterprise.entrepreneur.avatar) {
-          const avatarUrl = files.getUrl(
-            req,
-            "avatars",
-            enterprise.entrepreneur.avatar,
-          );
-          enterprise.entrepreneur.dataValues.avatar = avatarUrl;
-        }
-        enterprise.offers.forEach((offer) => {
-          if (offer.image) {
-            offer.image = files.getUrl(req, "offers", offer.image);
-          }
-        });
         const averageRating = await calculateAverageRatingForEnterprise(
           enterprise.id,
         );
@@ -122,11 +108,10 @@ exports.getAllEnterprisesValidate = async (req, res) => {
   }
 };
 
-exports.getEnterpriseByIdValidate = async (req, res) => {
+exports.getEnterpriseById = async (req, res) => {
   try {
     const { id } = req.params;
     const enterprise = await Enterprise.findByPk(id, {
-      where: { isValidate: true },
       include: [
         {
           model: sequelize.models.Job,

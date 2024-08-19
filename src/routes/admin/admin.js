@@ -9,6 +9,7 @@ const userController = require("../../controllers/users/user-controller");
 const userModerationController = require("../../controllers/users/user-moderation-controller");
 // enterprises
 const enterpriseController = require("../../controllers/enterprises/enterprises-controller");
+const enterpriseGetController = require("../../controllers/enterprises/enterprise-get");
 const enterpriseNotValidateController = require("../../controllers/enterprises/enterprises-not-validate-controller");
 const disponibilityController = require("../../controllers/enterprises/disponibility-controller");
 const indisponibilityController = require("../../controllers/enterprises/indisponibility-controller");
@@ -37,22 +38,23 @@ router.put(
 router.delete("/users/:id", userModerationController.deleteUser);
 
 // Routes Enterprise
-router.get("/enterprises", enterpriseController.getAllEnterprises);
+router.get("/enterprises", enterpriseGetController.getAllEnterprises);
 router.get(
   "/enterprises/not-validate",
   enterpriseNotValidateController.getAllEnterprisesNotValidate,
 );
+router.get("/enterprises/:id", enterpriseGetController.getEnterpriseById);
 
 // Routes Job
 router.get("/job/:id", jobsController.getJobById);
 router.post(
   "/job",
-  files.upload("job-picture").single("picture"),
+  files.upload("jobs-pictures").single("picture"),
   jobsController.createJob,
 );
 router.put(
   "/job/:id",
-  files.upload("job-picture").single("picture"),
+  files.upload("jobs-pictures").single("picture"),
   jobsController.updateJob,
 );
 router.delete("/job/:id", jobsController.deleteJob);

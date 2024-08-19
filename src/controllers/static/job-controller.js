@@ -4,12 +4,19 @@ const files = require("../../utils/files");
 
 exports.getAllJobs = async (req, res) => {
   try {
-    const job = await Job.findAll({
+    const jobs = await Job.findAll({
       attributes: {
-        exclude: ["createdAt", "updatedAt", "id"],
+        exclude: ["createdAt", "updatedAt"],
       },
     });
-    res.status(200).json(job);
+    const jobsData = jobs.map((job) => {
+      if (job.picture) {
+        const pictureUrl = files.getUrl(req, "jobs-pictures", job.picture);
+        job.dataValues.picture = pictureUrl;
+      }
+      return job.dataValues;
+    });
+    res.status(200).json(jobsData);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -25,6 +32,10 @@ exports.getJobById = async (req, res) => {
     });
     if (!job) {
       return res.status(404).json({ message: "Pas de job trouvée" });
+    }
+    if (job.picture) {
+      const pictureUrl = files.getUrl(req, "jobs-pictures", job.picture);
+      job.dataValues.picture = pictureUrl;
     }
     res.status(200).json(job);
   } catch (error) {
@@ -75,6 +86,9 @@ exports.deleteJob = async (req, res) => {
     const job = await Job.findByPk(id);
     if (!job) {
       return res.status(404).json({ message: "Pas de job trouvée" });
+    }
+    if (job.picture) {
+      files.deleteFile(job.picture);
     }
     await job.destroy();
     res.status(200).json({ message: "job supprimée" });

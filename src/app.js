@@ -4,6 +4,7 @@ const app = express();
 const db = require("../models/index");
 const path = require("path");
 const cors = require("cors");
+const fs = require("fs");
 // Routes
 const publicRoutes = require("./routes/public/public-routes");
 const authenticatedRoutes = require("./routes/authenticated/authenticated-routes");
@@ -17,7 +18,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use("api/app/uploads/", express.static(path.join(__dirname, "uploads")));
 db.sequelize
   .authenticate()
   .then(() => {
@@ -27,6 +27,9 @@ db.sequelize
     });
   })
   .catch((error) => console.log("Error:" + error));
+
+const uploadDir = path.resolve(__dirname, "../uploads");
+app.use("/app/uploads", express.static(uploadDir));
 
 app.use("/api", publicRoutes);
 app.use("/api", authenticatedRoutes);
