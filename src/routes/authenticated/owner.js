@@ -56,6 +56,7 @@ router.delete(
 );
 
 // Routes Offre
+router.get("/offers", offersController.getOfferByEnterpriseId);
 router.post(
   "/offer",
   files.upload("offer-image").single("image"),
