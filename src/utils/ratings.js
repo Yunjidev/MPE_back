@@ -10,15 +10,10 @@ async function calculateAverageRatingForOffer(offerId) {
   console.log(`Found ${ratings.length} ratings for offer ID: ${offerId}`);
 
   if (ratings.length === 0) {
-    return 0;
+    return null;
   }
-
-  const totalRating = ratings.reduce((acc, rating) => acc + rating.rating, 0);
-  const averageRating = totalRating / ratings.length;
-
-  console.log(`Average rating for offer ID ${offerId} is: ${averageRating}`);
-
-  return averageRating;
+  const totalRating = ratings.reduce((acc, rating) => acc + rating.note, 0);
+  return totalRating / ratings.length;
 }
 
 async function calculateAverageRatingForEnterprise(enterpriseId) {
@@ -37,17 +32,15 @@ async function calculateAverageRatingForEnterprise(enterpriseId) {
   const ratings = await Promise.all(
     offers.map(async (offer) => {
       const averageRating = await calculateAverageRatingForOffer(offer.id);
-      return averageRating;
+      return averageRating !== undefined ? averageRating : null;
     }),
   );
-
-  const totalRating = ratings.reduce((acc, rating) => acc + rating, 0);
-  const averageRating = totalRating / offers.length;
-
-  console.log(`Total rating for enterprise ID ${enterpriseId} is: ${totalRating}`);
-  console.log(`Average rating for enterprise ID ${enterpriseId} is: ${averageRating}`);
-
-  return averageRating;
+  const filteredRatings = ratings.filter((rating) => rating !== null);
+  if (filteredRatings.length === 0) {
+    return 0;
+  }
+  const totalRating = filteredRatings.reduce((acc, rating) => acc + rating, 0);
+  return totalRating / filteredRatings.length;
 }
 
 module.exports = {

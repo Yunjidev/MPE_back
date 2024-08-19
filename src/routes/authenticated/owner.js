@@ -19,9 +19,9 @@ const offersController = require("../../controllers/enterprises/offer-controller
 const subscriptionsController = require("../../controllers/enterprises/subscription-controller");
 
 // Route Enterprise
-const uploadFiles = files.upload("enterprise").fields([
-  { name: "photos", maxCount: 3 },
-  { name: "logo", maxCount: 1 },
+const uploadFiles = files.upload("enterprises").fields([
+  { name: "photos", maxCount: 3, folder: "photos" },
+  { name: "logo", maxCount: 1, folder: "logo" },
 ]);
 
 router.put(
@@ -56,6 +56,7 @@ router.delete(
 );
 
 // Routes Offre
+router.get("/offers", offersController.getOfferByEnterpriseId);
 router.post(
   "/offer",
   files.upload("offer-image").single("image"),

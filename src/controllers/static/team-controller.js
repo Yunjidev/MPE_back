@@ -1,14 +1,22 @@
 const { sequelize } = require("../../../models/index");
 const Team = sequelize.models.Team;
+const files = require("../../utils/files");
 
 exports.getAllTeams = async (req, res) => {
   try {
-    const team = await Team.findAll({
+    const teams = await Team.findAll({
       attributes: {
         exclude: ["createdAt", "updatedAt", "id"],
       },
     });
-    res.status(200).json(team);
+    const teamsData = teams.map((team) => {
+      if (team.photo) {
+        const photoUrl = files.getUrl(req, "team-photo", team.photo);
+        team.dataValues.photo = photoUrl;
+      }
+      return team.dataValues;
+    });
+    res.status(200).json(teamsData);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -24,6 +32,10 @@ exports.getTeamById = async (req, res) => {
     });
     if (!team) {
       return res.status(404).json({ message: "Pas de team trouvée" });
+    }
+    if (team.photo) {
+      const photoUrl = files.getUrl(req, "team-photo", team.photo);
+      team.dataValues.avatar = photoUrl;
     }
     res.status(200).json(team);
   } catch (error) {
@@ -54,8 +66,15 @@ exports.createTeam = async (req, res) => {
 exports.updateTeam = async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstname, lastname, email, github, linkedin, description } =
-      req.body;
+    const {
+      firstname,
+      lastname,
+      email,
+      github,
+      linkedin,
+      description,
+      removePhoto,
+    } = req.body;
     const photo = req.file ? req.file.path : null;
     const team = await Team.findByPk(id);
     if (!team) {
@@ -67,7 +86,15 @@ exports.updateTeam = async (req, res) => {
     team.github = github || team.github;
     team.linkedin = linkedin || team.linkedin;
     team.description = description || team.description;
-    team.photo = photo || team.photo;
+    if (photo) {
+      if (team.photo) {
+        files.deleteFile(team.photo);
+      }
+      team.photo = photo;
+    } else if (removePhoto === "true" && team.photo) {
+      files.deleteFile(team.photo);
+      team.photo = null;
+    }
     await team.save();
     res.status(200).json({ message: "Team modifiée" });
   } catch (error) {
@@ -81,6 +108,9 @@ exports.deleteTeam = async (req, res) => {
     const team = await Team.findByPk(id);
     if (!team) {
       return res.status(404).json({ message: "Pas de team trouvée" });
+    }
+    if (team.photo) {
+      files.deleteFile(team.photo);
     }
     await team.destroy();
     res.status(200).json({ message: "team supprimée" });

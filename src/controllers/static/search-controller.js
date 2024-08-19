@@ -1,4 +1,5 @@
 const { sequelize } = require("../../../models");
+const files = require("../../utils/files");
 
 exports.search = async (req, res) => {
   try {
@@ -14,6 +15,16 @@ exports.search = async (req, res) => {
         },
       }),
     ]);
+    jobs.map((job) => {
+      if (job.picture) {
+        job.dataValues.picture = files.getUrl(
+          req,
+          "jobs-pictures",
+          job.picture,
+        );
+      }
+      return job.dataValues;
+    });
     res.status(200).json({ countries, jobs });
   } catch (error) {
     res.status(500).json({ message: error.message });

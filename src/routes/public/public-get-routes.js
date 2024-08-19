@@ -12,6 +12,7 @@ const teamController = require("../../controllers/static/team-controller");
 const countryController = require("../../controllers/static/country-controller");
 const jobsController = require("../../controllers/static/job-controller");
 const searchController = require("../../controllers/static/search-controller");
+const statsController = require("../../controllers/stats-controller");
 
 // Enterprise routes
 router.get(
@@ -47,5 +48,8 @@ router.get("/jobs", jobsController.getAllJobs);
 
 // Routes Search
 router.get("/search", searchController.search);
+
+// Routes Stats
+router.get("/stats", statsController.getAllStats);
 
 module.exports = router;
