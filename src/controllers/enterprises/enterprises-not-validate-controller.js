@@ -30,7 +30,7 @@ exports.getAllEnterprisesNotValidate = async (req, res) => {
     });
     enterprise.map((enterprise) => {
       if (enterprise.logo) {
-        const logoUrl = files.getUrl(req, "enterprises-logos", enterprise.logo);
+        const logoUrl = files.getUrl(req, "enterprises/logo", enterprise.logo);
         enterprise.dataValues.logo = logoUrl;
       }
       enterprise.photos = enterprise.photos.map((photo) => {
