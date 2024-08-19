@@ -106,8 +106,6 @@ exports.updateEnterprise = async (req, res) => {
 
     if (req.user.isAdmin) {
       enterprise.isValidate = isValidate || enterprise.isValidate;
-    } else {
-      return res.status(403).json({ message: "Vous n'êtes pas admin" });
     }
     // Gestion du logo
     const logo = req.files.logo ? req.files.logo[0].path : null;
