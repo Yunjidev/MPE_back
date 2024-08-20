@@ -4,6 +4,7 @@ const router = express.Router();
 // enterprises
 const enterpriseController = require("../../controllers/enterprises/enterprises-controller");
 const enterpriseValidateController = require("../../controllers/enterprises/enterprises-validate-controller");
+const enterprisePremiumController = require("../../controllers/enterprises/enterprise-premium-controller");
 // static
 const conditionController = require("../../controllers/static/conditions-controller");
 const faqController = require("../../controllers/static/faq-controller");
@@ -18,6 +19,10 @@ const statsController = require("../../controllers/stats-controller");
 router.get(
   "/enterprises/validate",
   enterpriseValidateController.getAllEnterprisesValidate,
+);
+router.get(
+  "/enterprises/premium",
+  enterprisePremiumController.getAllEnterprisesPremium,
 );
 router.get(
   "/enterprise/:id",

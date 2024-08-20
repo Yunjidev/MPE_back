@@ -304,15 +304,15 @@ exports.updateReservation = async (req, res) => {
           start_time,
           reservation.offer.duration,
         );
-        reservation.status = reservation.status; // Ajoutez cette ligne
+        reservation.status = reservation.status;
       } else {
         reservation.date = date || reservation.date;
         reservation.start_time = start_time || reservation.start_time;
         reservation.end_time = calculateEndTime(
-          start_time,
+          start_time || reservation.start_time,
           reservation.offer.duration,
         );
-        reservation.status = reservation.status; // Ajoutez cette ligne
+        reservation.status = reservation.status;
       }
     }
     if (isReservationOfferOwner) {

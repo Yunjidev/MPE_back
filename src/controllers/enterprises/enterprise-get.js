@@ -196,7 +196,7 @@ exports.getEnterpriseById = async (req, res) => {
         },
       ],
       attributes: {
-        exclude: ["createdAt", "updatedAt", "User_id", "Job_id", "Country_id"],
+        exclude: ["createdAt", "updatedAt", "User_id"],
       },
     });
     if (!enterprise) {
