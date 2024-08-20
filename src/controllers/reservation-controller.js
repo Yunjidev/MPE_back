@@ -243,7 +243,7 @@ exports.updateReservation = async (req, res) => {
       reservation.date = date || reservation.date;
       reservation.start_time = start_time || reservation.start_time;
     }
-    if (!isReservationOwner && !isReservationOfferOwner) {
+    if (!isReservationOwner && !isReservationOfferOwner && !req.user.isAdmin) {
       return res
         .status(403)
         .json({ message: "Vous n'êtes pas autorisé à effectuer cette action" });
