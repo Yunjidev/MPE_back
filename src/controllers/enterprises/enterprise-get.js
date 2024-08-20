@@ -97,7 +97,7 @@ exports.getAllEnterprises = async (req, res) => {
         const enterpriseData = Object.assign({}, enterprise.toJSON(), {
           averageRating: averageRating,
           availabilityDates: availabilityDates,
-          nextAvalaibleDate: availabilityDates[0],
+          nextAvailableDate: availabilityDates[0],
         });
         return enterpriseData;
       }),
@@ -251,7 +251,7 @@ exports.getEnterpriseById = async (req, res) => {
     const enterpriseData = Object.assign({}, enterprise.toJSON(), {
       averageRating: averageRating,
       availabilityDates: enterprise.availabilityDates,
-      nextAvalaibleDate: enterprise.availabilityDates[0],
+      nextAvailableDate: enterprise.availabilityDates[0],
     });
     res.status(200).json(enterpriseData);
   } catch (error) {

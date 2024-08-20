@@ -94,53 +94,54 @@ exports.getAllEnterprisesValidate = async (req, res) => {
 
     const enterpriseWithDetails = await Promise.all(
       enterprise.map(async (enterprise) => {
-        if (enterprise.logo) {
-          enterprise.logo = files.getUrl(
-            req,
-            "enterprises/logo",
-            enterprise.logo,
-          );
-        }
-        if (enterprise.job.picture) {
-          enterprise.job.dataValues.picture = files.getUrl(
-            req,
-            "jobs-pictures/picture",
-            enterprise.job.picture,
-          );
-        }
-        if (enterprise.entrepreneur.avatar) {
-          const avatarUrl = files.getUrl(
-            req,
-            "avatars",
-            enterprise.entrepreneur.avatar,
-          );
-          enterprise.entrepreneur.dataValues.avatar = avatarUrl;
-        }
-        enterprise.offers.forEach((offer) => {
-          if (offer.image) {
-            offer.image = files.getUrl(req, "offer-image/image", offer.image);
+        try {
+          if (enterprise.logo) {
+            enterprise.logo = files.getUrl(
+              req,
+              "enterprises/logo",
+              enterprise.logo,
+            );
           }
-        });
-        const averageRating = await calculateAverageRatingForEnterprise(
-          enterprise.id,
-        );
-        const availabilityDates = getAvailabilityDates(
-          enterprise.disponibilities,
-          enterprise.indisponibilities,
-          enterprise.offers.map((offer) => offer.reservations).flat(),
-        );
-        const enterpriseData = Object.assign({}, enterprise.toJSON(), {
-          averageRating: averageRating,
-          availabilityDates: availabilityDates,
-          nextAvalaibleDate: availabilityDates[0],
-        });
-        return enterpriseData;
-      } catch (error) {
-        console.error(`Error processing enterprise ID: ${enterprise.id}:`, error);
-        // Vous pouvez décider de renvoyer une partie des données, ou de sauter cette entreprise.
-        return null; // ou {} pour un objet vide si cela a du sens pour votre application
-      }
-    }));
+          if (enterprise.job.picture) {
+            enterprise.job.dataValues.picture = files.getUrl(
+              req,
+              "jobs-pictures/picture",
+              enterprise.job.picture,
+            );
+          }
+          if (enterprise.entrepreneur.avatar) {
+            const avatarUrl = files.getUrl(
+              req,
+              "avatars",
+              enterprise.entrepreneur.avatar,
+            );
+            enterprise.entrepreneur.dataValues.avatar = avatarUrl;
+          }
+          enterprise.offers.forEach((offer) => {
+            if (offer.image) {
+              offer.image = files.getUrl(req, "offer-image/image", offer.image);
+            }
+          });
+          const averageRating = await calculateAverageRatingForEnterprise(
+            enterprise.id,
+          );
+          const availabilityDates = getAvailabilityDates(
+            enterprise.disponibilities,
+            enterprise.indisponibilities,
+            enterprise.offers.map((offer) => offer.reservations).flat(),
+          );
+          const enterpriseData = Object.assign({}, enterprise.toJSON(), {
+            averageRating: averageRating,
+            availabilityDates: availabilityDates,
+            nextAvailableDate: availabilityDates[0],
+          });
+          return enterpriseData;
+        } catch (error) {
+          console.error(`Error processing enterprise ID: ${enterprise.id}:`, error);
+          // Vous pouvez décider de renvoyer une partie des données, ou de sauter cette entreprise.
+          return null; // ou {} pour un objet vide si cela a du sens pour votre application
+        }
+      }));
     console.log('Sending response with detailed enterprises');
     res.status(200).json(enterpriseWithDetails.filter(e => e)); // Filtrer les valeurs null si nécessaire
   } catch (error) {
@@ -299,7 +300,7 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
     const enterpriseData = Object.assign({}, enterprise.toJSON(), {
       averageRating: averageRating,
       availabilityDates: enterprise.availabilityDates,
-      nextAvalaibleDate: enterprise.availabilityDates[0],
+      nextAvailableDate: enterprise.availabilityDates[0],
     });
     res.status(200).json(enterpriseData);
   } catch (error) {
