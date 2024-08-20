@@ -27,7 +27,7 @@ module.exports = {
         facebook: `https://facebook.com/${faker.internet.userName()}`,
         instagram: `https://instagram.com/${faker.internet.userName()}`,
         twitter: `https://twitter.com/${faker.internet.userName()}`,
-        logo: faker.image.business(),
+        logo: faker.image.imageUrl(400, 300, 'business', true, true),
         isValidate: true,
         Job_id: jobRows[faker.datatype.number({ min: 0, max: jobRows.length - 1 })].id,
         Country_id: countryRows[faker.datatype.number({ min: 0, max: countryRows.length - 1 })].id,
