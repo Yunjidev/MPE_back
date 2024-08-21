@@ -4,6 +4,45 @@ const { Job, User, Country } = require("../../../models/index");
 const files = require("../../utils/files");
 const { calculateAverageRatingForEnterprise } = require("../../utils/ratings");
 const { getAvailabilityDates } = require("../../utils/availability");
+const { Op } = require("sequelize");
+
+exports.getEnterprisesNearby = async (req, res) => {
+  let { lat, lng, dist } = req.query; // radius en kilomètres
+  console.log(`Latitude: ${lat}, Longitude: ${lng}, Radius: ${dist}`);
+  // Convertir radius en nombre et fournir une valeur par défaut si nécessaire
+  let radius = parseInt(dist, 10) || 10;
+
+  // Vérifier si lat et lng sont présents
+  if (!lat || !lng) {
+    return res.status(400).json({ message: "Latitude et longitude sont nécessaires." });
+  }
+
+  // Vérifier si radius est dans la plage autorisée (0 à 1500 km)
+  if (isNaN(radius) || radius < 0 || radius > 1500) {
+    return res.status(400).json({ message: "La distance doit être comprise entre 0 et 1500 kilomètres." });
+  }
+
+  try {
+    // Assurez-vous que l'extension 'earthdistance' est installée et que les colonnes 'latitude' et 'longitude' existent
+    const enterprisesNearby = await Enterprise.findAll({
+      where: sequelize.where(
+        sequelize.fn(
+          'earth_distance',
+          sequelize.fn('ll_to_earth', lat, lng),
+          sequelize.fn('ll_to_earth', sequelize.col('latitude'), sequelize.col('longitude'))
+        ),
+        { [Op.lte]: radius * 1000 } // Convertissez le rayon en mètres
+      ),
+      
+      
+    });
+    
+    res.status(200).json(enterprisesNearby);
+  } catch (error) {
+    console.error('Error fetching nearby enterprises:', error);
+    res.status(500).json({ message: 'An error occurred while fetching nearby enterprises.', error: error.toString() });
+  }
+};
 
 exports.getAllEnterprisesValidate = async (req, res) => {
   try {

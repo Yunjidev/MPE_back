@@ -25,6 +25,10 @@ router.get(
   enterprisePremiumController.getAllEnterprisesPremium,
 );
 router.get(
+  "/enterprises/nearby", 
+  enterpriseValidateController.getEnterprisesNearby
+);
+router.get(
   "/enterprise/:id",
   enterpriseValidateController.getEnterpriseByIdValidate,
 );

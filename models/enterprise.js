@@ -158,6 +158,24 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      latitude: {
+        type: DataTypes.DECIMAL(10, 8), // Format approprié pour la latitude
+        allowNull: true, 
+        validate: {
+          isDecimal: true,
+          min: -90,
+          max: 90
+        }
+      },
+      longitude: {
+        type: DataTypes.DECIMAL(11, 8), // Format approprié pour la longitude
+        allowNull: true, 
+        validate: {
+          isDecimal: true,
+          min: -180,
+          max: 180
+        }
+      },
       User_id: {
         type: DataTypes.INTEGER,
         references: {

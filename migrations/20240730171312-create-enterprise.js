@@ -54,6 +54,12 @@ module.exports = {
       isValidate: {
         type: Sequelize.BOOLEAN,
       },
+      latitude: {
+        type: Sequelize.DECIMAL(10, 8),
+      },
+      longitude: {
+        type: Sequelize.DECIMAL(11, 8),
+      },  
       Job_id: {
         type: Sequelize.INTEGER,
         references: {
