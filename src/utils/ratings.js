@@ -12,7 +12,7 @@ async function calculateAverageRatingForOffer(offerId) {
   if (ratings.length === 0) {
     return null;
   }
-  const totalRating = ratings.reduce((acc, rating) => acc + rating.note, 0);
+  const totalRating = ratings.reduce((acc, rating) => acc + parseFloat(rating.note), 0);
   return totalRating / ratings.length;
 }
 
@@ -32,7 +32,7 @@ async function calculateAverageRatingForEnterprise(enterpriseId) {
   const ratings = await Promise.all(
     offers.map(async (offer) => {
       const averageRating = await calculateAverageRatingForOffer(offer.id);
-      return averageRating !== undefined ? averageRating : null;
+      return averageRating !== null ? parseFloat(averageRating) : null;
     }),
   );
   const filteredRatings = ratings.filter((rating) => rating !== null);
