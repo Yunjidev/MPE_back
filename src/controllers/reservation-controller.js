@@ -1,6 +1,8 @@
 const { sequelize } = require("../../models/index");
 const { Op } = require("sequelize");
 const Reservation = sequelize.models.Reservation;
+const Offer = sequelize.models.Offer;
+const Enterprise = sequelize.models.Enterprise;
 const {
   calculateEndTime,
   getAvailabilityDates,
@@ -136,6 +138,78 @@ exports.getReservationById = async (req, res) => {
       return res.status(404).json({ message: "Pas de reservation trouvée" });
     }
     res.status(200).json(reservation);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getReservationsByEnterpriseId = async (req, res) => {
+  try {
+    console.log("enterpriseId", req.enterprise.id);
+    const enterpriseId = req.enterprise.id;
+
+    const reservations = await Reservation.findAll({
+      include: [
+        {
+          model: Offer,
+          as: "offer",
+          where: {
+            Enterprise_id: enterpriseId,
+          },
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+          },
+          include: {
+            model: Enterprise,
+            as: "enterprise",
+            attributes: {
+              exclude: [
+                "createdAt",
+                "updatedAt",
+                "id",
+                "User_id",
+                "Job_id",
+                "Country_id",
+                "phone",
+                "mail",
+                "adress",
+                "city",
+                "zip_code",
+                "isValidate",
+                "facebook",
+                "instagram",
+                "twitter",
+                "siret_number",
+                "description",
+                "website",
+                "photos",
+              ],
+            },
+          },
+        },
+        {
+          model: sequelize.models.User,
+          as: "user",
+          attributes: {
+            exclude: [
+              "createdAt",
+              "updatedAt",
+              "id",
+              "isAdmin",
+              "isEntrepreneur",
+              "password",
+              "resetPasswordToken",
+              "resetPasswordExpires",
+            ],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "User_id"],
+      },
+    });
+
+    res.status(200).json(reservations);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

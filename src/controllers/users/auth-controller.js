@@ -71,7 +71,7 @@ exports.login = async (req, res) => {
       avatar: user.avatar,
     };
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
       userData.avatar = avatarUrl;
     }
     const token = generateToken(user.id);
@@ -145,7 +145,7 @@ exports.updateUser = async (req, res) => {
     };
     await user.save();
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
       userData.avatar = avatarUrl;
     }
     res
