@@ -8,6 +8,7 @@ const enterpriseValidationRules = (isUpdate = false) => {
     rules.push(
       body("name")
         .notEmpty()
+        .withMessage("Le nom d'entreprise est obligatoire")
         .bail()
         .trim()
         .escape()
@@ -25,6 +26,7 @@ const enterpriseValidationRules = (isUpdate = false) => {
         }),
       body("mail")
         .notEmpty()
+        .withMessage("L'email est obligatoire")
         .bail()
         .trim()
         .escape()
@@ -38,20 +40,28 @@ const enterpriseValidationRules = (isUpdate = false) => {
         }),
       body("phone")
         .notEmpty()
+        .withMessage("Le numéro de téléphone est obligatoire")
         .bail()
         .trim()
         .escape()
         .isLength({ min: 10 })
         .withMessage("le numéro de téléphone doit contenir 10 chiffres"),
       body("adress").bail().trim().escape(),
-      body("city").notEmpty().bail().trim().escape(),
+      body("city")
+        .notEmpty()
+        .withMessage("La ville est obligatoire")
+        .bail()
+        .trim()
+        .escape(),
       body("zip_code")
         .notEmpty()
+        .withMessage("Le code postal est obligatoire")
         .bail()
         .trim()
         .escape()
         .isLength({ min: 5, max: 5 }),
       body("siret_number")
+        .optional({ checkFalsy: true })
         .bail()
         .trim()
         .escape()
