@@ -68,6 +68,7 @@ exports.createEnterprise = async (req, res) => {
       id: newEnterprise.id,
       name: newEnterprise.name,
       logo: newEnterprise.logo,
+      isValidate: newEnterprise.isValidate,
     };
     res
       .status(201)
@@ -166,6 +167,7 @@ exports.updateEnterprise = async (req, res) => {
       id: enterprise.id,
       name: enterprise.name,
       logo: enterprise.logo,
+      isValidate: enterprise.isValidate,
     };
     await enterprise.save();
     res
