@@ -64,7 +64,15 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     });
-    res.status(201).json({ message: "Entreprise créée" });
+    let enterpriseData = {
+      id: newEnterprise.id,
+      name: newEnterprise.name,
+      isValidate: newEnterprise.isValidate,
+      logo: newEnterprise.logo,
+    };
+    res
+      .status(201)
+      .json({ enterprise: enterpriseData, message: "Entreprise créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

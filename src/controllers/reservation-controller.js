@@ -146,7 +146,6 @@ exports.getReservationById = async (req, res) => {
 exports.getReservationsByEnterpriseId = async (req, res) => {
   try {
     const enterpriseId = req.enterprise.id;
-
     const reservations = await Reservation.findAll({
       include: [
         {
