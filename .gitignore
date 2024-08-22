@@ -2,3 +2,4 @@
 .dockerignore
 .env
 **/uploads/
+pnpm-lock.yaml
