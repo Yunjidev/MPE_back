@@ -1,4 +1,5 @@
 const { sequelize } = require("../../../models/index");
+const { getIo } = require("../../io");
 const Enterprise = sequelize.models.Enterprise;
 const { Job, User, Country } = require("../../../models/index");
 const files = require("../../utils/files");
@@ -115,6 +116,15 @@ exports.updateEnterprise = async (req, res) => {
 
     if (req.user.isAdmin) {
       enterprise.isValidate = isValidate || enterprise.isValidate;
+      if (isValidate !== enterprise.isValidate) {
+        const io = getIo();
+        if (io) {
+          io.emit("enterpriseValidated", { id: enterprise.id, isValidate });
+          console.log("io.emit");
+        } else {
+          console.log("io not defined");
+        }
+      }
     }
     // Gestion du logo
     const logo = req.files.logo ? req.files.logo[0].path : null;
