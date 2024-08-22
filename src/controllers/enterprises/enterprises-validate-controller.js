@@ -135,11 +135,14 @@ exports.getAllEnterprisesValidate = async (req, res) => {
       enterprise.map(async (enterprise) => {
         try {
           if (enterprise.logo) {
+            if (!enterprise.logo.startsWith('http')) {
             enterprise.logo = files.getUrl(
               req,
               "enterprises/logo",
               enterprise.logo,
+              
             );
+            }
           }
           if (enterprise.job.picture) {
             enterprise.job.dataValues.picture = files.getUrl(
@@ -178,7 +181,7 @@ exports.getAllEnterprisesValidate = async (req, res) => {
         } catch (error) {
           console.error(`Error processing enterprise ID: ${enterprise.id}:`, error);
           // Vous pouvez décider de renvoyer une partie des données, ou de sauter cette entreprise.
-          return null; // ou {} pour un objet vide si cela a du sens pour votre application
+          return { error: `Error processing enterprise ID: ${enterprise.id}: ${error.message}` };
         }
       }));
     console.log('Sending response with detailed enterprises');
