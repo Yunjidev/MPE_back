@@ -64,9 +64,10 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     });
-    const enterpriseData = {
+    let enterpriseData = {
       id: newEnterprise.id,
       name: newEnterprise.name,
+      isValidate: newEnterprise.isValidate,
       logo: newEnterprise.logo,
     };
     res
