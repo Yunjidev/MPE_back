@@ -64,7 +64,14 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     });
-    res.status(201).json({ message: "Entreprise créée" });
+    const enterpriseData = {
+      id: newEnterprise.id,
+      name: newEnterprise.name,
+      logo: newEnterprise.logo,
+    };
+    res
+      .status(201)
+      .json({ enterprise: enterpriseData, message: "Entreprise créée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -155,8 +162,15 @@ exports.updateEnterprise = async (req, res) => {
         }
       });
     }
+    const enterpriseData = {
+      id: enterprise.id,
+      name: enterprise.name,
+      logo: enterprise.logo,
+    };
     await enterprise.save();
-    res.status(200).json({ message: "Entreprise modifiée" });
+    res
+      .status(200)
+      .json({ enterprise: enterpriseData, message: "Entreprise modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

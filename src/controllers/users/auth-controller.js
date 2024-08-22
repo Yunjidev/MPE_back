@@ -61,6 +61,19 @@ exports.login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Mot de passe non valide" });
     }
+    const enterprises = await user.getEnterprises();
+    const enterprisesData = enterprises.map((enterprise) => {
+      const filteredEnterprise = {
+        id: enterprise.id,
+        name: enterprise.name,
+        isValidate: enterprise.isValidate,
+      };
+      if (enterprise.logo) {
+        const logoUrl = files.getUrl(req, "enterprises/logo", enterprise.logo);
+        filteredEnterprise.logo = logoUrl;
+      }
+      return filteredEnterprise;
+    });
     const userData = {
       id: user.id,
       username: user.username,
@@ -68,6 +81,7 @@ exports.login = async (req, res) => {
       firstname: user.firstname,
       lastname: user.lastname,
       isAdmin: user.isAdmin,
+      isEntrepreneur: user.isEntrepreneur,
       avatar: user.avatar,
     };
     if (user.avatar) {
@@ -76,7 +90,11 @@ exports.login = async (req, res) => {
     }
     const token = generateToken(user.id);
     res.setHeader("Authorization", `${token}`);
-    res.status(200).json({ user: userData, message: "Utilisateur connecté !" });
+    res.status(200).json({
+      user: userData,
+      enterprises: enterprisesData,
+      message: "Utilisateur connecté !",
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
