@@ -86,22 +86,6 @@ exports.getAllEnterprisesPremium = async (req, res) => {
                 exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
               },
             },
-            {
-              model: sequelize.models.Offer,
-              as: "offers",
-              include: [
-                {
-                  model: sequelize.models.Reservation,
-                  as: "reservations",
-                  attributes: {
-                    exclude: ["createdAt", "updatedAt", "Offer_id"],
-                  },
-                },
-              ],
-              attributes: {
-                exclude: ["createdAt", "updatedAt", "Enterprise_id"],
-              },
-            },
           ],
         },
       ],

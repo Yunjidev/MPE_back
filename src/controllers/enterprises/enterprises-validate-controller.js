@@ -149,7 +149,7 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
         {
           model: sequelize.models.Job,
           as: "job",
-          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+          attributes: { exclude: ["createdAt", "updatedAt"] },
         },
         {
           model: sequelize.models.User,
@@ -168,7 +168,7 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
         {
           model: sequelize.models.Country,
           as: "country",
-          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
+          attributes: { exclude: ["createdAt", "updatedAt"] },
         },
         {
           model: sequelize.models.Disponibility,

@@ -1,6 +1,8 @@
 const { sequelize } = require("../../models/index");
 const { Op } = require("sequelize");
 const Reservation = sequelize.models.Reservation;
+const Offer = sequelize.models.Offer;
+const Enterprise = sequelize.models.Enterprise;
 const {
   calculateEndTime,
   getAvailabilityDates,
@@ -141,6 +143,76 @@ exports.getReservationById = async (req, res) => {
   }
 };
 
+exports.getReservationsByEnterpriseId = async (req, res) => {
+  try {
+    const enterpriseId = req.enterprise.id;
+    const reservations = await Reservation.findAll({
+      include: [
+        {
+          model: Offer,
+          as: "offer",
+          where: {
+            Enterprise_id: enterpriseId,
+          },
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+          },
+          include: {
+            model: Enterprise,
+            as: "enterprise",
+            attributes: {
+              exclude: [
+                "createdAt",
+                "updatedAt",
+                "id",
+                "User_id",
+                "Job_id",
+                "Country_id",
+                "phone",
+                "mail",
+                "adress",
+                "city",
+                "zip_code",
+                "isValidate",
+                "facebook",
+                "instagram",
+                "twitter",
+                "siret_number",
+                "description",
+                "website",
+                "photos",
+              ],
+            },
+          },
+        },
+        {
+          model: sequelize.models.User,
+          as: "user",
+          attributes: {
+            exclude: [
+              "createdAt",
+              "updatedAt",
+              "id",
+              "isAdmin",
+              "isEntrepreneur",
+              "password",
+              "resetPasswordToken",
+              "resetPasswordExpires",
+            ],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "User_id"],
+      },
+    });
+
+    res.status(200).json(reservations);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.createReservation = async (req, res) => {
   try {
     const { id } = req.params;
@@ -243,7 +315,7 @@ exports.updateReservation = async (req, res) => {
       reservation.date = date || reservation.date;
       reservation.start_time = start_time || reservation.start_time;
     }
-    if (!isReservationOwner && !isReservationOfferOwner) {
+    if (!isReservationOwner && !isReservationOfferOwner && !req.user.isAdmin) {
       return res
         .status(403)
         .json({ message: "Vous n'êtes pas autorisé à effectuer cette action" });
