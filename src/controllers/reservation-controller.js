@@ -140,6 +140,76 @@ exports.getReservationById = async (req, res) => {
   }
 };
 
+exports.getReservationsByEnterpriseId = async (req, res) => {
+  try {
+    const enterpriseId = req.enterprise.id;
+    const reservations = await Reservation.findAll({
+      include: [
+        {
+          model: sequelize.models.Offer,
+          as: "offer",
+          where: {
+            Enterprise_id: enterpriseId,
+          },
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+          },
+          include: {
+            model: sequelize.models.Enterprise,
+            as: "enterprise",
+            attributes: {
+              exclude: [
+                "createdAt",
+                "updatedAt",
+                "id",
+                "User_id",
+                "Job_id",
+                "Country_id",
+                "phone",
+                "mail",
+                "adress",
+                "city",
+                "zip_code",
+                "isValidate",
+                "facebook",
+                "instagram",
+                "twitter",
+                "siret_number",
+                "description",
+                "website",
+                "photos",
+              ],
+            },
+          },
+        },
+        {
+          model: sequelize.models.User,
+          as: "user",
+          attributes: {
+            exclude: [
+              "createdAt",
+              "updatedAt",
+              "id",
+              "isAdmin",
+              "isEntrepreneur",
+              "password",
+              "resetPasswordToken",
+              "resetPasswordExpires",
+            ],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id", "User_id"],
+      },
+    });
+
+    res.status(200).json(reservations);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.createReservation = async (req, res) => {
   try {
     const { id } = req.params;
