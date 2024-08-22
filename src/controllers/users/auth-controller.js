@@ -81,6 +81,7 @@ exports.login = async (req, res) => {
       firstname: user.firstname,
       lastname: user.lastname,
       isAdmin: user.isAdmin,
+      isEntrepreneur: user.isEntrepreneur,
       avatar: user.avatar,
     };
     if (user.avatar) {

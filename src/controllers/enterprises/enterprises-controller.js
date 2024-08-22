@@ -69,6 +69,7 @@ exports.createEnterprise = async (req, res) => {
       name: newEnterprise.name,
       isValidate: newEnterprise.isValidate,
       logo: newEnterprise.logo,
+      isValidate: newEnterprise.isValidate,
     };
     res
       .status(201)
@@ -163,8 +164,16 @@ exports.updateEnterprise = async (req, res) => {
         }
       });
     }
+    const enterpriseData = {
+      id: enterprise.id,
+      name: enterprise.name,
+      logo: enterprise.logo,
+      isValidate: enterprise.isValidate,
+    };
     await enterprise.save();
-    res.status(200).json({ message: "Entreprise modifiée" });
+    res
+      .status(200)
+      .json({ enterprise: enterpriseData, message: "Entreprise modifiée" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
