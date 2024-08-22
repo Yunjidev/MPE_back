@@ -41,7 +41,7 @@ exports.signup = async (req, res) => {
       .status(201)
       .json({ user: userData, message: "Utilisateur créé et connecté !" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -55,11 +55,11 @@ exports.login = async (req, res) => {
       },
     });
     if (!user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
+      return res.status(404).json({ errors: "Pas d'utilisateur trouvé" });
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Mot de passe non valide" });
+      return res.status(401).json({ errors: "Mot de passe non valide" });
     }
     const enterprises = await user.getEnterprises();
     const enterprisesData = enterprises.map((enterprise) => {
@@ -96,7 +96,7 @@ exports.login = async (req, res) => {
       message: "Utilisateur connecté !",
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -105,7 +105,7 @@ exports.logout = async (req, res) => {
   try {
     res.status(200).json({ message: "Utilisateur déconnecté !" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ errors: err.errors });
   }
 };
 
@@ -170,7 +170,7 @@ exports.updateUser = async (req, res) => {
       .status(200)
       .json({ user: userData, message: "Utilisateur mis à jour !" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -185,7 +185,7 @@ exports.deleteUser = async (req, res) => {
     await req.user.destroy();
     res.status(200).json({ message: "Utilisateur supprimé" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -195,7 +195,7 @@ exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
+      return res.status(404).json({ errors: "Pas d'utilisateur trouvé" });
     }
 
     const resetToken = crypto.randomBytes(20).toString("hex");
@@ -211,7 +211,7 @@ exports.forgotPassword = async (req, res) => {
     });
     res.status(200).json({ message: "Email de re-initialisation envoyé" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -228,7 +228,7 @@ exports.resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
+      return res.status(404).json({ errors: "Pas d'utilisateur trouvé" });
     }
     user.password = await bcrypt.hash(newPassword, 10);
     user.resetPasswordToken = null;
@@ -237,6 +237,6 @@ exports.resetPassword = async (req, res) => {
 
     res.status(200).json({ message: "Mot de passe modifié" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

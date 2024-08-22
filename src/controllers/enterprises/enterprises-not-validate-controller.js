@@ -40,7 +40,7 @@ exports.getAllEnterprisesNotValidate = async (req, res) => {
     });
     res.status(200).json(enterprise);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -116,7 +116,7 @@ exports.getEnterpriseByIdNotValidate = async (req, res) => {
       },
     });
     if (!enterprise) {
-      return res.status(404).json({ message: "Pas de Enterprise trouvée" });
+      return res.status(404).json({ errors: "Pas de Enterprise trouvée" });
     }
     const remainingAvailability = await calculateRemainingAvailability(id);
     const nextAvailableDate = getNextAvailableDate(remainingAvailability);
@@ -127,6 +127,6 @@ exports.getEnterpriseByIdNotValidate = async (req, res) => {
     enterpriseData.averageRating = averageRating;
     res.status(200).json(enterpriseData);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

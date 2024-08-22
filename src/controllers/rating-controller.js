@@ -65,7 +65,7 @@ exports.getAllRatings = async (req, res) => {
     });
     res.status(200).json(ratings);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -133,11 +133,11 @@ exports.getRatingById = async (req, res) => {
       ],
     });
     if (!rating) {
-      return res.status(404).json({ message: "Pas de rating trouvée" });
+      return res.status(404).json({ errors: "Pas de rating trouvée" });
     }
     res.status(200).json(rating);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -147,10 +147,10 @@ exports.createRating = async (req, res) => {
     const { note, comment } = req.body;
     const offer = await sequelize.models.Offer.findByPk(id);
     if (!offer) {
-      return res.status(404).json({ message: "Pas d'offre trouvée" });
+      return res.status(404).json({ errors: "Pas d'offre trouvée" });
     }
     if (!req.user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
+      return res.status(404).json({ errors: "Pas d'utilisateur trouvé" });
     }
     const newRating = await Rating.create({
       note,
@@ -160,7 +160,7 @@ exports.createRating = async (req, res) => {
     });
     res.status(201).json({ message: "Note créée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -169,11 +169,11 @@ exports.deleteRating = async (req, res) => {
     const { id } = req.params;
     const rating = await Rating.findByPk(id);
     if (!rating) {
-      return res.status(404).json({ message: "Pas de rating trouvée" });
+      return res.status(404).json({ errors: "Pas de rating trouvée" });
     }
     await rating.destroy();
     res.status(200).json({ message: "rating supprimée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
