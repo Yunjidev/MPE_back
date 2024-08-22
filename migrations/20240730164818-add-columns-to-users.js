@@ -13,7 +13,7 @@ module.exports = {
       allowNull: true,
     });
 
-    await queryInterface.addColumn("Users", "isEntrepeneur", {
+    await queryInterface.addColumn("Users", "isEntrepreneur", {
       type: Sequelize.BOOLEAN,
       defaultValue: false,
     });
@@ -30,7 +30,7 @@ module.exports = {
       allowNull: true,
     });
 
-    await queryInterface.dropColumn("Users", "isEntrepeneur", {
+    await queryInterface.dropColumn("Users", "isEntrepreneur", {
       type: Sequelize.BOOLEAN,
       defaultValue: false,
     });

@@ -2,13 +2,12 @@ const { sequelize } = require("../../../models/index");
 const Enterprise = sequelize.models.Enterprise;
 const { Job, User, Country } = require("../../../models/index");
 const files = require("../../utils/files");
+const { getAvailabilityDates } = require("../../utils/availability.js");
 const { calculateAverageRatingForEnterprise } = require("../../utils/ratings");
-const { getAvailabilityDates } = require("../../utils/availability");
 
-exports.getAllEnterprisesValidate = async (req, res) => {
+exports.getAllEnterprises = async (req, res) => {
   try {
     const enterprise = await Enterprise.findAll({
-      where: { isValidate: true },
       attributes: {
         exclude: [
           "createdAt",
@@ -29,24 +28,6 @@ exports.getAllEnterprisesValidate = async (req, res) => {
         ],
       },
       include: [
-        {
-          model: sequelize.models.User,
-          as: "entrepreneur",
-          attributes: {
-            exclude: [
-              "createdAt",
-              "updatedAt",
-              "password",
-              "resetPasswordToken",
-              "resetPasswordExpires",
-              "isEntrepreneur",
-              "isAdmin",
-              "firstname",
-              "lastname",
-              "email",
-            ],
-          },
-        },
         {
           model: sequelize.models.Job,
           as: "job",
@@ -101,23 +82,10 @@ exports.getAllEnterprisesValidate = async (req, res) => {
         if (enterprise.job.picture) {
           enterprise.job.dataValues.picture = files.getUrl(
             req,
-            "jobs-pictures/picture",
+            "jobs-pictures",
             enterprise.job.picture,
           );
         }
-        if (enterprise.entrepreneur.avatar) {
-          const avatarUrl = files.getUrl(
-            req,
-            "avatars",
-            enterprise.entrepreneur.avatar,
-          );
-          enterprise.entrepreneur.dataValues.avatar = avatarUrl;
-        }
-        enterprise.offers.forEach((offer) => {
-          if (offer.image) {
-            offer.image = files.getUrl(req, "offer-image/image", offer.image);
-          }
-        });
         const averageRating = await calculateAverageRatingForEnterprise(
           enterprise.id,
         );
@@ -140,16 +108,15 @@ exports.getAllEnterprisesValidate = async (req, res) => {
   }
 };
 
-exports.getEnterpriseByIdValidate = async (req, res) => {
+exports.getEnterpriseById = async (req, res) => {
   try {
     const { id } = req.params;
     const enterprise = await Enterprise.findByPk(id, {
-      where: { isValidate: true },
       include: [
         {
           model: sequelize.models.Job,
           as: "job",
-          attributes: { exclude: ["createdAt", "updatedAt"] },
+          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
         },
         {
           model: sequelize.models.User,
@@ -168,7 +135,7 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
         {
           model: sequelize.models.Country,
           as: "country",
-          attributes: { exclude: ["createdAt", "updatedAt"] },
+          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
         },
         {
           model: sequelize.models.Disponibility,
@@ -229,7 +196,7 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
         },
       ],
       attributes: {
-        exclude: ["createdAt", "updatedAt", "User_id", "Job_id", "Country_id"],
+        exclude: ["createdAt", "updatedAt", "User_id"],
       },
     });
     if (!enterprise) {
@@ -251,17 +218,12 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
     if (enterprise.job.picture) {
       enterprise.job.dataValues.picture = files.getUrl(
         req,
-        "jobs-pictures/picture",
+        "jobs-pictures",
         enterprise.job.picture,
       );
     }
     // Creations des routes avatars
     const offers = enterprise.offers;
-    offers.forEach((offer) => {
-      if (offer.image) {
-        offer.image = files.getUrl(req, "offer-image/image", offer.image);
-      }
-    });
     const reservations = enterprise.offers.map((offer) => offer.reservations);
     const ratings = enterprise.offers.map((offer) => offer.ratings).flat();
     const raters = ratings.map((rating) => rating.user);

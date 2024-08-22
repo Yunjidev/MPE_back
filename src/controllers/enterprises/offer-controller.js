@@ -69,17 +69,43 @@ exports.getOfferById = async (req, res) => {
   }
 };
 
+exports.getOfferByEnterpriseId = async (req, res) => {
+  try {
+    console.log(req.enterprise.id);
+    const id = req.enterprise.id;
+    console.log(id);
+    const offer = await Offer.findAll({
+      where: {
+        Enterprise_id: id,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "Enterprise_id"],
+      },
+    });
+    if (!offer) {
+      return res.status(404).json({ message: "Pas de offre trouvée" });
+    }
+    res.status(200).json(offer);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.createOffer = async (req, res) => {
   try {
     const enterpriseId = req.enterprise.id;
     const { name, description, estimate, duration } = req.body;
-    const price = estimate ? null : req.body.price;
+    const estimateBoolean = req.body.estimate === "true";
+    const price = estimateBoolean ? null : parseFloat(req.body.price);
     const image = req.file ? req.file.path : null;
+    if (!req.enterprise.isValidate) {
+      return res(400).json({ message: "L'entreprise n'est pas validée" });
+    }
     const newOffer = await Offer.create({
       name,
       description,
       price,
-      estimate,
+      estimateBoolean,
       image,
       duration,
       Enterprise_id: enterpriseId,

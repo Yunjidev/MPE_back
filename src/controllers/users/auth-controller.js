@@ -30,9 +30,12 @@ exports.signup = async (req, res) => {
       email: user.email,
       firstname: user.firstname,
       lastname: user.lastname,
-      isAdmin: user.isAdmin,
       avatar: user.avatar,
     };
+    if (user.avatar) {
+      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      userData.avatar = avatarUrl;
+    }
     res.setHeader("Authorization", `${token}`);
     res
       .status(201)
@@ -80,6 +83,10 @@ exports.login = async (req, res) => {
       isAdmin: user.isAdmin,
       avatar: user.avatar,
     };
+    if (user.avatar) {
+      const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
+      userData.avatar = avatarUrl;
+    }
     const token = generateToken(user.id);
     res.setHeader("Authorization", `${token}`);
     res.status(200).json({
@@ -153,8 +160,11 @@ exports.updateUser = async (req, res) => {
       isAdmin: user.isAdmin,
       avatar: user.avatar,
     };
-
     await user.save();
+    if (user.avatar) {
+      const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
+      userData.avatar = avatarUrl;
+    }
     res
       .status(200)
       .json({ user: userData, message: "Utilisateur mis à jour !" });
@@ -166,8 +176,9 @@ exports.updateUser = async (req, res) => {
 // Fonction pour supprimer un utilisateur
 exports.deleteUser = async (req, res) => {
   try {
+    console.log("req.user", req.user);
     if (req.user.avatar) {
-      files.deleteFile(user.avatar);
+      files.deleteFile(req.user.avatar);
     }
 
     await req.user.destroy();

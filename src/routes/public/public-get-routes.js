@@ -4,6 +4,7 @@ const router = express.Router();
 // enterprises
 const enterpriseController = require("../../controllers/enterprises/enterprises-controller");
 const enterpriseValidateController = require("../../controllers/enterprises/enterprises-validate-controller");
+const enterprisePremiumController = require("../../controllers/enterprises/enterprise-premium-controller");
 // static
 const conditionController = require("../../controllers/static/conditions-controller");
 const faqController = require("../../controllers/static/faq-controller");
@@ -12,11 +13,16 @@ const teamController = require("../../controllers/static/team-controller");
 const countryController = require("../../controllers/static/country-controller");
 const jobsController = require("../../controllers/static/job-controller");
 const searchController = require("../../controllers/static/search-controller");
+const statsController = require("../../controllers/stats-controller");
 
 // Enterprise routes
 router.get(
   "/enterprises/validate",
   enterpriseValidateController.getAllEnterprisesValidate,
+);
+router.get(
+  "/enterprises/premium",
+  enterprisePremiumController.getAllEnterprisesPremium,
 );
 router.get(
   "/enterprise/:id",
@@ -47,5 +53,8 @@ router.get("/jobs", jobsController.getAllJobs);
 
 // Routes Search
 router.get("/search", searchController.search);
+
+// Routes Stats
+router.get("/stats", statsController.getAllStats);
 
 module.exports = router;

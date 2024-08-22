@@ -43,7 +43,7 @@ exports.getLikeByEnterpriseId = async (req, res) => {
 exports.createLike = async (req, res) => {
   try {
     const User_id = req.user.id;
-    const Enterprise_id = req.body.Enterprise_id;
+    const Enterprise_id = req.params.id;
 
     const existingLike = await sequelize.models.Like.findOne({
       where: {
@@ -72,7 +72,7 @@ exports.createLike = async (req, res) => {
 exports.deleteLike = async (req, res) => {
   try {
     const User_id = req.user.id;
-    const Enterprise_id = req.body.Enterprise_id;
+    const Enterprise_id = req.params.id;
 
     const existingLike = await sequelize.models.Like.findOne({
       where: {

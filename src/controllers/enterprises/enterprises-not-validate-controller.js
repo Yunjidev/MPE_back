@@ -28,6 +28,16 @@ exports.getAllEnterprisesNotValidate = async (req, res) => {
         },
       ],
     });
+    enterprise.map((enterprise) => {
+      if (enterprise.logo) {
+        const logoUrl = files.getUrl(req, "enterprises/logo", enterprise.logo);
+        enterprise.dataValues.logo = logoUrl;
+      }
+      enterprise.photos = enterprise.photos.map((photo) => {
+        return files.getUrl(req, "enterprises/photos", photo);
+      });
+      return enterprise.dataValues;
+    });
     res.status(200).json(enterprise);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -38,6 +48,7 @@ exports.getEnterpriseByIdNotValidate = async (req, res) => {
   try {
     const { id } = req.params;
     const enterprise = await Enterprise.findByPk(id, {
+      where: { isValidate: false },
       include: [
         {
           model: sequelize.models.Job,
@@ -54,7 +65,7 @@ exports.getEnterpriseByIdNotValidate = async (req, res) => {
               "password",
               "resetPasswordToken",
               "resetPasswordExpires",
-              "isEntrepeneur",
+              "isEntrepreneur",
             ],
           },
         },

@@ -90,6 +90,9 @@ exports.getInDisponibilityById = async (req, res) => {
 exports.createInDisponibility = async (req, res) => {
   try {
     const { start_date, start_hour, end_date, end_hour } = req.body;
+    if (!req.enterprise.isValidate) {
+      return res(400).json({ message: "L'entreprise n'est pas validée" });
+    }
     const newIndisponibility = await Indisponibility.create({
       start_date,
       start_hour,

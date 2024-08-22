@@ -2,143 +2,6 @@ const { sequelize } = require("../../../models/index");
 const Enterprise = sequelize.models.Enterprise;
 const { Job, User, Country } = require("../../../models/index");
 const files = require("../../utils/files");
-const {
-  calculateRemainingAvailability,
-  getNextAvailableDate,
-} = require("../../utils/availability");
-const { calculateAverageRatingForEnterprise } = require("../../utils/ratings");
-
-exports.getAllEnterprises = async (req, res) => {
-  try {
-    const enterprise = await Enterprise.findAll({
-      attributes: {
-        exclude: [
-          "createdAt",
-          "updatedAt",
-          "User_id",
-          "Job_id",
-          "Country_id",
-          "photos",
-          "facebook",
-          "instagram",
-          "twitter",
-          "description",
-          "isValidate",
-          "phone",
-          "mail",
-          "adress",
-          "siret_number",
-          "city",
-          "zip_code",
-        ],
-      },
-    });
-    const enterpriseWithDetails = await Promise.all(
-      enterprise.map(async (enterprise) => {
-        const remainingAvailability = await calculateRemainingAvailability(
-          enterprise.id,
-        );
-        const nextAvailableDate = getNextAvailableDate(remainingAvailability);
-        const averageRating = await calculateAverageRatingForEnterprise(
-          enterprise.id,
-        );
-        const enterpriseData = enterprise.toJSON();
-        enterpriseData.nextAvailableDate = nextAvailableDate;
-        enterpriseData.averageRating = averageRating;
-        return enterpriseData;
-      }),
-    );
-    res.status(200).json(enterpriseWithDetails);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.getEnterpriseById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const enterprise = await Enterprise.findByPk(id, {
-      include: [
-        {
-          model: sequelize.models.Job,
-          as: "job",
-          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
-        },
-        {
-          model: sequelize.models.User,
-          as: "entrepreneur",
-          attributes: {
-            exclude: [
-              "createdAt",
-              "updatedAt",
-              "password",
-              "resetPasswordToken",
-              "resetPasswordExpires",
-              "isEntrepeneur",
-            ],
-          },
-        },
-        {
-          model: sequelize.models.Country,
-          as: "country",
-          attributes: { exclude: ["createdAt", "updatedAt", "id"] },
-        },
-        {
-          model: sequelize.models.Disponibility,
-          as: "disponibilities",
-          attributes: {
-            exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
-          },
-        },
-        {
-          model: sequelize.models.Indisponibility,
-          as: "indisponibilities",
-          attributes: {
-            exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
-          },
-        },
-        {
-          model: sequelize.models.Offer,
-          as: "offers",
-          include: [
-            {
-              model: sequelize.models.Reservation,
-              as: "reservations",
-              attributes: {
-                exclude: [
-                  "createdAt",
-                  "updatedAt",
-                  "id",
-                  "Offer_id",
-                  "User_id",
-                ],
-              },
-            },
-          ],
-          attributes: {
-            exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
-          },
-        },
-      ],
-      attributes: {
-        exclude: ["createdAt", "updatedAt", "User_id", "Job_id", "Country_id"],
-      },
-    });
-    if (!enterprise) {
-      return res.status(404).json({ message: "Pas de Enterprise trouv├®e" });
-    }
-    const remainingAvailability = await calculateRemainingAvailability(id);
-    const nextAvailableDate = getNextAvailableDate(remainingAvailability);
-    const averageRating = await calculateAverageRatingForEnterprise(id);
-    const enterpriseData = enterprise.toJSON();
-    enterpriseData.remainingAvailability = remainingAvailability;
-    enterpriseData.nextAvailableDate = nextAvailableDate;
-    enterpriseData.averageRating = averageRating;
-    res.status(200).json(enterpriseData);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
 exports.createEnterprise = async (req, res) => {
   try {
@@ -157,14 +20,14 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     } = req.body;
-    const photos =
-      req.files && req.files.photos && req.files.photos.length > 0
-        ? req.files.photos.map((file) => file.path)
-        : [];
     const logo =
       req.files && req.files.logo && req.files.logo.length > 0
         ? req.files.logo[0].path
         : null;
+    const photos =
+      req.files && req.files.photos && req.files.photos.length > 0
+        ? req.files.photos.map((file) => file.path)
+        : [];
     const job = await Job.findByPk(Job_id);
     if (!job) {
       return res.status(404).json({ message: "Pas de job trouvé" });
@@ -179,12 +42,10 @@ exports.createEnterprise = async (req, res) => {
         .json({ message: "Veuillez renseigner votre nom et votre prénom" });
     }
 
-    console.log("req.user.isEntrepreneur", req.user.isEntrepeneur);
-    if (!req.user.isEntrepeneur) {
-      req.user.isEntrepeneur = true;
+    if (!req.user.isEntrepreneur) {
+      req.user.isEntrepreneur = true;
       await req.user.save();
     }
-    console.log("after save", req.user.isEntrepeneur);
     const newEnterprise = await Enterprise.create({
       name,
       phone,
@@ -219,6 +80,7 @@ exports.createEnterprise = async (req, res) => {
 
 exports.updateEnterprise = async (req, res) => {
   try {
+    const enterprise = req.enterprise;
     const {
       name,
       phone,
@@ -233,14 +95,10 @@ exports.updateEnterprise = async (req, res) => {
       isValidate,
       Job_id,
       Country_id,
-      removePhotos = [],
-      removeLogo = [],
+      removeLogo,
+      removePhotos,
     } = req.body;
 
-    // Trouver l'entreprise
-    const enterprise = req.enterprise;
-
-    // Mise � jour des informations de l'entreprise
     enterprise.name = name || enterprise.name;
     enterprise.phone = phone || enterprise.phone;
     enterprise.mail = mail || enterprise.mail;
@@ -253,34 +111,58 @@ exports.updateEnterprise = async (req, res) => {
     enterprise.twitter = twitter || enterprise.twitter;
     enterprise.Country_id = Country_id || enterprise.Country_id;
     enterprise.Job_id = Job_id || enterprise.Job_id;
+
     if (req.user.isAdmin) {
       enterprise.isValidate = isValidate || enterprise.isValidate;
     }
+    // Gestion du logo
+    const logo = req.files.logo ? req.files.logo[0].path : null;
+    if (logo) {
+      if (enterprise.logo) {
+        files.deleteFile(enterprise.logo);
+      }
+      enterprise.logo = logo;
+    } else if (removeLogo === "true" && enterprise.logo) {
+      files.deleteFile(enterprise.logo);
+      enterprise.logo = null;
+    }
     // Gestion des nouvelles photos
-    /*    if (req.files.photos && req.files.photos.length > 0) {
-      const newPhotos = req.files.photos.map((file) => file.path);
+    const newPhotos = req.files.photos
+      ? req.files.photos.map((file) => file.path)
+      : [];
+    if (newPhotos.length > 0) {
+      if (enterprise.photos) {
+        const maxPhotos = 3;
+        const currentPhotos = enterprise.photos.length;
+        if (currentPhotos + newPhotos.length > maxPhotos) {
+          const photosToDeleteCount =
+            currentPhotos + newPhotos.length - maxPhotos;
+          const photosToDelete = enterprise.photos.slice(
+            0,
+            photosToDeleteCount,
+          );
+          photosToDelete.forEach((photo) => {
+            files.deleteFile(photo);
+          });
+          enterprise.photos = enterprise.photos.slice(photosToDeleteCount);
+        }
+      }
       enterprise.photos = [...enterprise.photos, ...newPhotos];
     }
-    if (req.files.logo && req.files.logo.length > 0) {
-      enterprise.logo = req.files.logo[0].path;
-    }
-
-    // Suppression des photos
-    if (removePhotos.length > 0) {
-      removePhotos.forEach((photo) => {
-        const index = enterprise.photos.indexOf(photo);
-        if (index > -1) {
-          enterprise.photos.splice(index, 1);
+    if (removePhotos) {
+      const photosToRemove = removePhotos.split(",").map(Number);
+      const photosToDelete = photosToRemove.map(
+        (index) => enterprise.photos[index],
+      );
+      enterprise.photos = enterprise.photos.filter(
+        (photo, index) => !photosToRemove.includes(index),
+      );
+      photosToDelete.forEach((photo) => {
+        if (photo) {
           files.deleteFile(photo);
         }
       });
     }
-    if (req.body.removeLogo) {
-      if (enterprise.logo) {
-        files.deleteFile(enterprise.logo);
-        enterprise.logo = null;
-      }
-    }*/
     await enterprise.save();
     res.status(200).json({ message: "Entreprise modifiée" });
   } catch (error) {
@@ -293,6 +175,14 @@ exports.deleteEnterprise = async (req, res) => {
     const enterprise = req.enterprise;
     if (!enterprise) {
       return res.status(404).json({ message: "Pas de enterprises trouvée" });
+    }
+    if (enterprise.logo) {
+      files.deleteFile(enterprise.logo);
+    }
+    if (enterprise.photos) {
+      enterprise.photos.forEach((photo) => {
+        files.deleteFile(photo);
+      });
     }
     await enterprise.destroy();
     res.status(200).json({ message: "enterprises supprimée" });

@@ -91,6 +91,11 @@ exports.createDisponibility = async (req, res) => {
     if (!Array.isArray(day)) {
       return res.status(400).json({ message: "Le jour doit être un tableau" });
     }
+    if (!req.enterprise.isValidate) {
+      return res
+        .status(400)
+        .json({ message: "L'entreprise n'est pas validée" });
+    }
     const overlapping = await Promise.all(
       day.map(async (day) => {
         return await Disponibility.isOverlapping(
