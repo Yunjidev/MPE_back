@@ -155,7 +155,7 @@ exports.getUserById = async (req, res) => {
       return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
     }
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
       user.dataValues.avatar = avatarUrl;
     }
     user.enterprises = user.enterprises.map((enterprise) => {
@@ -290,7 +290,7 @@ exports.getUserProfile = async (req, res) => {
       ],
     });
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
       user.dataValues.avatar = avatarUrl;
     }
     user.enterprises = user.enterprises.map((enterprise) => {

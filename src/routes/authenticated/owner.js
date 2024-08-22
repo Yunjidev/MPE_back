@@ -17,6 +17,7 @@ const disponibilitiesController = require("../../controllers/enterprises/disponi
 const inDisponibilitiesController = require("../../controllers/enterprises/indisponibility-controller");
 const offersController = require("../../controllers/enterprises/offer-controller");
 const subscriptionsController = require("../../controllers/enterprises/subscription-controller");
+const reservationsController = require("../../controllers/reservation-controller");
 
 // Route Enterprise
 const uploadFiles = files.upload("enterprises").fields([
@@ -77,5 +78,11 @@ router.delete("/offer/:id", offersController.deleteOffer);
 router.post("/subscription", subscriptionsController.createSubscription);
 router.use("/subscription/:id", subscriptionsController.updateSubscription);
 router.delete("/subscription/:id", subscriptionsController.deleteSubscription);
+
+// Routes Reservation
+router.get(
+  "/reservations",
+  reservationsController.getReservationsByEnterpriseId,
+);
 
 module.exports = router;

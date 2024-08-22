@@ -12,7 +12,10 @@ async function calculateAverageRatingForOffer(offerId) {
   if (ratings.length === 0) {
     return null;
   }
-  const totalRating = ratings.reduce((acc, rating) => acc + parseFloat(rating.note), 0);
+  const totalRating = ratings.reduce(
+    (acc, rating) => acc + Number(rating.note),
+    0,
+  );
   return totalRating / ratings.length;
 }
 
