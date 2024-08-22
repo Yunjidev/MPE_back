@@ -37,7 +37,7 @@ exports.getAllInDisponibilities = async (req, res) => {
     });
     res.status(200).json(indisponibilities);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -77,13 +77,11 @@ exports.getInDisponibilityById = async (req, res) => {
       },
     });
     if (!indisponibility) {
-      return res
-        .status(404)
-        .json({ message: "Pas de indisponibility trouvée" });
+      return res.status(404).json({ errors: "Pas de indisponibility trouvée" });
     }
     res.status(200).json(indisponibility);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -91,7 +89,7 @@ exports.createInDisponibility = async (req, res) => {
   try {
     const { start_date, start_hour, end_date, end_hour } = req.body;
     if (!req.enterprise.isValidate) {
-      return res(400).json({ message: "L'entreprise n'est pas validée" });
+      return res(400).json({ errors: "L'entreprise n'est pas validée" });
     }
     const newIndisponibility = await Indisponibility.create({
       start_date,
@@ -102,7 +100,7 @@ exports.createInDisponibility = async (req, res) => {
     });
     res.status(201).json({ message: "Indisponibilité créée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -112,9 +110,7 @@ exports.updateInDisponibility = async (req, res) => {
     const { start_date, start_hour, end_date, end_hour } = req.body;
     const indisponibility = await Indisponibility.findByPk(id);
     if (!indisponibility) {
-      return res
-        .status(404)
-        .json({ message: "Pas de indisponibility trouvée" });
+      return res.status(404).json({ errors: "Pas de indisponibility trouvée" });
     }
     indisponibility.start_date = start_date || indisponibility.start_date;
     indisponibility.start_hour = start_hour || indisponibility.start_hour;
@@ -123,7 +119,7 @@ exports.updateInDisponibility = async (req, res) => {
     await indisponibility.save();
     res.status(200).json({ message: "Indisponibilité modifiée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -139,6 +135,6 @@ exports.deleteInDisponibility = async (req, res) => {
     await indisponibility.destroy();
     res.status(200).json({ message: "indisponibility supprimée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

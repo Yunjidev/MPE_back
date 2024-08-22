@@ -1,4 +1,5 @@
 const { sequelize } = require("../../../models/index");
+const files = require("../../utils/files");
 
 // Fonction pour mettre à jour un utilisateur
 exports.moderateUser = async (req, res) => {
@@ -8,7 +9,7 @@ exports.moderateUser = async (req, res) => {
     console.log("req", req);
     const user = await sequelize.models.User.findByPk(id);
     if (!user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
+      return res.status(404).json({ errors: "Pas d'utilisateur trouvé" });
     }
 
     const {
@@ -53,7 +54,7 @@ exports.moderateUser = async (req, res) => {
       .status(200)
       .json({ user: userData, message: "Utilisateur mis à jour !" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -69,6 +70,6 @@ exports.deleteUser = async (req, res) => {
     await user.destroy();
     res.status(200).json({ message: "Utilisateur supprimé" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

@@ -27,6 +27,6 @@ exports.search = async (req, res) => {
     });
     res.status(200).json({ countries, jobs });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

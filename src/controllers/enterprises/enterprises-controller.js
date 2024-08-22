@@ -30,16 +30,16 @@ exports.createEnterprise = async (req, res) => {
         : [];
     const job = await Job.findByPk(Job_id);
     if (!job) {
-      return res.status(404).json({ message: "Pas de job trouvé" });
+      return res.status(404).json({ errors: "Pas de job trouvé" });
     }
     const country = await Country.findByPk(Country_id);
     if (!country) {
-      return res.status(404).json({ message: "Pas de Region trouvé" });
+      return res.status(404).json({ errors: "Pas de Region trouvé" });
     }
     if (!req.user.firstname && !req.user.lastname) {
       return res
         .status(400)
-        .json({ message: "Veuillez renseigner votre nom et votre prénom" });
+        .json({ errors: "Veuillez renseigner votre nom et votre prénom" });
     }
 
     if (!req.user.isEntrepreneur) {
@@ -75,7 +75,7 @@ exports.createEnterprise = async (req, res) => {
       .status(201)
       .json({ enterprise: enterpriseData, message: "Entreprise créée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -175,7 +175,7 @@ exports.updateEnterprise = async (req, res) => {
       .status(200)
       .json({ enterprise: enterpriseData, message: "Entreprise modifiée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -183,7 +183,7 @@ exports.deleteEnterprise = async (req, res) => {
   try {
     const enterprise = req.enterprise;
     if (!enterprise) {
-      return res.status(404).json({ message: "Pas de enterprises trouvée" });
+      return res.status(404).json({ errors: "Pas de enterprises trouvée" });
     }
     if (enterprise.logo) {
       files.deleteFile(enterprise.logo);
@@ -196,6 +196,6 @@ exports.deleteEnterprise = async (req, res) => {
     await enterprise.destroy();
     res.status(200).json({ message: "enterprises supprimée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

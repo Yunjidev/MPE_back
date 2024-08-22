@@ -37,7 +37,7 @@ exports.getAllDisponibilities = async (req, res) => {
     });
     res.status(200).json(disponibility);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -77,24 +77,19 @@ exports.getDisponibilityById = async (req, res) => {
       },
     });
     if (!disponibility) {
-      return res.status(404).json({ message: "Pas de disponibility trouvée" });
+      return res.status(404).json({ errors: "Pas de disponibility trouvée" });
     }
     res.status(200).json(disponibility);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
 exports.createDisponibility = async (req, res) => {
   try {
     const { day, start_hour, end_hour } = req.body;
-    if (!Array.isArray(day)) {
-      return res.status(400).json({ message: "Le jour doit être un tableau" });
-    }
     if (!req.enterprise.isValidate) {
-      return res
-        .status(400)
-        .json({ message: "L'entreprise n'est pas validée" });
+      return res.status(400).json({ errors: "L'entreprise n'est pas validée" });
     }
     const overlapping = await Promise.all(
       day.map(async (day) => {
@@ -107,7 +102,7 @@ exports.createDisponibility = async (req, res) => {
       }),
     );
     if (overlapping.some((overlap) => overlap)) {
-      return res.status(400).json({ message: "Disponibilité déjà existante" });
+      return res.status(400).json({ errors: "Disponibilité déjà existante" });
     }
     const newDisponibilities = await Promise.all(
       day.map(async (day) => {
@@ -121,7 +116,7 @@ exports.createDisponibility = async (req, res) => {
     );
     res.status(201).json({ message: "Disponibilité créée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -131,7 +126,7 @@ exports.updateDisponibility = async (req, res) => {
     const { day, start_hour, end_hour } = req.body;
     const disponibility = await Disponibility.findByPk(id);
     if (!disponibility) {
-      return res.status(404).json({ message: "Pas de disponibilité trouvée" });
+      return res.status(404).json({ errors: "Pas de disponibilité trouvée" });
     }
     const overlapping = await Disponibility.isOverlapping(
       day || disponibility.day,
@@ -141,7 +136,7 @@ exports.updateDisponibility = async (req, res) => {
       id,
     );
     if (overlapping) {
-      return res.status(400).json({ message: "Disponibilité déjà existante" });
+      return res.status(400).json({ errors: "Disponibilité déjà existante" });
     }
 
     disponibility.day = day || disponibility.day;
@@ -150,7 +145,7 @@ exports.updateDisponibility = async (req, res) => {
     await disponibility.save();
     res.status(200).json({ message: "Disponibilité modifiée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -159,11 +154,11 @@ exports.deleteDisponibility = async (req, res) => {
     const { id } = req.params;
     const disponibility = await Disponibility.findByPk(id);
     if (!disponibility) {
-      return res.status(404).json({ message: "Pas de disponibilité trouvée" });
+      return res.status(404).json({ errors: "Pas de disponibilité trouvée" });
     }
     await disponibility.destroy();
     res.status(200).json({ message: "disponibilité supprimée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

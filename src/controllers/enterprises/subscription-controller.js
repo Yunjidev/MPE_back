@@ -37,7 +37,7 @@ exports.getAllSubscriptions = async (req, res) => {
     });
     res.status(200).json(subscription);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -77,11 +77,11 @@ exports.getSubscriptionById = async (req, res) => {
       },
     });
     if (!subscription) {
-      return res.status(404).json({ message: "Pas de subscription trouvée" });
+      return res.status(404).json({ errors: "Pas de subscription trouvée" });
     }
     res.status(200).json(subscription);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -106,7 +106,7 @@ exports.createSubscription = async (req, res) => {
       default:
         return res
           .status(400)
-          .json({ message: "Type de subscription invalide" });
+          .json({ errors: "Type de subscription invalide" });
     }
     const newSubscription = await Subscription.create({
       subscription_type,
@@ -117,7 +117,7 @@ exports.createSubscription = async (req, res) => {
     });
     res.status(201).json({ message: "Subscription créée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -127,13 +127,13 @@ exports.updateSubscription = async (req, res) => {
     const { status } = req.body;
     const subscription = await Subscription.findByPk(id);
     if (!subscription) {
-      return res.status(404).json({ message: "Pas de subscription trouvée" });
+      return res.status(404).json({ errors: "Pas de subscription trouvée" });
     }
     subscription.status = status || subscription.status;
     await subscription.save();
     res.status(200).json({ message: "Subscription modifiée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -142,11 +142,11 @@ exports.deleteSubscription = async (req, res) => {
     const { id } = req.params;
     const subscription = await Subscription.findByPk(id);
     if (!subscription) {
-      return res.status(404).json({ message: "Pas de subscription trouvée" });
+      return res.status(404).json({ errors: "Pas de subscription trouvée" });
     }
     await subscription.destroy();
     res.status(200).json({ message: "subscription supprimée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
