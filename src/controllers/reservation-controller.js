@@ -145,7 +145,6 @@ exports.getReservationById = async (req, res) => {
 
 exports.getReservationsByEnterpriseId = async (req, res) => {
   try {
-    console.log("enterpriseId", req.enterprise.id);
     const enterpriseId = req.enterprise.id;
 
     const reservations = await Reservation.findAll({
