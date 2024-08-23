@@ -70,7 +70,7 @@ exports.getAllReservations = async (req, res) => {
     });
     res.status(200).json(reservation);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -139,7 +139,7 @@ exports.getReservationById = async (req, res) => {
     }
     res.status(200).json(reservation);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -209,7 +209,7 @@ exports.getReservationsByEnterpriseId = async (req, res) => {
 
     res.status(200).json(reservations);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -221,20 +221,20 @@ exports.createReservation = async (req, res) => {
     const offer = await sequelize.models.Offer.findByPk(id);
     const enterprise = await offer.getEnterprise();
     if (!offer) {
-      return res.status(404).json({ message: "Pas d'offre trouvée" });
+      return res.status(404).json({ errors: "Pas d'offre trouvée" });
     }
     if (!req.user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
+      return res.status(404).json({ errors: "Pas d'utilisateur trouvé" });
     }
     if (req.user.id === enterprise.User_id) {
       return res
         .status(400)
-        .json({ message: "Vous ne pouvez pas réserver votre propre offre" });
+        .json({ errors: "Vous ne pouvez pas réserver votre propre offre" });
     }
     if (date < now) {
       return res
         .status(400)
-        .json({ message: "La date doit être dans le futur" });
+        .json({ errors: "La date doit être dans le futur" });
     }
 
     const disponibilities = await enterprise.getDisponibilities();
@@ -268,7 +268,7 @@ exports.createReservation = async (req, res) => {
     if (!isAvailable) {
       return res
         .status(400)
-        .json({ message: "Le créneau horaire est déjà réservé" });
+        .json({ errors: "Le créneau horaire est déjà réservé" });
     }
 
     const newReservation = await Reservation.create({
@@ -281,7 +281,7 @@ exports.createReservation = async (req, res) => {
     });
     res.status(201).json({ message: "Réservation créée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -304,7 +304,7 @@ exports.updateReservation = async (req, res) => {
       ],
     });
     if (!reservation) {
-      return res.status(404).json({ message: "Pas de reservation trouvée" });
+      return res.status(404).json({ errors: "Pas de reservation trouvée" });
     }
     const isReservationOwner = reservation.User_id === req.user.id;
     const isReservationOfferOwner =
@@ -318,7 +318,7 @@ exports.updateReservation = async (req, res) => {
     if (!isReservationOwner && !isReservationOfferOwner && !req.user.isAdmin) {
       return res
         .status(403)
-        .json({ message: "Vous n'êtes pas autorisé à effectuer cette action" });
+        .json({ errors: "Vous n'êtes pas autorisé à effectuer cette action" });
     }
     if (isReservationOwner) {
       if (status && status === "cancelled") {
@@ -367,7 +367,7 @@ exports.updateReservation = async (req, res) => {
         if (!isAvailable) {
           return res
             .status(400)
-            .json({ message: "Le créneau horaire est déjà réservé" });
+            .json({ errors: "Le créneau horaire est déjà réservé" });
         }
 
         reservation.date = date;
@@ -400,14 +400,14 @@ exports.updateReservation = async (req, res) => {
         reservation.status = "done";
       } else {
         return res.status(400).json({
-          message: "Vous ne pouvez pas changer le statut de la reservation",
+          errors: "Vous ne pouvez pas changer le statut de la reservation",
         });
       }
     }
     await reservation.save();
     res.status(200).json({ message: "Réservation modifiée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -416,11 +416,11 @@ exports.deleteReservation = async (req, res) => {
     const { id } = req.params;
     const reservation = await Reservation.findByPk(id);
     if (!reservation) {
-      return res.status(404).json({ message: "Pas de reservation trouvée" });
+      return res.status(404).json({ errors: "Pas de reservation trouvée" });
     }
     await reservation.destroy();
     res.status(200).json({ message: "reservation supprimée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

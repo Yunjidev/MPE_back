@@ -52,7 +52,7 @@ exports.getAllUsers = async (req, res) => {
     });
     res.status(200).json(usersData);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -152,7 +152,7 @@ exports.getUserById = async (req, res) => {
       ],
     });
     if (!user) {
-      return res.status(404).json({ message: "Pas d'utilisateur trouvé" });
+      return res.status(404).json({ errors: "Pas d'utilisateur trouvé" });
     }
     if (user.avatar) {
       const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
@@ -191,7 +191,7 @@ exports.getUserById = async (req, res) => {
     });
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -326,6 +326,6 @@ exports.getUserProfile = async (req, res) => {
     });
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

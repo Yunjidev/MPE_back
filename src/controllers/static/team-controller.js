@@ -18,7 +18,7 @@ exports.getAllTeams = async (req, res) => {
     });
     res.status(200).json(teamsData);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -31,7 +31,7 @@ exports.getTeamById = async (req, res) => {
       },
     });
     if (!team) {
-      return res.status(404).json({ message: "Pas de team trouvée" });
+      return res.status(404).json({ errors: "Pas de team trouvée" });
     }
     if (team.photo) {
       const photoUrl = files.getUrl(req, "team-photo", team.photo);
@@ -39,7 +39,7 @@ exports.getTeamById = async (req, res) => {
     }
     res.status(200).json(team);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -60,7 +60,7 @@ exports.createTeam = async (req, res) => {
     });
     res.status(201).json({ message: "Team créée" });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -79,7 +79,7 @@ exports.updateTeam = async (req, res) => {
     const photo = req.file ? req.file.path : null;
     const team = await Team.findByPk(id);
     if (!team) {
-      return res.status(404).json({ message: "Pas de team trouvée" });
+      return res.status(404).json({ errors: "Pas de team trouvée" });
     }
     team.firstname = firstname || team.firstname;
     team.lastname = lastname || team.lastname;
@@ -100,7 +100,7 @@ exports.updateTeam = async (req, res) => {
     await team.save();
     res.status(200).json({ message: "Team modifiée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -109,7 +109,7 @@ exports.deleteTeam = async (req, res) => {
     const { id } = req.params;
     const team = await Team.findByPk(id);
     if (!team) {
-      return res.status(404).json({ message: "Pas de team trouvée" });
+      return res.status(404).json({ errors: "Pas de team trouvée" });
     }
     if (team.photo) {
       files.deleteFile(team.photo);
@@ -117,6 +117,6 @@ exports.deleteTeam = async (req, res) => {
     await team.destroy();
     res.status(200).json({ message: "team supprimée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

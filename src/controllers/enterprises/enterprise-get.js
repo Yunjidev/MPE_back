@@ -104,7 +104,7 @@ exports.getAllEnterprises = async (req, res) => {
     );
     res.status(200).json(enterpriseWithDetails);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -203,9 +203,7 @@ exports.getEnterpriseById = async (req, res) => {
       return res.status(404).json({ message: "Pas de Enterprise trouvée" });
     }
     if (!enterprise.isValidate) {
-      return res
-        .status(404)
-        .json({ message: "L'entreprise n'est pas validée" });
+      return res.status(404).json({ errors: "L'entreprise n'est pas validée" });
     }
     if (enterprise.logo) {
       enterprise.logo = files.getUrl(req, "enterprises/logo", enterprise.logo);
@@ -255,6 +253,6 @@ exports.getEnterpriseById = async (req, res) => {
     });
     res.status(200).json(enterpriseData);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

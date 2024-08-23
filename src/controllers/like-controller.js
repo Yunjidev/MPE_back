@@ -5,7 +5,7 @@ exports.getAllLikes = async (req, res) => {
     const likes = await sequelize.models.Like.findAll();
     res.status(200).json(likes);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -32,11 +32,11 @@ exports.getLikeByEnterpriseId = async (req, res) => {
       },
     });
     if (!like) {
-      return res.status(404).json({ message: "Pas de like trouvé" });
+      return res.status(404).json({ errors: "Pas de like trouvé" });
     }
     res.status(200).json(like);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -54,7 +54,7 @@ exports.createLike = async (req, res) => {
 
     if (existingLike) {
       return res.status(400).json({
-        message: "Vous avez déjà aimé cette entreprise",
+        errors: "Vous avez déjà aimé cette entreprise",
       });
     }
 
@@ -65,7 +65,7 @@ exports.createLike = async (req, res) => {
 
     return res.status(201).json({ message: "Vous avez aimé cette entreprise" });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -83,7 +83,7 @@ exports.deleteLike = async (req, res) => {
 
     if (!existingLike) {
       return res.status(400).json({
-        message: "Vous n'avez pas aimé cette entreprise",
+        errors: "Vous n'avez pas aimé cette entreprise",
       });
     }
 
@@ -93,6 +93,6 @@ exports.deleteLike = async (req, res) => {
       .status(200)
       .json({ message: "Vous n'avez plus aimé cette entreprise" });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ errors: error.errors });
   }
 };
