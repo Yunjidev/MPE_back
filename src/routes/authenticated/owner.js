@@ -32,7 +32,7 @@ router.put(
   validate,
   enterprisesController.updateEnterprise,
 );
-router.delete("", enterprisesController.deleteEnterprise);
+router.delete("/", enterprisesController.deleteEnterprise);
 
 // Routes Disponibilité
 router.post("/disponibility", disponibilitiesController.createDisponibility);
