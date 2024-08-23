@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { sequelize } = require("../../models/index");
 const User = sequelize.models.User;
-const { verifyToken } = require("../../config/jwt");
 
 const isAuthenticated = async (req, res, next) => {
   let token = req.headers.authorization;

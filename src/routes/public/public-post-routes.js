@@ -15,6 +15,8 @@ router.post(
 );
 
 router.post("/signin", authController.login);
+router.post("/refresh-token", authController.refreshToken);
+router.post("/validate-refresh-token", authController.validateRefreshToken);
 
 // Route pour le reset password
 router.post("/forgot-password", authController.forgotPassword);
