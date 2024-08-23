@@ -120,7 +120,6 @@ exports.updateEnterprise = async (req, res) => {
         const io = getIo();
         if (io) {
           io.emit("enterpriseValidated", { id: enterprise.id, isValidate });
-          console.log("io.emit");
         } else {
           console.log("io not defined");
         }
