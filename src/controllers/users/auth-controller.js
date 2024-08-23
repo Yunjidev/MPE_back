@@ -282,8 +282,8 @@ exports.validateRefreshToken = async (req, res) => {
     const user = await User.findByPk(decoded.User_id);
     const accessToken = generateAccessToken(user.id);
     res.setHeader("Authorization", `${accessToken}`);
-    res.status(200).json({ message: "Token refresh" });
+    res.status(200).json({ refreshToken, message: "Token refresh" });
   } catch (error) {
-    return res.status(401).json({ message: "Token Invalide" });
+    return res.status(401).json({ errors: "Token Invalide" });
   }
 };
