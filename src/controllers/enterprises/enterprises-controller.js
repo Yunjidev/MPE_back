@@ -202,9 +202,13 @@ exports.deleteEnterprise = async (req, res) => {
         files.deleteFile(photo);
       });
     }
-    const userEnterprises = await enterprise.getUserEnterprises();
-    console.log("user", userEnterprises);
-    //await enterprise.destroy();
+    const user = await User.findByPk(enterprise.User_id);
+    const userEnterprises = await user.getEnterprises();
+    if (userEnterprises.length === 1) {
+      user.isEntrepreneur = false;
+      await user.save();
+    }
+    await enterprise.destroy();
     res.status(200).json({ message: "enterprises supprimée" });
   } catch (error) {
     res.status(500).json({ errors: error.errors });
