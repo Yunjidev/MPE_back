@@ -2,7 +2,11 @@ const { sequelize } = require("../../../models/index");
 const User = sequelize.models.User;
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
-const { generateToken } = require("../../../config/jwt");
+const {
+  generateAccessToken,
+  generateRefreshToken,
+} = require("../../../config/jwt");
+const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 const sendEmail = require("../../mailers/email-service");
 const files = require("../../utils/files");
@@ -19,7 +23,8 @@ exports.signup = async (req, res) => {
       password: hashedPassword,
       avatar,
     });
-    const token = generateToken(user.id);
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
     sendEmail(email, "Bienvenue à ma Petite Entreprise", "welcome", {
       user: username,
       url: `${process.env.CLIENT_URL}`,
@@ -36,10 +41,12 @@ exports.signup = async (req, res) => {
       const avatarUrl = files.getUrl(req, "avatars", user.avatar);
       userData.avatar = avatarUrl;
     }
-    res.setHeader("Authorization", `${token}`);
-    res
-      .status(201)
-      .json({ user: userData, message: "Utilisateur créé et connecté !" });
+    res.setHeader("Authorization", `${accessToken}`);
+    res.status(201).json({
+      user: userData,
+      refreshToken,
+      message: "Utilisateur créé et connecté !",
+    });
   } catch (error) {
     res.status(500).json({ errors: error.errors });
   }
@@ -88,11 +95,13 @@ exports.login = async (req, res) => {
       const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
       userData.avatar = avatarUrl;
     }
-    const token = generateToken(user.id);
-    res.setHeader("Authorization", `${token}`);
+    const accessToken = generateAccessToken(user.id);
+    const refreshToken = generateRefreshToken(user.id);
+    res.setHeader("Authorization", `${accessToken}`);
     res.status(200).json({
       user: userData,
       enterprises: enterprisesData,
+      refreshToken,
       message: "Utilisateur connecté !",
     });
   } catch (error) {
@@ -238,5 +247,43 @@ exports.resetPassword = async (req, res) => {
     res.status(200).json({ message: "Mot de passe modifié" });
   } catch (error) {
     res.status(500).json({ errors: error.errors });
+  }
+};
+
+// Fonction pour Refresh le token
+exports.refreshToken = async (req, res) => {
+  const { refreshToken } = req.body;
+  console.log(refreshToken);
+  if (!refreshToken) {
+    return res.status(401).json({ message: "Refresh Token non renseigné" });
+  }
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    console.log(decoded);
+    const user = await User.findByPk(decoded.User_id);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    const accessToken = generateAccessToken(user.id);
+    res.setHeader("Authorization", `${accessToken}`);
+    res.status(200).json({ message: "Token refresh" });
+  } catch (error) {
+    return res.status(401).json({ message: "Token Invalide" });
+  }
+};
+
+exports.validateRefreshToken = async (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(401).json({ message: "Refresh Token non renseigné" });
+  }
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const user = await User.findByPk(decoded.User_id);
+    const accessToken = generateAccessToken(user.id);
+    res.setHeader("Authorization", `${accessToken}`);
+    res.status(200).json({ message: "Token refresh" });
+  } catch (error) {
+    return res.status(401).json({ message: "Token Invalide" });
   }
 };
