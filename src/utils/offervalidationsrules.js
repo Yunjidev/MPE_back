@@ -8,7 +8,6 @@ const offerValidationRules = (isUpdate = false) => {
     rules.push(
       body("name")
         .notEmpty()
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 3, max: 20 })
@@ -17,7 +16,6 @@ const offerValidationRules = (isUpdate = false) => {
         ),
       body("description").bail().trim().escape(),
       body("price")
-        .bail()
         .trim()
         .escape()
         .isNumeric()
@@ -27,7 +25,6 @@ const offerValidationRules = (isUpdate = false) => {
     rules.push(
       body("name")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 3, max: 20 })
@@ -37,7 +34,6 @@ const offerValidationRules = (isUpdate = false) => {
       body("description").optional({ checkFalsy: true }).trim().escape(),
       body("price")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isNumeric()

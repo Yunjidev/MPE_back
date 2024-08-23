@@ -17,6 +17,16 @@ exports.signup = async (req, res) => {
     const { username, email, password } = req.body;
     const avatar = req.file ? req.file.path : null;
     const hashedPassword = await bcrypt.hash(password, 10);
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ errors: "Le nom d'utilisateur existe déjà" });
+    }
+    const existingEmail = await User.findOne({ where: { email } });
+    if (existingEmail) {
+      return res.status(400).json({ errors: "L'email existe déjà" });
+    }
     const user = await User.create({
       username,
       email,
@@ -216,7 +226,7 @@ exports.forgotPassword = async (req, res) => {
 
     sendEmail(email, "Re-initialiser votre mot de passe", "resetpassword", {
       user: user.username,
-      url: `${process.env.CLIENT_URL}/reset-password/${resetToken}`,
+      url: `${process.env.REACT_URL}/${resetToken}`,
     });
     res.status(200).json({ message: "Email de re-initialisation envoyé" });
   } catch (error) {

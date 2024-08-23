@@ -9,7 +9,6 @@ const enterpriseValidationRules = (isUpdate = false) => {
       body("name")
         .notEmpty()
         .withMessage("Le nom d'entreprise est obligatoire")
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 3, max: 20 })
@@ -27,7 +26,6 @@ const enterpriseValidationRules = (isUpdate = false) => {
       body("mail")
         .notEmpty()
         .withMessage("L'email est obligatoire")
-        .bail()
         .trim()
         .escape()
         .isEmail()
@@ -41,7 +39,6 @@ const enterpriseValidationRules = (isUpdate = false) => {
       body("phone")
         .notEmpty()
         .withMessage("Le numéro de téléphone est obligatoire")
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 10 })
@@ -50,40 +47,34 @@ const enterpriseValidationRules = (isUpdate = false) => {
       body("city")
         .notEmpty()
         .withMessage("La ville est obligatoire")
-        .bail()
         .trim()
         .escape(),
       body("zip_code")
         .notEmpty()
         .withMessage("Le code postal est obligatoire")
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 5, max: 5 }),
       body("siret_number")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 14, max: 14 }),
       body("description").bail().trim().escape(),
       body("facebook")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isURL()
         .withMessage("L'URL Facebook est invalide"),
       body("instagram")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isURL()
         .withMessage("L'URL Instagram est invalide"),
       body("twitter")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isURL()
@@ -93,7 +84,6 @@ const enterpriseValidationRules = (isUpdate = false) => {
     rules.push(
       body("name")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 3, max: 20 })
@@ -110,7 +100,6 @@ const enterpriseValidationRules = (isUpdate = false) => {
         }),
       body("mail")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isEmail()
@@ -123,44 +112,26 @@ const enterpriseValidationRules = (isUpdate = false) => {
         }),
       body("phone")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 10 })
         .withMessage("le numéro de téléphone doit contenir 10 chiffres"),
-      body("adress").optional({ checkFalsy: true }).bail().trim().escape(),
-      body("city").optional({ checkFalsy: true }).bail().trim().escape(),
+      body("adress").optional({ checkFalsy: true }).trim().escape(),
+      body("city").optional({ checkFalsy: true }).trim().escape(),
       body("zip_code")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 5, max: 5 }),
       body("siret_number")
         .optional({ checkFalsy: true })
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 14, max: 14 }),
       body("description").optional({ checkFalsy: true }).bail().trim().escape(),
-      body("facebook")
-        .optional({ checkFalsy: true })
-        .bail()
-        .trim()
-        .escape()
-        .isURL(),
-      body("instagram")
-        .optional({ checkFalsy: true })
-        .bail()
-        .trim()
-        .escape()
-        .isURL(),
-      body("twitter")
-        .optional({ checkFalsy: true })
-        .bail()
-        .trim()
-        .escape()
-        .isURL(),
+      body("facebook").optional({ checkFalsy: true }).trim().escape().isURL(),
+      body("instagram").optional({ checkFalsy: true }).trim().escape().isURL(),
+      body("twitter").optional({ checkFalsy: true }).trim().escape().isURL(),
     );
   }
   return rules;
