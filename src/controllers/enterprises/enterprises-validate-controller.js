@@ -101,21 +101,21 @@ exports.getAllEnterprisesValidate = async (req, res) => {
         if (enterprise.job.picture) {
           enterprise.job.dataValues.picture = files.getUrl(
             req,
-            "jobs-pictures/picture",
+            "jobs/picture",
             enterprise.job.picture,
           );
         }
         if (enterprise.entrepreneur.avatar) {
           const avatarUrl = files.getUrl(
             req,
-            "avatars",
+            "users/avatar",
             enterprise.entrepreneur.avatar,
           );
           enterprise.entrepreneur.dataValues.avatar = avatarUrl;
         }
         enterprise.offers.forEach((offer) => {
           if (offer.image) {
-            offer.image = files.getUrl(req, "offer-image/image", offer.image);
+            offer.image = files.getUrl(req, "offers/image", offer.image);
           }
         });
         const averageRating = await calculateAverageRatingForEnterprise(
@@ -249,7 +249,7 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
     if (enterprise.job.picture) {
       enterprise.job.dataValues.picture = files.getUrl(
         req,
-        "jobs-pictures/picture",
+        "jobs/picture",
         enterprise.job.picture,
       );
     }
@@ -257,7 +257,7 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
     const offers = enterprise.offers;
     offers.forEach((offer) => {
       if (offer.image) {
-        offer.image = files.getUrl(req, "offer-image/image", offer.image);
+        offer.image = files.getUrl(req, "offers/image", offer.image);
       }
     });
     const reservations = enterprise.offers.map((offer) => offer.reservations);
@@ -265,14 +265,14 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
     const raters = ratings.map((rating) => rating.user);
     raters.forEach((rater) => {
       if (rater.avatar) {
-        const avatarUrl = files.getUrl(req, "avatars", rater.avatar);
+        const avatarUrl = files.getUrl(req, "users/avatar", rater.avatar);
         rater.dataValues.avatar = avatarUrl;
       }
     });
     if (enterprise.entrepreneur.avatar) {
       const avatarUrl = files.getUrl(
         req,
-        "avatars",
+        "users/avatar",
         enterprise.entrepreneur.avatar,
       );
       enterprise.entrepreneur.dataValues.avatar = avatarUrl;

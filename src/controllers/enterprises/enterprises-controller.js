@@ -65,6 +65,13 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     });
+    if (newEnterprise.logo) {
+      newEnterprise.logo = files.getUrl(
+        req,
+        "enterprises/logo",
+        newEnterprise.logo,
+      );
+    }
     let enterpriseData = {
       id: newEnterprise.id,
       name: newEnterprise.name,
@@ -131,6 +138,7 @@ exports.updateEnterprise = async (req, res) => {
       if (enterprise.logo) {
         files.deleteFile(enterprise.logo);
       }
+
       enterprise.logo = logo;
     } else if (removeLogo === "true" && enterprise.logo) {
       files.deleteFile(enterprise.logo);
@@ -173,6 +181,9 @@ exports.updateEnterprise = async (req, res) => {
         }
       });
     }
+    if (enterprise.logo) {
+      enterprise.logo = files.getUrl(req, "enterprises/logo", enterprise.logo);
+    }
     const enterpriseData = {
       id: enterprise.id,
       name: enterprise.name,
@@ -209,6 +220,12 @@ exports.deleteEnterprise = async (req, res) => {
       await user.save();
     }
     await enterprise.destroy();
+    const io = getIo();
+    if (io) {
+      io.emit("enterpriseDeleted", { enterprise: userEnterprises });
+    } else {
+      console.log("io not defined");
+    }
     res.status(200).json({ message: "enterprises supprimée" });
   } catch (error) {
     res.status(500).json({ errors: error.errors });

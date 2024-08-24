@@ -8,6 +8,7 @@ exports.getAllCountries = async (req, res) => {
         exclude: ["createdAt", "updatedAt", "id"],
       },
     });
+    country.sort((a, b) => a.name.localeCompare(b.name));
     res.status(200).json(country);
   } catch (error) {
     res.status(500).json({ errors: error.errors });

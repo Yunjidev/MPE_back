@@ -11,11 +11,12 @@ exports.getAllJobs = async (req, res) => {
     });
     const jobsData = jobs.map((job) => {
       if (job.picture) {
-        const pictureUrl = files.getUrl(req, "jobs-pictures", job.picture);
+        const pictureUrl = files.getUrl(req, "jobs/picture", job.picture);
         job.dataValues.picture = pictureUrl;
       }
       return job.dataValues;
     });
+    jobsData.sort((a, b) => a.name.localeCompare(b.name));
     res.status(200).json(jobsData);
   } catch (error) {
     res.status(500).json({ errors: error.errors });
@@ -34,7 +35,7 @@ exports.getJobById = async (req, res) => {
       return res.status(404).json({ errors: "Pas de job trouvée" });
     }
     if (job.picture) {
-      const pictureUrl = files.getUrl(req, "jobs-pictures", job.picture);
+      const pictureUrl = files.getUrl(req, "jobs/picture", job.picture);
       job.dataValues.picture = pictureUrl;
     }
     res.status(200).json(job);

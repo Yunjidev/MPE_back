@@ -34,7 +34,7 @@ exports.getAllUsers = async (req, res) => {
     });
     const usersData = users.map((user) => {
       if (user.avatar) {
-        const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+        const avatarUrl = files.getUrl(req, "users/avatar", user.avatar);
         user.dataValues.avatar = avatarUrl;
       }
       user.enterprises = user.enterprises.map((enterprise) => {
@@ -155,7 +155,7 @@ exports.getUserById = async (req, res) => {
       return res.status(404).json({ errors: "Pas d'utilisateur trouvé" });
     }
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
+      const avatarUrl = files.getUrl(req, "users/avatar", user.avatar);
       user.dataValues.avatar = avatarUrl;
     }
     user.enterprises = user.enterprises.map((enterprise) => {
@@ -182,7 +182,7 @@ exports.getUserById = async (req, res) => {
       if (like.enterprise.logo) {
         const logoUrl = files.getUrl(
           req,
-          "enterprises-logos",
+          "enterprises/logo",
           like.enterprise.logo,
         );
         like.enterprise.dataValues.logo = logoUrl;
@@ -290,7 +290,7 @@ exports.getUserProfile = async (req, res) => {
       ],
     });
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
+      const avatarUrl = files.getUrl(req, "users/avatar", user.avatar);
       user.dataValues.avatar = avatarUrl;
     }
     user.enterprises = user.enterprises.map((enterprise) => {
@@ -317,7 +317,7 @@ exports.getUserProfile = async (req, res) => {
       if (like.enterprise.logo) {
         const logoUrl = files.getUrl(
           req,
-          "enterprises-logos",
+          "enterprises/logo",
           like.enterprise.logo,
         );
         like.enterprise.dataValues.logo = logoUrl;

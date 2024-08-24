@@ -8,7 +8,7 @@ const { userValidationRules } = require("../../utils/uservalidationsrules");
 
 router.post(
   "/signup",
-  files.upload("avatars").single("avatar"),
+  files.upload("users").single("avatar"),
   userValidationRules(true),
   validate,
   authController.signup,
