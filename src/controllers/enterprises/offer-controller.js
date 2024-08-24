@@ -71,9 +71,7 @@ exports.getOfferById = async (req, res) => {
 
 exports.getOfferByEnterpriseId = async (req, res) => {
   try {
-    console.log(req.enterprise.id);
     const id = req.enterprise.id;
-    console.log(id);
     const offers = await Offer.findAll({
       where: {
         Enterprise_id: id,
@@ -87,7 +85,7 @@ exports.getOfferByEnterpriseId = async (req, res) => {
     }
     offers.forEach((offer) => {
       if (offer.image) {
-        offer.image = files.getFileUrl(offer.image);
+        offer.image = files.getFileUrl(req, "offers/image", offer.image);
       }
     });
     res.status(200).json(offers);
@@ -144,6 +142,9 @@ exports.updateOffer = async (req, res) => {
     } else if (removeImage === "true" && offer.image) {
       files.deleteFile(offer.image);
       offer.picture = null;
+    }
+    if (offer.image) {
+      offer.image = files.getUrl(req, "offers/images", offer.image);
     }
     await offer.save();
     res.status(200).json({ message: "Offre modifiée" });

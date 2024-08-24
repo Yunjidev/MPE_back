@@ -82,7 +82,7 @@ exports.getAllEnterprises = async (req, res) => {
         if (enterprise.job.picture) {
           enterprise.job.dataValues.picture = files.getUrl(
             req,
-            "jobs-pictures",
+            "jobs/picture",
             enterprise.job.picture,
           );
         }
@@ -216,7 +216,7 @@ exports.getEnterpriseById = async (req, res) => {
     if (enterprise.job.picture) {
       enterprise.job.dataValues.picture = files.getUrl(
         req,
-        "jobs-pictures",
+        "jobs/picture",
         enterprise.job.picture,
       );
     }
@@ -227,14 +227,14 @@ exports.getEnterpriseById = async (req, res) => {
     const raters = ratings.map((rating) => rating.user);
     raters.forEach((rater) => {
       if (rater.avatar) {
-        const avatarUrl = files.getUrl(req, "avatars", rater.avatar);
+        const avatarUrl = files.getUrl(req, "users/avatar", rater.avatar);
         rater.dataValues.avatar = avatarUrl;
       }
     });
     if (enterprise.entrepreneur.avatar) {
       const avatarUrl = files.getUrl(
         req,
-        "avatars",
+        "users/avatar",
         enterprise.entrepreneur.avatar,
       );
       enterprise.entrepreneur.dataValues.avatar = avatarUrl;

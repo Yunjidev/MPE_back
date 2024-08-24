@@ -22,7 +22,7 @@ const likeController = require("../../controllers/like-controller");
 router.get("/user/profile", userController.getUserProfile);
 router.put(
   "/user/update",
-  files.upload("avatars").single("avatar"),
+  files.upload("users").single("avatar"),
   authMiddleware.isOwner("User"),
   userValidationRules(true),
   validate,
