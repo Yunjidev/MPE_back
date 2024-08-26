@@ -45,7 +45,7 @@ exports.getTeamById = async (req, res) => {
 
 exports.createTeam = async (req, res) => {
   try {
-    const { firstname, lastname, email, github, linkedin, photo,  description } =
+    const { firstname, lastname, email, github, linkedin, description } =
       req.body;
     const photo = req.file ? req.file.path : null;
     const newTeam = await Team.create({
@@ -54,7 +54,6 @@ exports.createTeam = async (req, res) => {
       email,
       github,
       linkedin,
-      photo,
       description,
       photo,
     });
@@ -86,7 +85,6 @@ exports.updateTeam = async (req, res) => {
     team.email = email || team.email;
     team.github = github || team.github;
     team.linkedin = linkedin || team.linkedin;
-    team.photo = photo || team.photo;
     team.description = description || team.description;
     if (photo) {
       if (team.photo) {
