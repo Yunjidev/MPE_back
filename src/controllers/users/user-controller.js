@@ -287,6 +287,13 @@ exports.getUserProfile = async (req, res) => {
             },
           },
         },
+        {
+          model: sequelize.models.Rating,
+          as: "ratings",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "User_id", "Enterprise_id"],
+          },
+        },
       ],
     });
     if (user.avatar) {
