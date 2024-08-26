@@ -11,7 +11,7 @@ exports.getAllTeams = async (req, res) => {
     });
     const teamsData = teams.map((team) => {
       if (team.photo) {
-        const photoUrl = files.getUrl(req, "team-photo", team.photo);
+        const photoUrl = files.getUrl(req, "teams/photo", team.photo);
         team.dataValues.photo = photoUrl;
       }
       return team.dataValues;
@@ -34,7 +34,7 @@ exports.getTeamById = async (req, res) => {
       return res.status(404).json({ errors: "Pas de team trouvée" });
     }
     if (team.photo) {
-      const photoUrl = files.getUrl(req, "team-photo", team.photo);
+      const photoUrl = files.getUrl(req, "teams/photo", team.photo);
       team.dataValues.avatar = photoUrl;
     }
     res.status(200).json(team);

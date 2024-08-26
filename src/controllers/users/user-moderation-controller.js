@@ -6,7 +6,6 @@ exports.moderateUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log("req", req);
     const user = await sequelize.models.User.findByPk(id);
     if (!user) {
       return res.status(404).json({ errors: "Pas d'utilisateur trouvé" });
@@ -22,7 +21,6 @@ exports.moderateUser = async (req, res) => {
       avatar,
       removeAvatar,
     } = req.body;
-    console.log("req.body", req.body);
 
     user.username = username || user.username;
     user.firstname = firstname || user.firstname;

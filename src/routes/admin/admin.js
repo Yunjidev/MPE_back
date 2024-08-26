@@ -32,7 +32,7 @@ router.get("/users", userController.getAllUsers);
 router.get("/user/:id", userController.getUserById);
 router.put(
   "/user/:id",
-  files.upload("avatars").single("avatar"),
+  files.upload("users").single("avatar"),
   userModerationController.moderateUser,
 );
 router.delete("/users/:id", userModerationController.deleteUser);
@@ -49,12 +49,12 @@ router.get("/enterprises/:id", enterpriseGetController.getEnterpriseById);
 router.get("/job/:id", jobsController.getJobById);
 router.post(
   "/job",
-  files.upload("jobs-pictures").single("picture"),
+  files.upload("jobs").single("picture"),
   jobsController.createJob,
 );
 router.put(
   "/job/:id",
-  files.upload("jobs-pictures").single("picture"),
+  files.upload("jobs").single("picture"),
   jobsController.updateJob,
 );
 router.delete("/job/:id", jobsController.deleteJob);
@@ -116,12 +116,12 @@ router.delete("/pricing/:id", pricingsController.deletePricing);
 // Routes Team
 router.post(
   "/team",
-  files.upload("team-photo").single("photo"),
+  files.upload("teams").single("photo"),
   teamsController.createTeam,
 );
 router.put(
   "/team/:id",
-  files.upload("team-photo").single("photo"),
+  files.upload("teams").single("photo"),
   teamsController.updateTeam,
 );
 router.delete("/team/:id", teamsController.deleteTeam);

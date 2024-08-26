@@ -17,6 +17,16 @@ exports.signup = async (req, res) => {
     const { username, email, password } = req.body;
     const avatar = req.file ? req.file.path : null;
     const hashedPassword = await bcrypt.hash(password, 10);
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ errors: "Le nom d'utilisateur existe déjà" });
+    }
+    const existingEmail = await User.findOne({ where: { email } });
+    if (existingEmail) {
+      return res.status(400).json({ errors: "L'email existe déjà" });
+    }
     const user = await User.create({
       username,
       email,
@@ -38,7 +48,7 @@ exports.signup = async (req, res) => {
       avatar: user.avatar,
     };
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "avatars", user.avatar);
+      const avatarUrl = files.getUrl(req, "users/avatar", user.avatar);
       userData.avatar = avatarUrl;
     }
     res.setHeader("Authorization", `${accessToken}`);
@@ -92,7 +102,7 @@ exports.login = async (req, res) => {
       avatar: user.avatar,
     };
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
+      const avatarUrl = files.getUrl(req, "users/avatar", user.avatar);
       userData.avatar = avatarUrl;
     }
     const accessToken = generateAccessToken(user.id);
@@ -172,7 +182,7 @@ exports.updateUser = async (req, res) => {
     };
     await user.save();
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "avatars/avatar", user.avatar);
+      const avatarUrl = files.getUrl(req, "users/avatar", user.avatar);
       userData.avatar = avatarUrl;
     }
     res
@@ -186,7 +196,6 @@ exports.updateUser = async (req, res) => {
 // Fonction pour supprimer un utilisateur
 exports.deleteUser = async (req, res) => {
   try {
-    console.log("req.user", req.user);
     if (req.user.avatar) {
       files.deleteFile(req.user.avatar);
     }
@@ -216,7 +225,7 @@ exports.forgotPassword = async (req, res) => {
 
     sendEmail(email, "Re-initialiser votre mot de passe", "resetpassword", {
       user: user.username,
-      url: `${process.env.CLIENT_URL}/reset-password/${resetToken}`,
+      url: `${process.env.REACT_URL}/${resetToken}`,
     });
     res.status(200).json({ message: "Email de re-initialisation envoyé" });
   } catch (error) {
@@ -253,13 +262,11 @@ exports.resetPassword = async (req, res) => {
 // Fonction pour Refresh le token
 exports.refreshToken = async (req, res) => {
   const { refreshToken } = req.body;
-  console.log(refreshToken);
   if (!refreshToken) {
     return res.status(401).json({ message: "Refresh Token non renseigné" });
   }
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    console.log(decoded);
     const user = await User.findByPk(decoded.User_id);
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });

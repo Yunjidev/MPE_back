@@ -32,7 +32,7 @@ router.put(
   validate,
   enterprisesController.updateEnterprise,
 );
-router.delete("", enterprisesController.deleteEnterprise);
+router.delete("/", enterprisesController.deleteEnterprise);
 
 // Routes Disponibilité
 router.post("/disponibility", disponibilitiesController.createDisponibility);
@@ -60,14 +60,14 @@ router.delete(
 router.get("/offers", offersController.getOfferByEnterpriseId);
 router.post(
   "/offer",
-  files.upload("offer-image").single("image"),
+  files.upload("offers").single("image"),
   offerValidationRules(),
   validate,
   offersController.createOffer,
 );
 router.put(
   "/offer/:id",
-  files.upload("offer-image").single("image"),
+  files.upload("offers").single("image"),
   offerValidationRules(true),
   validate,
   offersController.updateOffer,
