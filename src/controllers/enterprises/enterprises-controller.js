@@ -220,9 +220,18 @@ exports.deleteEnterprise = async (req, res) => {
       await user.save();
     }
     await enterprise.destroy();
+    const newUserEnterprises = await user.getEnterprises();
+    const newUserEnterprisesData = newUserEnterprises.map((enterprise) => {
+      return {
+        id: enterprise.id,
+        name: enterprise.name,
+        logo: enterprise.logo,
+        isValidate: enterprise.isValidate,
+      };
+    });
     const io = getIo();
     if (io) {
-      io.emit("enterpriseDeleted", { enterprise: userEnterprises });
+      io.emit("enterpriseDeleted", { enterprises: newUserEnterprisesData });
     } else {
       console.log("io not defined");
     }
