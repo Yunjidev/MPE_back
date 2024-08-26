@@ -12,7 +12,7 @@ exports.getAllOffers = async (req, res) => {
     });
     res.status(200).json(offer);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -60,21 +60,19 @@ exports.getOfferById = async (req, res) => {
       },
     });
     if (!offer) {
-      return res.status(404).json({ message: "Pas de offre trouvée" });
+      return res.status(404).json({ errors: "Pas de offre trouvée" });
     }
 
     res.status(200).json(offer);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
 exports.getOfferByEnterpriseId = async (req, res) => {
   try {
-    console.log(req.enterprise.id);
     const id = req.enterprise.id;
-    console.log(id);
-    const offer = await Offer.findAll({
+    const offers = await Offer.findAll({
       where: {
         Enterprise_id: id,
       },
@@ -82,12 +80,17 @@ exports.getOfferByEnterpriseId = async (req, res) => {
         exclude: ["createdAt", "updatedAt", "Enterprise_id"],
       },
     });
-    if (!offer) {
-      return res.status(404).json({ message: "Pas de offre trouvée" });
+    if (!offers) {
+      return res.status(404).json({ errors: "Pas de offre trouvée" });
     }
-    res.status(200).json(offer);
+    offers.forEach((offer) => {
+      if (offer.image) {
+        offer.image = files.getFileUrl(req, "offers/image", offer.image);
+      }
+    });
+    res.status(200).json(offers);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -99,7 +102,7 @@ exports.createOffer = async (req, res) => {
     const price = estimateBoolean ? null : parseFloat(req.body.price);
     const image = req.file ? req.file.path : null;
     if (!req.enterprise.isValidate) {
-      return res(400).json({ message: "L'entreprise n'est pas validée" });
+      return res(400).json({ errors: "L'entreprise n'est pas validée" });
     }
     const newOffer = await Offer.create({
       name,
@@ -112,7 +115,7 @@ exports.createOffer = async (req, res) => {
     });
     res.status(201).json({ message: "Offre créée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -124,7 +127,7 @@ exports.updateOffer = async (req, res) => {
     const image = req.file ? req.file.path : null;
     const offer = await Offer.findByPk(id);
     if (!offer) {
-      return res.status(404).json({ message: "Pas de offre trouvée" });
+      return res.status(404).json({ errors: "Pas de offre trouvée" });
     }
     offer.name = name || offer.name;
     offer.description = description || offer.description;
@@ -140,10 +143,13 @@ exports.updateOffer = async (req, res) => {
       files.deleteFile(offer.image);
       offer.picture = null;
     }
+    if (offer.image) {
+      offer.image = files.getUrl(req, "offers/images", offer.image);
+    }
     await offer.save();
     res.status(200).json({ message: "Offre modifiée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -152,11 +158,11 @@ exports.deleteOffer = async (req, res) => {
     const { id } = req.params;
     const offer = await Offer.findByPk(id);
     if (!offer) {
-      return res.status(404).json({ message: "Pas de offre trouvée" });
+      return res.status(404).json({ errors: "Pas de offre trouvée" });
     }
     await offer.destroy();
     res.status(200).json({ message: "offre supprimée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

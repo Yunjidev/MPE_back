@@ -4,8 +4,8 @@ const User = sequelize.models.User;
 
 const ratingValidationRules = () => {
   return [
-    body("note").isInt().bail().trim().escape(),
-    body("comment").bail().trim().escape(),
+    body("note").isInt().trim().escape(),
+    body("comment").trim().escape(),
   ];
 };
 

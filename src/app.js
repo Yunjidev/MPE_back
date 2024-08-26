@@ -1,5 +1,7 @@
 require("dotenv").config();
 const express = require("express");
+const http = require("http");
+const { initIo } = require("./io");
 const app = express();
 const db = require("../models/index");
 const path = require("path");
@@ -18,11 +20,15 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+const server = http.createServer(app);
+initIo(server);
+
 db.sequelize
   .authenticate()
   .then(() => {
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });
   })

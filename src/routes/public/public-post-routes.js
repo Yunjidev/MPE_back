@@ -8,13 +8,15 @@ const { userValidationRules } = require("../../utils/uservalidationsrules");
 
 router.post(
   "/signup",
-  files.upload("avatars").single("avatar"),
+  files.upload("users").single("avatar"),
   userValidationRules(true),
   validate,
   authController.signup,
 );
 
 router.post("/signin", authController.login);
+router.post("/refresh-token", authController.refreshToken);
+router.post("/validate-refresh-token", authController.validateRefreshToken);
 
 // Route pour le reset password
 router.post("/forgot-password", authController.forgotPassword);

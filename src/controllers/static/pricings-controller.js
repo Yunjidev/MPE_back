@@ -10,7 +10,7 @@ exports.getAllPricings = async (req, res) => {
     });
     res.status(200).json(pricings);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -23,11 +23,11 @@ exports.getPricingById = async (req, res) => {
       },
     });
     if (!pricing) {
-      return res.status(404).json({ message: "Pas de tarification trouvée" });
+      return res.status(404).json({ errors: "Pas de tarification trouvée" });
     }
     res.status(200).json(pricing);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -43,7 +43,7 @@ exports.createPricing = async (req, res) => {
     });
     res.status(201).json({ message: "Tarification créée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -53,7 +53,7 @@ exports.updatePricing = async (req, res) => {
     const { offre, price, description, isMostPopular, features } = req.body;
     const pricing = await Pricing.findByPk(id);
     if (!pricing) {
-      return res.status(404).json({ message: "Pas de tarification trouvée" });
+      return res.status(404).json({ errors: "Pas de tarification trouvée" });
     }
     pricing.offre = offre || pricing.offre;
     pricing.price = price || pricing.price;
@@ -63,7 +63,7 @@ exports.updatePricing = async (req, res) => {
     await pricing.save();
     res.status(200).json({ message: "Tarification modifiée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -72,11 +72,11 @@ exports.deletePricing = async (req, res) => {
     const { id } = req.params;
     const pricing = await Pricing.findByPk(id);
     if (!pricing) {
-      return res.status(404).json({ message: "Pas de tarification trouvée" });
+      return res.status(404).json({ errors: "Pas de tarification trouvée" });
     }
     await pricing.destroy();
     res.status(200).json({ message: "Tarification supprimée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

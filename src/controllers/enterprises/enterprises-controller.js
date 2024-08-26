@@ -1,4 +1,5 @@
 const { sequelize } = require("../../../models/index");
+const { getIo } = require("../../io");
 const Enterprise = sequelize.models.Enterprise;
 const { Job, User, Country } = require("../../../models/index");
 const files = require("../../utils/files");
@@ -30,16 +31,16 @@ exports.createEnterprise = async (req, res) => {
         : [];
     const job = await Job.findByPk(Job_id);
     if (!job) {
-      return res.status(404).json({ message: "Pas de job trouvé" });
+      return res.status(404).json({ errors: "Pas de job trouvé" });
     }
     const country = await Country.findByPk(Country_id);
     if (!country) {
-      return res.status(404).json({ message: "Pas de Region trouvé" });
+      return res.status(404).json({ errors: "Pas de Region trouvé" });
     }
     if (!req.user.firstname && !req.user.lastname) {
       return res
         .status(400)
-        .json({ message: "Veuillez renseigner votre nom et votre prénom" });
+        .json({ errors: "Veuillez renseigner votre nom et votre prénom" });
     }
 
     if (!req.user.isEntrepreneur) {
@@ -64,6 +65,13 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     });
+    if (newEnterprise.logo) {
+      newEnterprise.logo = files.getUrl(
+        req,
+        "enterprises/logo",
+        newEnterprise.logo,
+      );
+    }
     let enterpriseData = {
       id: newEnterprise.id,
       name: newEnterprise.name,
@@ -75,7 +83,7 @@ exports.createEnterprise = async (req, res) => {
       .status(201)
       .json({ enterprise: enterpriseData, message: "Entreprise créée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -115,6 +123,14 @@ exports.updateEnterprise = async (req, res) => {
 
     if (req.user.isAdmin) {
       enterprise.isValidate = isValidate || enterprise.isValidate;
+      if (isValidate !== enterprise.isValidate) {
+        const io = getIo();
+        if (io) {
+          io.emit("enterpriseValidated", { id: enterprise.id, isValidate });
+        } else {
+          console.log("io not defined");
+        }
+      }
     }
     // Gestion du logo
     const logo = req.files.logo ? req.files.logo[0].path : null;
@@ -122,6 +138,7 @@ exports.updateEnterprise = async (req, res) => {
       if (enterprise.logo) {
         files.deleteFile(enterprise.logo);
       }
+
       enterprise.logo = logo;
     } else if (removeLogo === "true" && enterprise.logo) {
       files.deleteFile(enterprise.logo);
@@ -164,6 +181,9 @@ exports.updateEnterprise = async (req, res) => {
         }
       });
     }
+    if (enterprise.logo) {
+      enterprise.logo = files.getUrl(req, "enterprises/logo", enterprise.logo);
+    }
     const enterpriseData = {
       id: enterprise.id,
       name: enterprise.name,
@@ -175,7 +195,7 @@ exports.updateEnterprise = async (req, res) => {
       .status(200)
       .json({ enterprise: enterpriseData, message: "Entreprise modifiée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
 
@@ -183,7 +203,7 @@ exports.deleteEnterprise = async (req, res) => {
   try {
     const enterprise = req.enterprise;
     if (!enterprise) {
-      return res.status(404).json({ message: "Pas de enterprises trouvée" });
+      return res.status(404).json({ errors: "Pas de enterprises trouvée" });
     }
     if (enterprise.logo) {
       files.deleteFile(enterprise.logo);
@@ -193,9 +213,21 @@ exports.deleteEnterprise = async (req, res) => {
         files.deleteFile(photo);
       });
     }
+    const user = await User.findByPk(enterprise.User_id);
+    const userEnterprises = await user.getEnterprises();
+    if (userEnterprises.length === 1) {
+      user.isEntrepreneur = false;
+      await user.save();
+    }
     await enterprise.destroy();
+    const io = getIo();
+    if (io) {
+      io.emit("enterpriseDeleted", { enterprise: userEnterprises });
+    } else {
+      console.log("io not defined");
+    }
     res.status(200).json({ message: "enterprises supprimée" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

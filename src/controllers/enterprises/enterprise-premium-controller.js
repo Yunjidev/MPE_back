@@ -109,14 +109,14 @@ exports.getAllEnterprisesPremium = async (req, res) => {
         if (enterprise.entrepreneur.avatar) {
           const avatarUrl = files.getUrl(
             req,
-            "avatars",
+            "users/avatar",
             enterprise.entrepreneur.avatar,
           );
           enterprise.entrepreneur.dataValues.avatar = avatarUrl;
         }
         enterprise.offers.forEach((offer) => {
           if (offer.image) {
-            offer.image = files.getUrl(req, "offer-image/image", offer.image);
+            offer.image = files.getUrl(req, "offers/image", offer.image);
           }
         });
         const averageRating = await calculateAverageRatingForEnterprise(
@@ -137,6 +137,6 @@ exports.getAllEnterprisesPremium = async (req, res) => {
     );
     res.status(200).json(enterpriseWithDetails);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };

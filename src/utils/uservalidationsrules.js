@@ -8,7 +8,6 @@ const userValidationRules = (isUpdate = false) => {
     rules.push(
       body("username")
         .notEmpty()
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 3, max: 20 })
@@ -23,7 +22,6 @@ const userValidationRules = (isUpdate = false) => {
         }),
       body("email")
         .notEmpty()
-        .bail()
         .trim()
         .escape()
         .isEmail()
@@ -36,7 +34,6 @@ const userValidationRules = (isUpdate = false) => {
         }),
       body("password")
         .notEmpty()
-        .bail()
         .trim()
         .escape()
         .isLength({ min: 6 })

@@ -17,16 +17,14 @@ exports.search = async (req, res) => {
     ]);
     jobs.map((job) => {
       if (job.picture) {
-        job.dataValues.picture = files.getUrl(
-          req,
-          "jobs-pictures",
-          job.picture,
-        );
+        job.dataValues.picture = files.getUrl(req, "jobs/picture", job.picture);
       }
       return job.dataValues;
     });
+    countries.sort((a, b) => a.name.localeCompare(b.name));
+    jobs.sort((a, b) => a.name.localeCompare(b.name));
     res.status(200).json({ countries, jobs });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ errors: error.errors });
   }
 };
