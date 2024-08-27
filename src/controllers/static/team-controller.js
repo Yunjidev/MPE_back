@@ -47,7 +47,7 @@ exports.createTeam = async (req, res) => {
   try {
     const { firstname, lastname, email, github, linkedin, description } =
       req.body;
-    const photo = req.file ? req.file.path : null;
+    // const photo = req.file ? req.file.path : null;
     const newTeam = await Team.create({
       firstname,
       lastname,
