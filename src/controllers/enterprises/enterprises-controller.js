@@ -222,7 +222,7 @@ exports.deleteEnterprise = async (req, res) => {
     await enterprise.destroy();
     const io = getIo();
     if (io) {
-      io.emit("enterpriseDeleted", { enterprise: userEnterprises });
+      io.emit("enterpriseDeleted", { enterprises: enterprise.id });
     } else {
       console.log("io not defined");
     }
