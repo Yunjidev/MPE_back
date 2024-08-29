@@ -12,43 +12,46 @@ const calculateEndTime = (startTimeString, duration) => {
   return startTime.add(duration, "minutes").format("HH:mm");
 };
 
+const formatDisponibility = (disponibility) => {
+  const dayOfWeek = disponibility.day;
+  const startHour = moment(disponibility.start_hour, "HH:mm").format("HH:mm");
+  const endHour = moment(disponibility.end_hour, "HH:mm").format("HH:mm");
+
+  const today = moment();
+  const firstDayOfWeek = today.clone().startOf("week");
+  const dayIndex = [
+    "Dimanche",
+    "Lundi",
+    "Mardi",
+    "Mercredi",
+    "Jeudi",
+    "Vendredi",
+    "Samedi",
+  ].indexOf(dayOfWeek);
+
+  let dates = [];
+  for (let i = 0; i < 4; i++) {
+    const date = firstDayOfWeek.clone().add(dayIndex + i * 7, "days");
+    if (date.isBefore(today.clone().add(1, "month").endOf("month"))) {
+      dates.push({
+        date: date.format("DD/MM"),
+        startHour,
+        endHour,
+      });
+    } else {
+      break;
+    }
+  }
+  console.log("dates", dates);
+  return dates;
+};
+
 const getAvailabilityDates = (
   disponibilities,
   indisponibilities,
   reservations,
 ) => {
-  const availabilityDates = [];
-
-  disponibilities.forEach((disponibility) => {
-    const dayOfWeek = disponibility.day;
-    const startHour = moment(disponibility.start_hour, "HH:mm").format("HH:mm");
-    const endHour = moment(disponibility.end_hour, "HH:mm").format("HH:mm");
-
-    const today = moment();
-    const firstDayOfWeek = today.clone().startOf("week");
-    const dayIndex = [
-      "Dimanche",
-      "Lundi",
-      "Mardi",
-      "Mercredi",
-      "Jeudi",
-      "Vendredi",
-      "Samedi",
-    ].indexOf(dayOfWeek);
-
-    for (let i = 0; i < 4; i++) {
-      const date = firstDayOfWeek.clone().add(dayIndex + i * 7, "days");
-      if (date.isBefore(today.clone().add(1, "month").endOf("month"))) {
-        availabilityDates.push({
-          date: date.format("DD/MM"),
-          startHour,
-          endHour,
-        });
-      } else {
-        break;
-      }
-    }
-  });
+  const availabilityDates = disponibilities.flatMap(formatDisponibility);
 
   const filteredAvailabilityDates = subtractIndisponibilities(
     availabilityDates,
@@ -179,4 +182,8 @@ const subtractReservations = (availabilityDates, reservations) => {
   return filteredAvailabilityDates;
 };
 
-module.exports = { getAvailabilityDates, calculateEndTime };
+module.exports = {
+  formatDisponibility,
+  getAvailabilityDates,
+  calculateEndTime,
+};
