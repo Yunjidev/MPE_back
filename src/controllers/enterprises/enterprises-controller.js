@@ -77,7 +77,6 @@ exports.createEnterprise = async (req, res) => {
       name: newEnterprise.name,
       isValidate: newEnterprise.isValidate,
       logo: newEnterprise.logo,
-      isValidate: newEnterprise.isValidate,
     };
     res
       .status(201)
