@@ -65,19 +65,18 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     });
+    let enterpriseData = {
+      id: newEnterprise.id,
+      name: newEnterprise.name,
+      isValidate: newEnterprise.isValidate,
+    };
     if (newEnterprise.logo) {
-      newEnterprise.logo = files.getUrl(
+      enterpriseData.logo = files.getUrl(
         req,
         "enterprises/logo",
         newEnterprise.logo,
       );
     }
-    let enterpriseData = {
-      id: newEnterprise.id,
-      name: newEnterprise.name,
-      isValidate: newEnterprise.isValidate,
-      logo: newEnterprise.logo,
-    };
     res
       .status(201)
       .json({ enterprise: enterpriseData, message: "Entreprise créée" });
@@ -180,15 +179,18 @@ exports.updateEnterprise = async (req, res) => {
         }
       });
     }
-    if (enterprise.logo) {
-      enterprise.logo = files.getUrl(req, "enterprises/logo", enterprise.logo);
-    }
     const enterpriseData = {
       id: enterprise.id,
       name: enterprise.name,
-      logo: enterprise.logo,
       isValidate: enterprise.isValidate,
     };
+    if (enterprise.logo) {
+      enterpriseData.logo = files.getUrl(
+        req,
+        "enterprises/logo",
+        enterprise.logo,
+      );
+    }
     await enterprise.save();
     res
       .status(200)
