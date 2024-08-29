@@ -11,9 +11,9 @@ const enterpriseValidationRules = (isUpdate = false) => {
         .withMessage("Le nom d'entreprise est obligatoire")
         .trim()
         .escape()
-        .isLength({ min: 3, max: 20 })
+        .isLength({ min: 3, max: 50 })
         .withMessage(
-          "Votre nom d'entreprise doit être compris entre 3 et 20 caractères",
+          "Votre nom d'entreprise doit être compris entre 3 et 50 caractères",
         )
         .custom(async (name) => {
           const existingEnterprise = await Enterprise.findOne({
@@ -86,9 +86,9 @@ const enterpriseValidationRules = (isUpdate = false) => {
         .optional({ checkFalsy: true })
         .trim()
         .escape()
-        .isLength({ min: 3, max: 20 })
+        .isLength({ min: 3, max: 50 })
         .withMessage(
-          "Votre nom d'entreprise doit être compris entre 3 et 20 caractères",
+          "Votre nom d'entreprise doit être compris entre 3 et 50 caractères",
         )
         .custom(async (name) => {
           const existingEnterprise = await Enterprise.findOne({
