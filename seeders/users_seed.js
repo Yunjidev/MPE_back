@@ -1,14 +1,17 @@
 'use strict';
 const { faker } = require('@faker-js/faker/locale/fr');
+const bcrypt = require("bcryptjs");
 
 module.exports = {
   async up (queryInterface, Sequelize) {
+    
     const usersData = [];
     for (let i = 0; i < 50; i++) {
+      const hash = await bcrypt.hash("password123", 10);
       usersData.push({
         username: faker.internet.userName(),
         email: faker.internet.email(),
-        password: faker.internet.password(), // Assurez-vous de hasher les mots de passe en production
+        password: hash,
         resetPasswordToken: null,
         resetPasswordExpires: null,
         isAdmin: faker.datatype.boolean(),
