@@ -93,7 +93,6 @@ router.get(
 
 // Routes Like
 router.get("/likes", likeController.getAllLikes);
-router.get("/enterprises/:id/likes", likeController.getLikeByEnterpriseId);
 
 // Routes Subscription
 router.get("/subscriptions", subscriptionsController.getAllSubscriptions);
