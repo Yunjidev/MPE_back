@@ -5,7 +5,7 @@ exports.getAllCountries = async (req, res) => {
   try {
     const country = await Country.findAll({
       attributes: {
-        exclude: ["createdAt", "updatedAt", "id"],
+        exclude: ["createdAt", "updatedAt"],
       },
     });
     country.sort((a, b) => a.name.localeCompare(b.name));
