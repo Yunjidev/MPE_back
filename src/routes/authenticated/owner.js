@@ -18,6 +18,7 @@ const inDisponibilitiesController = require("../../controllers/enterprises/indis
 const offersController = require("../../controllers/enterprises/offer-controller");
 const subscriptionsController = require("../../controllers/enterprises/subscription-controller");
 const reservationsController = require("../../controllers/reservation-controller");
+const likeController = require("../../controllers/like-controller");
 
 // Route Enterprise
 const uploadFiles = files.upload("enterprises").fields([
@@ -84,5 +85,8 @@ router.get(
   "/reservations",
   reservationsController.getReservationsByEnterpriseId,
 );
+
+// Routes Like
+router.get("/enterprises/:id/likes", likeController.getLikeByEnterpriseId);
 
 module.exports = router;
