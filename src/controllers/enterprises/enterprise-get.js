@@ -10,7 +10,7 @@ exports.getAllEnterprises = async (req, res) => {
     const enterprise = await Enterprise.findAll({
       attributes: {
         exclude: [
-          "createdAt",
+          // "createdAt",
           "updatedAt",
           "User_id",
           "Job_id",
