@@ -79,7 +79,7 @@ exports.getAllEnterprises = async (req, res) => {
             enterprise.logo,
           );
         }
-        if (enterprise.job.picture) {
+        if (enterprise.job && enterprise.job.picture) {
           enterprise.job.dataValues.picture = files.getUrl(
             req,
             "jobs/picture",
@@ -104,7 +104,8 @@ exports.getAllEnterprises = async (req, res) => {
     );
     res.status(200).json(enterpriseWithDetails);
   } catch (error) {
-    res.status(500).json({ errors: error.errors });
+    console.error(error);
+    res.status(500).json({ errors: error.message });
   }
 };
 
