@@ -51,12 +51,37 @@ const getAvailabilityDates = (
   indisponibilities,
   reservations,
 ) => {
+  // Journaux pour vérifier les entrées
+  console.log("Disponibilités :", JSON.stringify(disponibilities, null, 2));
+  console.log("Indisponibilités :", JSON.stringify(indisponibilities, null, 2));
+  console.log("Réservations :", JSON.stringify(reservations, null, 2));
+
+  // Vérification des tableaux
+  if (!Array.isArray(disponibilities)) {
+    console.error("Les disponibilités ne sont pas un tableau ou sont indéfinies");
+    return [];
+  }
+
+  if (!Array.isArray(indisponibilities)) {
+    console.error("Les indisponibilités ne sont pas un tableau ou sont indéfinies");
+    return [];
+  }
+
+  if (!Array.isArray(reservations)) {
+    console.error("Les réservations ne sont pas un tableau ou sont indéfinies");
+    return [];
+  }
+
+  // Transformation des disponibilités
   const availabilityDates = disponibilities.flatMap(formatDisponibility);
 
+  // Filtrage des disponibilités en fonction des indisponibilités
   const filteredAvailabilityDates = subtractIndisponibilities(
     availabilityDates,
     indisponibilities,
   );
+
+  // Filtrage des disponibilités en fonction des réservations
   const finalAvailabilityDates = subtractReservations(
     filteredAvailabilityDates,
     reservations,

@@ -90,42 +90,31 @@ exports.getAllEnterprisesPremium = async (req, res) => {
         },
       ],
     });
+
     const enterpriseWithDetails = await Promise.all(
       enterprise.map(async (enterprise) => {
         if (enterprise.logo) {
-          enterprise.logo = files.getUrl(
-            req,
-            "enterprises/logo",
-            enterprise.logo,
-          );
+          enterprise.logo = files.getUrl(req, "enterprises/logo", enterprise.logo);
         }
-        if (enterprise.job.picture) {
-          enterprise.job.dataValues.picture = files.getUrl(
-            req,
-            "jobs-pictures/picture",
-            enterprise.job.picture,
-          );
+        if (enterprise.job && enterprise.job.picture) {
+          enterprise.job.dataValues.picture = files.getUrl(req, "jobs-pictures/picture", enterprise.job.picture);
         }
-        if (enterprise.entrepreneur.avatar) {
-          const avatarUrl = files.getUrl(
-            req,
-            "users/avatar",
-            enterprise.entrepreneur.avatar,
-          );
+        if (enterprise.entrepreneur && enterprise.entrepreneur.avatar) {
+          const avatarUrl = files.getUrl(req, "users/avatar", enterprise.entrepreneur.avatar);
           enterprise.entrepreneur.dataValues.avatar = avatarUrl;
         }
-        enterprise.offers.forEach((offer) => {
-          if (offer.image) {
-            offer.image = files.getUrl(req, "offers/image", offer.image);
-          }
-        });
-        const averageRating = await calculateAverageRatingForEnterprise(
-          enterprise.id,
-        );
+        if (enterprise.offers) {
+          enterprise.offers.forEach((offer) => {
+            if (offer.image) {
+              offer.image = files.getUrl(req, "offers/image", offer.image);
+            }
+          });
+        }
+        const averageRating = await calculateAverageRatingForEnterprise(enterprise.id);
         const availabilityDates = getAvailabilityDates(
           enterprise.disponibilities,
           enterprise.indisponibilities,
-          enterprise.offers.map((offer) => offer.reservations).flat(),
+          enterprise.offers ? enterprise.offers.flatMap((offer) => offer.reservations || []) : [],
         );
         const enterpriseData = Object.assign({}, enterprise.toJSON(), {
           averageRating: averageRating,
@@ -135,8 +124,10 @@ exports.getAllEnterprisesPremium = async (req, res) => {
         return enterpriseData;
       }),
     );
+
     res.status(200).json(enterpriseWithDetails);
   } catch (error) {
+    console.error("Error fetching premium enterprises:", error);
     res.status(500).json({ errors: error.errors });
   }
 };
