@@ -10,7 +10,7 @@ exports.getAllUsers = async (req, res) => {
           "password",
           "resetPasswordToken",
           "resetPasswordExpires",
-          "createdAt",
+          // "createdAt",
           "updatedAt",
         ],
       },
