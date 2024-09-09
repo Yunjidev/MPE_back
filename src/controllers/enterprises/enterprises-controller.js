@@ -15,6 +15,7 @@ exports.createEnterprise = async (req, res) => {
       zip_code,
       siret_number,
       description,
+      website,
       facebook,
       instagram,
       twitter,
@@ -56,6 +57,7 @@ exports.createEnterprise = async (req, res) => {
       zip_code,
       siret_number,
       description,
+      website,
       facebook,
       instagram,
       twitter,
@@ -96,6 +98,7 @@ exports.updateEnterprise = async (req, res) => {
       city,
       zip_code,
       description,
+      website,
       facebook,
       instagram,
       twitter,
@@ -113,6 +116,7 @@ exports.updateEnterprise = async (req, res) => {
     enterprise.city = city || enterprise.city;
     enterprise.zip_code = zip_code || enterprise.zip_code;
     enterprise.description = description || enterprise.description;
+    enterprise.website = website || enterprise.website;
     enterprise.facebook = facebook || enterprise.facebook;
     enterprise.instagram = instagram || enterprise.instagram;
     enterprise.twitter = twitter || enterprise.twitter;

@@ -61,24 +61,10 @@ const enterpriseValidationRules = (isUpdate = false) => {
         .escape()
         .isLength({ min: 14, max: 14 }),
       body("description").bail().trim().escape(),
-      body("facebook")
-        .optional({ checkFalsy: true })
-        .trim()
-        .escape()
-        .isURL()
-        .withMessage("L'URL Facebook est invalide"),
-      body("instagram")
-        .optional({ checkFalsy: true })
-        .trim()
-        .escape()
-        .isURL()
-        .withMessage("L'URL Instagram est invalide"),
-      body("twitter")
-        .optional({ checkFalsy: true })
-        .trim()
-        .escape()
-        .isURL()
-        .withMessage("L'URL Twitter est invalide"),
+      body("website").optional({ checkFalsy: true }).trim().escape(),
+      body("facebook").optional({ checkFalsy: true }).trim().escape(),
+      body("instagram").optional({ checkFalsy: true }).trim().escape(),
+      body("twitter").optional({ checkFalsy: true }).trim().escape(),
     );
   } else {
     rules.push(
@@ -129,9 +115,10 @@ const enterpriseValidationRules = (isUpdate = false) => {
         .escape()
         .isLength({ min: 14, max: 14 }),
       body("description").optional({ checkFalsy: true }).bail().trim().escape(),
-      body("facebook").optional({ checkFalsy: true }).trim().escape().isURL(),
-      body("instagram").optional({ checkFalsy: true }).trim().escape().isURL(),
-      body("twitter").optional({ checkFalsy: true }).trim().escape().isURL(),
+      body("website").optional({ checkFalsy: true }).trim().escape(),
+      body("facebook").optional({ checkFalsy: true }).trim().escape(),
+      body("instagram").optional({ checkFalsy: true }).trim().escape(),
+      body("twitter").optional({ checkFalsy: true }).trim().escape(),
     );
   }
   return rules;
