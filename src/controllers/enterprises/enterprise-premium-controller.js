@@ -8,59 +8,19 @@ const { getAvailabilityDates } = require("../../utils/availability");
 
 exports.getAllEnterprisesPremium = async (req, res) => {
   try {
-    const enterprise = await Subscription.findAll({
+    const subscriptions = await Subscription.findAll({
       where: { status: "active" },
-      attributes: {
-        exclude: [
-          "createdAt",
-          "updatedAt",
-          "subscription_type",
-          "status",
-          "start_date",
-          "end_date",
-        ],
-      },
+      attributes: ["id", "Enterprise_id"],
       include: [
         {
           model: sequelize.models.Enterprise,
           as: "enterprise",
-          attributes: {
-            exclude: [
-              "createdAt",
-              "updatedAt",
-              "User_id",
-              "Job_id",
-              "Country_id",
-              "photos",
-              "facebook",
-              "instagram",
-              "twitter",
-              "description",
-              "isValidate",
-              "phone",
-              "mail",
-              "adress",
-              "siret_number",
-            ],
-          },
+          attributes: ["id", "name", "logo"],
           include: [
             {
               model: sequelize.models.User,
               as: "entrepreneur",
-              attributes: {
-                exclude: [
-                  "createdAt",
-                  "updatedAt",
-                  "password",
-                  "resetPasswordToken",
-                  "resetPasswordExpires",
-                  "isEntrepreneur",
-                  "isAdmin",
-                  "firstname",
-                  "lastname",
-                  "email",
-                ],
-              },
+              attributes: ["id", "avatar"],
             },
             {
               model: sequelize.models.Job,
@@ -72,26 +32,13 @@ exports.getAllEnterprisesPremium = async (req, res) => {
               as: "country",
               attributes: { exclude: ["createdAt", "updatedAt", "id"] },
             },
-            {
-              model: sequelize.models.Disponibility,
-              as: "disponibilities",
-              attributes: {
-                exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
-              },
-            },
-            {
-              model: sequelize.models.Indisponibility,
-              as: "indisponibilities",
-              attributes: {
-                exclude: ["createdAt", "updatedAt", "id", "Enterprise_id"],
-              },
-            },
           ],
         },
       ],
     });
     const enterpriseWithDetails = await Promise.all(
-      enterprise.map(async (enterprise) => {
+      subscriptions.map(async (subscription) => {
+        const enterprise = subscription.enterprise;
         if (enterprise.logo) {
           enterprise.logo = files.getUrl(
             req,
@@ -102,7 +49,7 @@ exports.getAllEnterprisesPremium = async (req, res) => {
         if (enterprise.job.picture) {
           enterprise.job.dataValues.picture = files.getUrl(
             req,
-            "jobs-pictures/picture",
+            "jobs/picture",
             enterprise.job.picture,
           );
         }
@@ -114,25 +61,11 @@ exports.getAllEnterprisesPremium = async (req, res) => {
           );
           enterprise.entrepreneur.dataValues.avatar = avatarUrl;
         }
-        enterprise.offers.forEach((offer) => {
-          if (offer.image) {
-            offer.image = files.getUrl(req, "offers/image", offer.image);
-          }
-        });
         const averageRating = await calculateAverageRatingForEnterprise(
           enterprise.id,
         );
-        const availabilityDates = getAvailabilityDates(
-          enterprise.disponibilities,
-          enterprise.indisponibilities,
-          enterprise.offers.map((offer) => offer.reservations).flat(),
-        );
-        const enterpriseData = Object.assign({}, enterprise.toJSON(), {
-          averageRating: averageRating,
-          availabilityDates: availabilityDates,
-          nextAvalaibleDate: availabilityDates[0],
-        });
-        return enterpriseData;
+        enterprise.dataValues.averageRating = averageRating;
+        return enterprise;
       }),
     );
     res.status(200).json(enterpriseWithDetails);
