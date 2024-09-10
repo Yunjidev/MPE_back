@@ -15,12 +15,12 @@ exports.getAllEnterprisesPremium = async (req, res) => {
         {
           model: sequelize.models.Enterprise,
           as: "enterprise",
-          attributes: ["id", "name", "logo"],
+          attributes: ["id", "name", "logo", "city", "zip_code"],
           include: [
             {
               model: sequelize.models.User,
               as: "entrepreneur",
-              attributes: ["id", "avatar"],
+              attributes: ["id", "avatar", "username"],
             },
             {
               model: sequelize.models.Job,
@@ -36,15 +36,12 @@ exports.getAllEnterprisesPremium = async (req, res) => {
         },
       ],
     });
+
     const enterpriseWithDetails = await Promise.all(
       subscriptions.map(async (subscription) => {
         const enterprise = subscription.enterprise;
         if (enterprise.logo) {
-          enterprise.logo = files.getUrl(
-            req,
-            "enterprises/logo",
-            enterprise.logo,
-          );
+          enterprise.logo = files.getUrl(req, "enterprises/logo", enterprise.logo);
         }
         if (enterprise.job.picture) {
           enterprise.job.dataValues.picture = files.getUrl(
@@ -53,12 +50,8 @@ exports.getAllEnterprisesPremium = async (req, res) => {
             enterprise.job.picture,
           );
         }
-        if (enterprise.entrepreneur.avatar) {
-          const avatarUrl = files.getUrl(
-            req,
-            "users/avatar",
-            enterprise.entrepreneur.avatar,
-          );
+        if (enterprise.entrepreneur && enterprise.entrepreneur.avatar) {
+          const avatarUrl = files.getUrl(req, "users/avatar", enterprise.entrepreneur.avatar);
           enterprise.entrepreneur.dataValues.avatar = avatarUrl;
         }
         const averageRating = await calculateAverageRatingForEnterprise(
@@ -68,8 +61,10 @@ exports.getAllEnterprisesPremium = async (req, res) => {
         return enterprise;
       }),
     );
+
     res.status(200).json(enterpriseWithDetails);
   } catch (error) {
+    console.error("Error fetching premium enterprises:", error);
     res.status(500).json({ errors: error.errors });
   }
 };
