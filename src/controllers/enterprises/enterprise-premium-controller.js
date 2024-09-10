@@ -15,12 +15,12 @@ exports.getAllEnterprisesPremium = async (req, res) => {
         {
           model: sequelize.models.Enterprise,
           as: "enterprise",
-          attributes: ["id", "name", "logo"],
+          attributes: ["id", "name", "logo", "city", "zip_code"],
           include: [
             {
               model: sequelize.models.User,
               as: "entrepreneur",
-              attributes: ["id", "avatar"],
+              attributes: ["id", "avatar", "username"],
             },
             {
               model: sequelize.models.Job,
