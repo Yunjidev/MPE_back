@@ -20,7 +20,12 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, charset: "utf-8" }));
+
+app.use((req, res, next) => {
+  res.charset = "UTF-8";
+  next();
+});
 
 const server = http.createServer(app);
 initIo(server);
