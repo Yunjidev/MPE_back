@@ -17,7 +17,6 @@ const offerValidationRules = (isUpdate = false) => {
       body("description").bail().trim().escape(),
       body("price")
         .trim()
-        .escape()
         .isNumeric()
         .withMessage("Le prix doit être un nombre"),
     );
@@ -35,7 +34,6 @@ const offerValidationRules = (isUpdate = false) => {
       body("price")
         .optional({ checkFalsy: true })
         .trim()
-        .escape()
         .isNumeric()
         .withMessage("Le prix doit être un nombre"),
     );
