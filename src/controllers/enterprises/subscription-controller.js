@@ -5,7 +5,8 @@ exports.getAllSubscriptions = async (req, res) => {
   try {
     const subscription = await Subscription.findAll({
       attributes: {
-        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+        exclude: ["createdAt", "updatedAt", "Enterprise_id"],
+        include: ["id"],
       },
       include: {
         model: sequelize.models.Enterprise,
@@ -46,7 +47,7 @@ exports.getSubscriptionById = async (req, res) => {
     const { id } = req.params;
     const subscription = await Subscription.findByPk(id, {
       attributes: {
-        exclude: ["createdAt", "updatedAt", "Enterprise_id", "id"],
+        exclude: ["createdAt", "updatedAt", "Enterprise_id"],
       },
       include: {
         model: sequelize.models.Enterprise,
@@ -55,7 +56,6 @@ exports.getSubscriptionById = async (req, res) => {
           exclude: [
             "createdAt",
             "updatedAt",
-            "id",
             "User_id",
             "Job_id",
             "Country_id",
@@ -140,13 +140,17 @@ exports.updateSubscription = async (req, res) => {
 exports.deleteSubscription = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`Requête DELETE reçue pour l'ID : ${id}`);
     const subscription = await Subscription.findByPk(id);
     if (!subscription) {
+      console.log("Pas de subscription trouvée");
       return res.status(404).json({ errors: "Pas de subscription trouvée" });
     }
     await subscription.destroy();
-    res.status(200).json({ message: "subscription supprimée" });
+    console.log("Subscription supprimée");
+    res.status(200).json({ message: "Subscription supprimée" });
   } catch (error) {
-    res.status(500).json({ errors: error.errors });
+    console.error(`Erreur lors de la suppression de la souscription ${id}:`, error);
+    res.status(500).json({ errors: error.message });
   }
 };
