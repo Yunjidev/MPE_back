@@ -307,8 +307,10 @@ exports.updateReservation = async (req, res) => {
       return res.status(404).json({ errors: "Pas de reservation trouvée" });
     }
     const isReservationOwner = reservation.User_id === req.user.id;
+    console.log("isReservationOwner", isReservationOwner);
     const isReservationOfferOwner =
       reservation.offer.enterprise.User_id === req.user.id;
+    console.log("isReservationOfferOwner", isReservationOfferOwner);
 
     if (req.user.isAdmin) {
       reservation.status = status || reservation.status;
@@ -391,13 +393,20 @@ exports.updateReservation = async (req, res) => {
       const now = new Date();
       if (status === "accepted" || status === "rejected") {
         reservation.status = status;
-      } else if (
-        status === "done" &&
-        reservation.status === "accepted" &&
-        reservation.date > now &&
-        reservation.end_time > now
-      ) {
-        reservation.status = "done";
+      } else if (status === "done" && reservation.status === "accepted") {
+        const reservationEndDateTime = new Date(reservation.date);
+        const [hour, minute] = reservation.end_time.split(":");
+        reservationEndDateTime.setHours(
+          parseInt(hour, 10),
+          parseInt(minute, 10),
+        );
+        if (reservationEndDateTime < now) {
+          reservation.status = "done";
+        } else {
+          return res.status(400).json({
+            errors: "La date de fin de la réservation doit être dans le futur",
+          });
+        }
       } else {
         return res.status(400).json({
           errors: "Vous ne pouvez pas changer le statut de la reservation",
