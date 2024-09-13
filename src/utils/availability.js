@@ -17,8 +17,7 @@ const formatDisponibility = (disponibility) => {
   const startHour = moment(disponibility.start_hour, "HH:mm").format("HH:mm");
   const endHour = moment(disponibility.end_hour, "HH:mm").format("HH:mm");
 
-  const today = moment();
-  const firstDayOfWeek = today.clone().startOf("week");
+  const today = moment().startOf("day");
   const dayIndex = [
     "Dimanche",
     "Lundi",
@@ -28,11 +27,18 @@ const formatDisponibility = (disponibility) => {
     "Vendredi",
     "Samedi",
   ].indexOf(dayOfWeek);
+  let nextOccurence = today.clone().day(dayIndex);
+  if (nextOccurence.isBefore(today)) {
+    nextOccurence.add(1, "week");
+  }
 
   let dates = [];
   for (let i = 0; i < 4; i++) {
-    const date = firstDayOfWeek.clone().add(dayIndex + i * 7, "days");
-    if (date.isBefore(today.clone().add(1, "month").endOf("month"))) {
+    const date = nextOccurence.clone().add(i, "week");
+    if (
+      date.isSameOrAfter(today) &&
+      date.isBefore(today.clone().add(1, "month").endOf("month"))
+    ) {
       dates.push({
         date: date.format("DD/MM"),
         startHour,
@@ -42,7 +48,6 @@ const formatDisponibility = (disponibility) => {
       break;
     }
   }
-  console.log("dates", dates);
   return dates;
 };
 
@@ -51,19 +56,17 @@ const getAvailabilityDates = (
   indisponibilities,
   reservations,
 ) => {
-  // Journaux pour vérifier les entrées
-  console.log("Disponibilités :", JSON.stringify(disponibilities, null, 2));
-  console.log("Indisponibilités :", JSON.stringify(indisponibilities, null, 2));
-  console.log("Réservations :", JSON.stringify(reservations, null, 2));
-
-  // Vérification des tableaux
   if (!Array.isArray(disponibilities)) {
-    console.error("Les disponibilités ne sont pas un tableau ou sont indéfinies");
+    console.error(
+      "Les disponibilités ne sont pas un tableau ou sont indéfinies",
+    );
     return [];
   }
 
   if (!Array.isArray(indisponibilities)) {
-    console.error("Les indisponibilités ne sont pas un tableau ou sont indéfinies");
+    console.error(
+      "Les indisponibilités ne sont pas un tableau ou sont indéfinies",
+    );
     return [];
   }
 
@@ -71,17 +74,13 @@ const getAvailabilityDates = (
     console.error("Les réservations ne sont pas un tableau ou sont indéfinies");
     return [];
   }
-
-  // Transformation des disponibilités
   const availabilityDates = disponibilities.flatMap(formatDisponibility);
 
-  // Filtrage des disponibilités en fonction des indisponibilités
   const filteredAvailabilityDates = subtractIndisponibilities(
     availabilityDates,
     indisponibilities,
   );
 
-  // Filtrage des disponibilités en fonction des réservations
   const finalAvailabilityDates = subtractReservations(
     filteredAvailabilityDates,
     reservations,
