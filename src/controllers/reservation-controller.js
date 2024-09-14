@@ -307,10 +307,8 @@ exports.updateReservation = async (req, res) => {
       return res.status(404).json({ errors: "Pas de reservation trouvée" });
     }
     const isReservationOwner = reservation.User_id === req.user.id;
-    console.log("isReservationOwner", isReservationOwner);
     const isReservationOfferOwner =
       reservation.offer.enterprise.User_id === req.user.id;
-    console.log("isReservationOfferOwner", isReservationOfferOwner);
 
     if (req.user.isAdmin) {
       reservation.status = status || reservation.status;
@@ -395,8 +393,6 @@ exports.updateReservation = async (req, res) => {
       if (status === "accepted" || status === "rejected") {
         reservation.status = status;
       } else if (status === "done" && reservation.status === "accepted") {
-        console.log("reservation.date", reservation.date);
-        console.log("reservation.end_time", reservation.end_time);
         const reservationDate = new Date(reservation.date);
         const formattedDate = reservationDate.toISOString().split("T")[0];
         const reservationEndDateTime = moment.tz(
@@ -404,8 +400,6 @@ exports.updateReservation = async (req, res) => {
           "YYYY-MM-DD HH:mm",
           timezone,
         );
-        console.log("reservationEndDateTime", reservationEndDateTime);
-        console.log("now", now);
         if (reservationEndDateTime < now) {
           reservation.status = "done";
         } else {
