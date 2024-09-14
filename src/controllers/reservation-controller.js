@@ -7,7 +7,7 @@ const {
   calculateEndTime,
   getAvailabilityDates,
 } = require("../utils/availability");
-const moment = require("moment");
+const moment = require("moment-timezone");
 
 exports.getAllReservations = async (req, res) => {
   try {
@@ -389,17 +389,23 @@ exports.updateReservation = async (req, res) => {
         reservation.status = reservation.status;
       }
     }
+    const timezone = "Europe/Paris";
     if (isReservationOfferOwner) {
-      const now = new Date();
+      const now = moment.tz(timezone);
       if (status === "accepted" || status === "rejected") {
         reservation.status = status;
       } else if (status === "done" && reservation.status === "accepted") {
-        const reservationEndDateTime = new Date(reservation.date);
-        const [hour, minute] = reservation.end_time.split(":");
-        reservationEndDateTime.setHours(
-          parseInt(hour, 10),
-          parseInt(minute, 10),
+        console.log("reservation.date", reservation.date);
+        console.log("reservation.end_time", reservation.end_time);
+        const reservationDate = new Date(reservation.date);
+        const formattedDate = reservationDate.toISOString().split("T")[0];
+        const reservationEndDateTime = moment.tz(
+          `${formattedDate} ${reservation.end_time}`,
+          "YYYY-MM-DD HH:mm",
+          timezone,
         );
+        console.log("reservationEndDateTime", reservationEndDateTime);
+        console.log("now", now);
         if (reservationEndDateTime < now) {
           reservation.status = "done";
         } else {
