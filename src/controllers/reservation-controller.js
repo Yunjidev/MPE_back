@@ -7,7 +7,7 @@ const {
   calculateEndTime,
   getAvailabilityDates,
 } = require("../utils/availability");
-const moment = require("moment");
+const moment = require("moment-timezone");
 
 exports.getAllReservations = async (req, res) => {
   try {
@@ -387,17 +387,26 @@ exports.updateReservation = async (req, res) => {
         reservation.status = reservation.status;
       }
     }
+    const timezone = "Europe/Paris";
     if (isReservationOfferOwner) {
-      const now = new Date();
+      const now = moment.tz(timezone);
       if (status === "accepted" || status === "rejected") {
         reservation.status = status;
-      } else if (
-        status === "done" &&
-        reservation.status === "accepted" &&
-        reservation.date > now &&
-        reservation.end_time > now
-      ) {
-        reservation.status = "done";
+      } else if (status === "done" && reservation.status === "accepted") {
+        const reservationDate = new Date(reservation.date);
+        const formattedDate = reservationDate.toISOString().split("T")[0];
+        const reservationEndDateTime = moment.tz(
+          `${formattedDate} ${reservation.end_time}`,
+          "YYYY-MM-DD HH:mm",
+          timezone,
+        );
+        if (reservationEndDateTime < now) {
+          reservation.status = "done";
+        } else {
+          return res.status(400).json({
+            errors: "La date de fin de la réservation doit être dans le futur",
+          });
+        }
       } else {
         return res.status(400).json({
           errors: "Vous ne pouvez pas changer le statut de la reservation",

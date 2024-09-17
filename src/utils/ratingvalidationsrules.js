@@ -3,10 +3,7 @@ const { sequelize } = require("../../models/index");
 const User = sequelize.models.User;
 
 const ratingValidationRules = () => {
-  return [
-    body("note").isInt().trim().escape(),
-    body("comment").trim().escape(),
-  ];
+  return [body("note").isInt().trim().escape(), body("comment").trim()];
 };
 
 module.exports = { ratingValidationRules };

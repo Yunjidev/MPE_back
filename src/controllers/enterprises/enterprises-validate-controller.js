@@ -187,7 +187,8 @@ exports.getAllEnterprisesValidate = async (req, res) => {
     console.log('Sending response with detailed enterprises');
     res.status(200).json(enterpriseWithDetails.filter(e => e)); // Filtrer les valeurs null si nécessaire
   } catch (error) {
-    res.status(500).json({ errors: error.errors });
+    console.error(error);
+    res.status(500).json({ errors: error.message });
   }
 };
 
@@ -343,6 +344,7 @@ exports.getEnterpriseByIdValidate = async (req, res) => {
     });
     res.status(200).json(enterpriseData);
   } catch (error) {
-    res.status(500).json({ errors: error.errors });
+    console.error(error)
+    res.status(500).json({ errors: error.message });
   }
 };
