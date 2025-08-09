@@ -1,0 +1,5 @@
+**/node_modules/
+.dockerignore
+.env
+**/uploads/
+pnpm-lock.yaml

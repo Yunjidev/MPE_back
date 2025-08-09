@@ -1,0 +1,14 @@
+Objet : Bienvenue dans notre communauté !
+
+---
+
+Bienvenue, {user} !
+
+Nous sommes ravis de vous accueillir dans notre communauté. Merci de vous être inscrit(e) !
+
+Pour commencer, nous vous invitons à explorer notre site et à découvrir toutes les fonctionnalités que nous offrons.
+
+N'hésitez pas à nous contacter si vous avez des questions ou besoin d'aide.
+
+À bientôt,
+L'équipe de Ma petite entreprise
