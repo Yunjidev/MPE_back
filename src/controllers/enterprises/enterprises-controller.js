@@ -1,8 +1,10 @@
-const { sequelize } = require("../../../models/index");
-const { getIo } = require("../../io");
+const { sequelize } = require('../../../models/index');
+const { getIo } = require('../../io');
 const Enterprise = sequelize.models.Enterprise;
-const { Job, User, Country } = require("../../../models/index");
-const files = require("../../utils/files");
+const { Job, User, Country } = require('../../../models/index');
+const files = require('../../utils/files');
+const cloudinary = require('../../cloudinaryConfig');
+const fs = require('fs').promises;
 
 exports.createEnterprise = async (req, res) => {
   try {
@@ -22,32 +24,54 @@ exports.createEnterprise = async (req, res) => {
       Job_id,
       Country_id,
     } = req.body;
-    const logo =
-      req.files && req.files.logo && req.files.logo.length > 0
-        ? req.files.logo[0].path
-        : null;
-    const photos =
-      req.files && req.files.photos && req.files.photos.length > 0
-        ? req.files.photos.map((file) => file.path)
-        : [];
+
+    // Upload logo avec resize max 200x200
+    let logoUrl = null;
+    if (req.files && req.files.logo && req.files.logo.length > 0) {
+      const logoFile = req.files.logo[0];
+      const result = await cloudinary.uploader.upload(logoFile.path, {
+        folder: 'enterprises/logo',
+        transformation: [{ width: 200, height: 200, crop: 'limit' }],
+      });
+      logoUrl = result.secure_url;
+      await fs.unlink(logoFile.path);
+    }
+
+    // Upload photos avec resize max 1200x1200
+    let photosUrls = [];
+    if (req.files && req.files.photos && req.files.photos.length > 0) {
+      photosUrls = [];
+      for (const photoFile of req.files.photos) {
+        const result = await cloudinary.uploader.upload(photoFile.path, {
+          folder: 'enterprises/photos',
+          transformation: [{ width: 1200, height: 1200, crop: 'limit' }],
+        });
+        photosUrls.push(result.secure_url);
+        await fs.unlink(photoFile.path);
+      }
+    }
+
+    // Vérifications Job & Country
     const job = await Job.findByPk(Job_id);
     if (!job) {
-      return res.status(404).json({ errors: "Pas de job trouvé" });
+      return res.status(404).json({ errors: 'Pas de job trouvé' });
     }
     const country = await Country.findByPk(Country_id);
     if (!country) {
-      return res.status(404).json({ errors: "Pas de Region trouvé" });
+      return res.status(404).json({ errors: 'Pas de Region trouvé' });
     }
     if (!req.user.firstname && !req.user.lastname) {
       return res
         .status(400)
-        .json({ errors: "Veuillez renseigner votre nom et votre prénom" });
+        .json({ errors: 'Veuillez renseigner votre nom et votre prénom' });
     }
 
     if (!req.user.isEntrepreneur) {
       req.user.isEntrepreneur = true;
       await req.user.save();
     }
+
+    // Création entreprise en BDD
     const newEnterprise = await Enterprise.create({
       name,
       phone,
@@ -61,29 +85,27 @@ exports.createEnterprise = async (req, res) => {
       facebook,
       instagram,
       twitter,
-      photos,
-      logo,
+      photos: photosUrls,
+      logo: logoUrl,
       User_id: req.user.id,
       Job_id,
       Country_id,
     });
-    let enterpriseData = {
+
+    const enterpriseData = {
       id: newEnterprise.id,
       name: newEnterprise.name,
       isValidate: newEnterprise.isValidate,
+      logo: newEnterprise.logo,
+      photos: newEnterprise.photos,
     };
-    if (newEnterprise.logo) {
-      enterpriseData.logo = files.getUrl(
-        req,
-        "enterprises/logo",
-        newEnterprise.logo,
-      );
-    }
+
     res
       .status(201)
-      .json({ enterprise: enterpriseData, message: "Entreprise créée" });
+      .json({ enterprise: enterpriseData, message: 'Entreprise créée' });
   } catch (error) {
-    res.status(500).json({ errors: error.errors });
+    console.error(error);
+    res.status(500).json({ errors: error.errors || error.message });
   }
 };
 
@@ -128,9 +150,9 @@ exports.updateEnterprise = async (req, res) => {
       if (isValidate !== enterprise.isValidate) {
         const io = getIo();
         if (io) {
-          io.emit("enterpriseValidated", { id: enterprise.id, isValidate });
+          io.emit('enterpriseValidated', { id: enterprise.id, isValidate });
         } else {
-          console.log("io not defined");
+          console.log('io not defined');
         }
       }
     }
@@ -142,7 +164,7 @@ exports.updateEnterprise = async (req, res) => {
       }
 
       enterprise.logo = logo;
-    } else if (removeLogo === "true" && enterprise.logo) {
+    } else if (removeLogo === 'true' && enterprise.logo) {
       files.deleteFile(enterprise.logo);
       enterprise.logo = null;
     }
@@ -159,7 +181,7 @@ exports.updateEnterprise = async (req, res) => {
             currentPhotos + newPhotos.length - maxPhotos;
           const photosToDelete = enterprise.photos.slice(
             0,
-            photosToDeleteCount,
+            photosToDeleteCount
           );
           photosToDelete.forEach((photo) => {
             files.deleteFile(photo);
@@ -170,12 +192,12 @@ exports.updateEnterprise = async (req, res) => {
       enterprise.photos = [...enterprise.photos, ...newPhotos];
     }
     if (removePhotos) {
-      const photosToRemove = removePhotos.split(",").map(Number);
+      const photosToRemove = removePhotos.split(',').map(Number);
       const photosToDelete = photosToRemove.map(
-        (index) => enterprise.photos[index],
+        (index) => enterprise.photos[index]
       );
       enterprise.photos = enterprise.photos.filter(
-        (photo, index) => !photosToRemove.includes(index),
+        (photo, index) => !photosToRemove.includes(index)
       );
       photosToDelete.forEach((photo) => {
         if (photo) {
@@ -191,14 +213,14 @@ exports.updateEnterprise = async (req, res) => {
     if (enterprise.logo) {
       enterpriseData.logo = files.getUrl(
         req,
-        "enterprises/logo",
-        enterprise.logo,
+        'enterprises/logo',
+        enterprise.logo
       );
     }
     await enterprise.save();
     res
       .status(200)
-      .json({ enterprise: enterpriseData, message: "Entreprise modifiée" });
+      .json({ enterprise: enterpriseData, message: 'Entreprise modifiée' });
   } catch (error) {
     res.status(500).json({ errors: error.errors });
   }
@@ -208,7 +230,7 @@ exports.deleteEnterprise = async (req, res) => {
   try {
     const enterprise = req.enterprise;
     if (!enterprise) {
-      return res.status(404).json({ errors: "Pas de enterprises trouvée" });
+      return res.status(404).json({ errors: 'Pas de enterprises trouvée' });
     }
     if (enterprise.logo) {
       files.deleteFile(enterprise.logo);
@@ -227,11 +249,11 @@ exports.deleteEnterprise = async (req, res) => {
     await enterprise.destroy();
     const io = getIo();
     if (io) {
-      io.emit("enterpriseDeleted", { enterprises: enterprise.id });
+      io.emit('enterpriseDeleted', { enterprises: enterprise.id });
     } else {
-      console.log("io not defined");
+      console.log('io not defined');
     }
-    res.status(200).json({ message: "enterprises supprimée" });
+    res.status(200).json({ message: 'enterprises supprimée' });
   } catch (error) {
     res.status(500).json({ errors: error.errors });
   }
