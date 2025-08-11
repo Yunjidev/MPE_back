@@ -1,12 +1,15 @@
-const { sequelize } = require("../../../models/index");
+const { sequelize } = require('../../../models/index');
 const User = sequelize.models.User;
-const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
-const { generateAccessToken, generateRefreshToken } = require("../../../config/jwt");
-const jwt = require("jsonwebtoken");
-const { Op } = require("sequelize");
-const sendEmail = require("../../mailers/email-service");
-const files = require("../../utils/files");
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const {
+  generateAccessToken,
+  generateRefreshToken,
+} = require('../../../config/jwt');
+const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
+const sendEmail = require('../../mailers/email-service');
+const files = require('../../utils/files');
 
 // Fonction pour enrigistrer un nouvel utilisateur
 exports.signup = async (req, res) => {
@@ -16,7 +19,9 @@ exports.signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const existingUser = await User.findOne({ where: { username } });
     if (existingUser) {
-      return res.status(400).json({ errors: "Le nom d'utilisateur existe déjà" });
+      return res
+        .status(400)
+        .json({ errors: "Le nom d'utilisateur existe déjà" });
     }
     const existingEmail = await User.findOne({ where: { email } });
     if (existingEmail) {
@@ -30,7 +35,7 @@ exports.signup = async (req, res) => {
     });
     const accessToken = generateAccessToken(user.id);
     const refreshToken = generateRefreshToken(user.id);
-    sendEmail(email, "Bienvenue à ma Petite Entreprise", "welcome", {
+    sendEmail(email, 'Bienvenue à ma Petite Entreprise', 'welcome', {
       user: username,
       url: `${process.env.CLIENT_URL}`,
     });
@@ -43,17 +48,17 @@ exports.signup = async (req, res) => {
       avatar: user.avatar,
     };
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "users/avatar", user.avatar);
+      const avatarUrl = files.getUrl(req, 'users/avatar', user.avatar);
       userData.avatar = avatarUrl;
     }
-    res.setHeader("Authorization", `${accessToken}`);
+    res.setHeader('Authorization', `${accessToken}`);
     res.status(201).json({
       user: userData,
       refreshToken,
-      message: "Utilisateur créé et connecté !",
+      message: 'Utilisateur créé et connecté !',
     });
   } catch (error) {
-    console.error("❌ ERREUR DANS /signup :", error);
+    console.error('❌ ERREUR DANS /signup :', error);
     res.status(500).json({ errors: error.message });
   }
 };
@@ -61,8 +66,8 @@ exports.signup = async (req, res) => {
 // Fonction pour se connecter
 exports.login = async (req, res) => {
   try {
-    console.log("📩 /signin hit !");
-    console.log("📬 req.body reçu :", req.body);
+    console.log('📩 /signin hit !');
+    console.log('📬 req.body reçu :', req.body);
 
     const { identifier, password } = req.body;
     const user = await User.findOne({
@@ -76,7 +81,7 @@ exports.login = async (req, res) => {
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ errors: "Mot de passe non valide" });
+      return res.status(401).json({ errors: 'Mot de passe non valide' });
     }
 
     const enterprises = await user.getEnterprises();
@@ -87,7 +92,7 @@ exports.login = async (req, res) => {
         isValidate: enterprise.isValidate,
       };
       if (enterprise.logo) {
-        const logoUrl = files.getUrl(req, "enterprises/logo", enterprise.logo);
+        const logoUrl = files.getUrl(req, 'enterprises/logo', enterprise.logo);
         filteredEnterprise.logo = logoUrl;
       }
       return filteredEnterprise;
@@ -104,22 +109,23 @@ exports.login = async (req, res) => {
       avatar: user.avatar,
     };
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "users/avatar", user.avatar);
+      const avatarUrl = files.getUrl(req, 'users/avatar', user.avatar);
       userData.avatar = avatarUrl;
     }
 
     const accessToken = generateAccessToken(user.id);
     const refreshToken = generateRefreshToken(user.id);
 
-    res.setHeader("Authorization", `${accessToken}`);
+    res.setHeader('Authorization', `${accessToken}`);
     res.status(200).json({
       user: userData,
       enterprises: enterprisesData,
       refreshToken,
-      message: "Utilisateur connecté !",
+      accessToken,
+      message: 'Utilisateur connecté !',
     });
   } catch (error) {
-    console.error("❌ ERREUR DANS /signin :", error);
+    console.error('❌ ERREUR DANS /signin :', error);
     res.status(500).json({ errors: error.message });
   }
 };
@@ -127,7 +133,7 @@ exports.login = async (req, res) => {
 // Fonction pour la deconnexion
 exports.logout = async (req, res) => {
   try {
-    res.status(200).json({ message: "Utilisateur déconnecté !" });
+    res.status(200).json({ message: 'Utilisateur déconnecté !' });
   } catch (err) {
     res.status(500).json({ errors: err.errors });
   }
@@ -171,7 +177,7 @@ exports.updateUser = async (req, res) => {
         files.deleteFile(user.avatar);
       }
       user.avatar = avatar;
-    } else if (removeAvatar === "true" && user.avatar) {
+    } else if (removeAvatar === 'true' && user.avatar) {
       files.deleteFile(user.avatar);
       user.avatar = null;
     }
@@ -187,12 +193,12 @@ exports.updateUser = async (req, res) => {
     };
     await user.save();
     if (user.avatar) {
-      const avatarUrl = files.getUrl(req, "users/avatar", user.avatar);
+      const avatarUrl = files.getUrl(req, 'users/avatar', user.avatar);
       userData.avatar = avatarUrl;
     }
     res
       .status(200)
-      .json({ user: userData, message: "Utilisateur mis à jour !" });
+      .json({ user: userData, message: 'Utilisateur mis à jour !' });
   } catch (error) {
     res.status(500).json({ errors: error.errors });
   }
@@ -206,7 +212,7 @@ exports.deleteUser = async (req, res) => {
     }
 
     await req.user.destroy();
-    res.status(200).json({ message: "Utilisateur supprimé" });
+    res.status(200).json({ message: 'Utilisateur supprimé' });
   } catch (error) {
     res.status(500).json({ errors: error.errors });
   }
@@ -221,18 +227,18 @@ exports.forgotPassword = async (req, res) => {
       return res.status(404).json({ errors: "Pas d'utilisateur trouvé" });
     }
 
-    const resetToken = crypto.randomBytes(20).toString("hex");
+    const resetToken = crypto.randomBytes(20).toString('hex');
     const resetExpires = Date.now() + 3600000;
 
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = resetExpires;
     await user.save();
 
-    sendEmail(email, "Re-initialiser votre mot de passe", "resetpassword", {
+    sendEmail(email, 'Re-initialiser votre mot de passe', 'resetpassword', {
       user: user.username,
       url: `${process.env.REACT_URL}/${resetToken}`,
     });
-    res.status(200).json({ message: "Email de re-initialisation envoyé" });
+    res.status(200).json({ message: 'Email de re-initialisation envoyé' });
   } catch (error) {
     res.status(500).json({ errors: error.errors });
   }
@@ -258,7 +264,7 @@ exports.resetPassword = async (req, res) => {
     user.resetPasswordExpires = null;
     await user.save();
 
-    res.status(200).json({ message: "Mot de passe modifié" });
+    res.status(200).json({ message: 'Mot de passe modifié' });
   } catch (error) {
     res.status(500).json({ errors: error.errors });
   }
@@ -268,34 +274,34 @@ exports.resetPassword = async (req, res) => {
 exports.refreshToken = async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) {
-    return res.status(401).json({ message: "Refresh Token non renseigné" });
+    return res.status(401).json({ message: 'Refresh Token non renseigné' });
   }
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const user = await User.findByPk(decoded.User_id);
     if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
     const accessToken = generateAccessToken(user.id);
-    res.setHeader("Authorization", `${accessToken}`);
-    res.status(200).json({ message: "Token refresh" });
+    res.setHeader('Authorization', `${accessToken}`);
+    res.status(200).json({ message: 'Token refresh' });
   } catch (error) {
-    return res.status(401).json({ message: "Token Invalide" });
+    return res.status(401).json({ message: 'Token Invalide' });
   }
 };
 
 exports.validateRefreshToken = async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) {
-    return res.status(401).json({ message: "Refresh Token non renseigné" });
+    return res.status(401).json({ message: 'Refresh Token non renseigné' });
   }
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const user = await User.findByPk(decoded.User_id);
     const accessToken = generateAccessToken(user.id);
-    res.setHeader("Authorization", `${accessToken}`);
-    res.status(200).json({ refreshToken, message: "Token refresh" });
+    res.setHeader('Authorization', `${accessToken}`);
+    res.status(200).json({ refreshToken, message: 'Token refresh' });
   } catch (error) {
-    return res.status(401).json({ errors: "Token Invalide" });
+    return res.status(401).json({ errors: 'Token Invalide' });
   }
 };
